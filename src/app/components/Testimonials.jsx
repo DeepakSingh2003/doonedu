@@ -8,19 +8,19 @@ import "swiper/css/pagination";
 const testimonials = [
   {
     id: 1,
-    text: "I was looking for International schools for Class 5 in Delhi. Ezyschooling helped me find and apply to the right schools.",
+    text: "I was looking for International schools for Class 5 in Delhi. Global Edu.Consulting helped me find and apply to the right schools.",
     name: "Mr. Hemant",
     img: "https://ezyschooling.com/_next/image?url=%2Fimages%2Fhomepage%2Fhemant1.webp&w=256&q=80",
   },
   {
     id: 2,
-    text: "I got my child's admission done via Ezyschooling. Ezyschooling helped me with all the admission process and made applying easy.",
+    text: "I got my child's admission done via Global Edu.Consulting. Global Edu.Consulting helped me with all the admission process and made applying easy.",
     name: "Ms. Isha",
     img: "https://ezyschooling.com/_next/image?url=%2Fimages%2Fhomepage%2Fisha1.webp&w=256&q=80",
   },
   {
     id: 3,
-    text: "I found Ezyschooling when I was surfing the net to find schools for my child in grade 2. At Ezyschooling I found all the details and made my admission journey easy.",
+    text: "I found Global Edu.Consulting when I was surfing the net to find schools for my child in grade 2. At Global Edu.Consulting I found all the details and made my admission journey easy.",
     name: "Mr. Sudipta",
     img: "https://ezyschooling.com/_next/image?url=%2Fimages%2Fhomepage%2Fsudipta1.webp&w=256&q=80",
   },

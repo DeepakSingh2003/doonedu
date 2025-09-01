@@ -1,15 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function SubNavbar() {
-  const [active, setActive] = useState("Home");
   const [show, setShow] = useState(true); // visible on page load
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
 
-  const linksLeft = ["Home", "Explore Schools"];
-  const linksRight = ["Smart Search", "Ask a Question"];
+  const pathname = usePathname();
+
+  // Define your links with their paths
+  const linksLeft = [
+    { name: "Home", href: "/" },
+    { name: "Explore Schools", href: "/exploreschools" },
+  ];
+
+  const linksRight = [
+    { name: "Smart Search", href: "/smart-search" },
+    { name: "Ask a Question", href: "/ask-question" },
+  ];
 
   // Detect desktop view
   useEffect(() => {
@@ -53,38 +64,44 @@ export default function SubNavbar() {
       <div className="max-w-7xl mx-auto flex justify-between px-6 py-2">
         {/* Left Links */}
         <div className="flex space-x-6">
-          {linksLeft.map((link) => (
-            <button
-              key={link}
-              onClick={() => setActive(link)}
-              className={`py-2 text-sm font-medium relative ${
-                active === link ? "text-black" : "text-gray-700"
-              }`}
-            >
-              {link}
-              {active === link && (
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500"></span>
-              )}
-            </button>
-          ))}
+          {linksLeft.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                className={`py-2 text-sm font-medium relative ${
+                  isActive ? "text-black" : "text-gray-700"
+                }`}
+              >
+                {link.name}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500"></span>
+                )}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Right Links */}
         <div className="flex space-x-6">
-          {linksRight.map((link) => (
-            <button
-              key={link}
-              onClick={() => setActive(link)}
-              className={`py-2 text-sm font-medium relative ${
-                active === link ? "text-black" : "text-gray-700"
-              }`}
-            >
-              {link}
-              {active === link && (
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500"></span>
-              )}
-            </button>
-          ))}
+          {linksRight.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                className={`py-2 text-sm font-medium relative ${
+                  isActive ? "text-black" : "text-gray-700"
+                }`}
+              >
+                {link.name}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500"></span>
+                )}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

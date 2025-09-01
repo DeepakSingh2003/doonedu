@@ -514,7 +514,7 @@ export default function Footer() {
         <div className="border-t border-slate-700/50 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <div className="text-slate-400 text-[10px] text-center md:text-left">
-              Copyright © 2025 Ezyschooling. All rights reserved.
+              Copyright © 2025 Global Edu.Consulting. All rights reserved.
             </div>
             <div className="relative w-[200px] sm:w-[280px] aspect-[377/18]">
               <Image

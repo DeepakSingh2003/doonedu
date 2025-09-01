@@ -33,3 +33,38 @@
 .animate-pulse-circle {
   animation: pulse-circle 1.5s infinite;
 }
+/* Custom slim scrollbar */
+aside::-webkit-scrollbar {
+  width: 6px; /* thin */
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3); /* soft gray/black */
+  border-radius: 10px;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5); /* darker on hover */
+}
+
+aside::-webkit-scrollbar-track {
+  background: transparent; /* clean background */
+}
+
+/* For Firefox */
+aside {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+@keyframes hang {
+  0%   { transform: rotate(5deg); }
+  50%  { transform: rotate(-5deg); }
+  100% { transform: rotate(5deg); }
+}
+
+.animate-hang {
+  animation: hang 2s ease-in-out infinite;
+  transform-origin: top center; /* pivot point at the top */
+}
+
+
