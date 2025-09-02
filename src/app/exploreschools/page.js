@@ -3,6 +3,7 @@ import { FaEye } from "react-icons/fa";
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Heart, Phone, Filter, X } from "lucide-react";
 import { schoolsData } from "./data"; // ✅ Import school data
+import Link from "next/link"; // ✅ Import Next.js Link
 
 export default function Page() {
   const [filters, setFilters] = useState({
@@ -13,6 +14,8 @@ export default function Page() {
     school: [], // Private / Government
   });
 
+  const [sortBy, setSortBy] = useState(""); // State for sorting
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false); // State for sort dropdown
   const [accordion, setAccordion] = useState({
     fees: true,
     board: false,
@@ -48,6 +51,11 @@ export default function Page() {
     );
   };
 
+  const handleSort = (sortType) => {
+    setSortBy(sortType);
+    setSortDropdownOpen(false);
+  };
+
   const filteredSchools = schoolsData.filter((school) => {
     if (filters.fees.length > 0 && !filters.fees.includes(school.feesRange))
       return false;
@@ -78,6 +86,26 @@ export default function Page() {
     )
       return false;
     return true;
+  });
+
+  // Sort schools based on selected option
+  const sortedSchools = [...filteredSchools].sort((a, b) => {
+    if (sortBy === "fee-high-to-low") {
+      return (
+        parseFloat(b.fees.replace(/,/g, "")) -
+        parseFloat(a.fees.replace(/,/g, ""))
+      );
+    }
+    if (sortBy === "fee-low-to-high") {
+      return (
+        parseFloat(a.fees.replace(/,/g, "")) -
+        parseFloat(b.fees.replace(/,/g, ""))
+      );
+    }
+    if (sortBy === "rating-high-to-low") {
+      return parseFloat(b.rating) - parseFloat(a.rating);
+    }
+    return 0;
   });
 
   // ✅ Sidebar filter content extracted for reuse
@@ -361,14 +389,63 @@ export default function Page() {
           </div>
         </div>
 
+        {/* Sort By Filter */}
+        <div className="flex justify-end items-center bg-white p-4">
+          <div className="relative">
+            <button
+              onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              {sortBy === "fee-high-to-low"
+                ? "Fee - high to low"
+                : sortBy === "fee-low-to-high"
+                ? "Fee - low to high"
+                : sortBy === "rating-high-to-low"
+                ? "Rating - high to low"
+                : "Sort By"}
+              <ChevronDown
+                size={16}
+                className={`transition-transform ${
+                  sortDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {sortDropdownOpen && (
+              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                <div className="py-1">
+                  <button
+                    onClick={() => handleSort("fee-high-to-low")}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Fee - high to low
+                  </button>
+                  <button
+                    onClick={() => handleSort("fee-low-to-high")}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Fee - low to high
+                  </button>
+                  <button
+                    onClick={() => handleSort("rating-high-to-low")}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Rating - high to low
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* School Cards */}
-        {filteredSchools.length > 0 ? (
-          filteredSchools.map((school) => (
+        {sortedSchools.length > 0 ? (
+          sortedSchools.map((school) => (
             <div
               key={school.id}
               className="relative bg-white rounded-xl shadow-xl hover:shadow-2xl transition p-5 flex flex-col md:flex-row gap-5"
             >
-              {/* Wishlist - Fixed for mobile */}
+              {/* Wishlist */}
               <button
                 onClick={() => toggleWishlist(school.id)}
                 className="absolute top-3 right-3 z-10 bg-white p-1 rounded-full shadow-md"
@@ -383,7 +460,7 @@ export default function Page() {
                 />
               </button>
 
-              {/* Admission Ribbon - Fixed for mobile */}
+              {/* Admission Ribbon */}
               {school.isAdmissionOpen && (
                 <img
                   src="https://www.edustoke.com/search-new/search-page-images/icons/admission-open.svg"
@@ -392,8 +469,11 @@ export default function Page() {
                 />
               )}
 
-              {/* Image - Fixed for mobile */}
-              <div className="w-full md:w-56 flex-shrink-0 mx-auto">
+              {/* Image - Wrapped in Link */}
+              <Link
+                href={`/exploreschools/${school.id}`}
+                className="w-full md:w-56 flex-shrink-0 mx-auto"
+              >
                 <div className="h-40 rounded-lg overflow-hidden">
                   <img
                     src={school.image}
@@ -405,7 +485,7 @@ export default function Page() {
                   <FaEye className="text-xs" />
                   <span>{school.views}</span>
                 </div>
-              </div>
+              </Link>
 
               {/* Content */}
               <div className="flex-1 flex flex-col">
@@ -463,19 +543,25 @@ export default function Page() {
                   )}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2 md:gap-3">
-                  <button className="px-3 py-1.5 border border-red-600 text-red-600 text-xs rounded-lg hover:bg-red-600 hover:text-white transition">
+                  <Link
+                    href={`/exploreschools/${school.id}`}
+                    className="px-3 py-1.5 border border-red-600 text-red-600 text-xs rounded-lg hover:bg-red-600 hover:text-white transition"
+                  >
                     View School
-                  </button>
-                  <button className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition">
+                  </Link>
+                  <Link
+                    href={`/exploreschools/${school.id}`}
+                    className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition"
+                  >
                     Apply Now
-                  </button>
-                  <a
+                  </Link>
+                  <Link
                     href={`tel:${school.phone || ""}`}
                     className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 transition"
                   >
                     <Phone size={12} />
                     Call Now
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
