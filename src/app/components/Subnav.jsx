@@ -18,8 +18,8 @@ export default function SubNavbar() {
   ];
 
   const linksRight = [
-    { name: "Smart Search", href: "/smart-search" },
-    { name: "Ask a Question", href: "/ask-question" },
+    { name: "Blog", href: "/Blog" },
+    { name: "Ask a Question", href: "/Askquestion" },
   ];
 
   // Detect desktop view

@@ -13,10 +13,12 @@ export const schoolsData = [
     type: "Boarding School",
     managementType: "Private",
     board: "ICSE, ISC, IGCSE, IB DP",
-    gender: "Boys School",
+    gender: "boys", // Changed from "Boys School"
     grade: "Class 7 to Class 12",
     feesRange: "Above 10 Lac",
     isAdmissionOpen: true,
+    isVerified: true,
+    verificationBadge: "Premium Verified",
     comment:
       "Established in 1935, The Doon School is a premier all-boys boarding school in Dehradun. The school follows the ICSE, IB, IGCSE, and Doon School curriculum.",
     about:
@@ -162,10 +164,12 @@ export const schoolsData = [
     type: "Boarding School",
     managementType: "Private",
     board: "ICSE, ISC",
-    gender: "Girls School",
+    gender: "girls", // Changed from "Girls School"
     grade: "Class 6 to Class 12",
     feesRange: "Above 7 Lac And Under 10 Lac",
     isAdmissionOpen: false,
+    isVerified: true,
+    verificationBadge: "Premium Verified",
     comment:
       "Welham Girls' School is located on the Municipal Road, Dehradun, India. This all-girls premier boarding school was founded in 1957 by H. S. Oliphant.",
     about:
@@ -309,10 +313,12 @@ export const schoolsData = [
     type: "Boarding School",
     managementType: "Private",
     board: "ICSE, ISC",
-    gender: "Co-ed",
+    gender: "co-ed", // Already correct
     grade: "Class 6 to Class 12",
     feesRange: "Above 5 Lac And Under 7 Lac",
     isAdmissionOpen: true,
+    isVerified: true,
+    verificationBadge: "Standard Verified",
     comment:
       "Rishi Valley School is located in a serene valley in Andhra Pradesh. Founded by Jiddu Krishnamurti, it offers a holistic education.",
     about:
@@ -435,10 +441,12 @@ export const schoolsData = [
     type: "Boarding School",
     managementType: "Private",
     board: "CBSE",
-    gender: "Boys School",
+    gender: "boys", // Changed from "Boys School"
     grade: "Class 4 to Class 12",
     feesRange: "Above 7 Lac And Under 10 Lac",
     isAdmissionOpen: false,
+    isVerified: true,
+    verificationBadge: "Premium Verified",
     comment:
       "Mayo College, established in 1875, is one of the oldest and most prestigious boarding schools for boys in India.",
     about:
@@ -575,10 +583,11 @@ export const schoolsData = [
     type: "Day School",
     managementType: "Government",
     board: "CBSE",
-    gender: "Co-ed",
+    gender: "co-ed", // Already correct
     grade: "Class 1 to Class 12",
     feesRange: "Under 1 Lac",
     isAdmissionOpen: true,
+    isVerified: false,
     comment:
       "Kendriya Vidyalayas are a system of central government schools under the Ministry of Education, India.",
     about:
@@ -709,10 +718,12 @@ export const schoolsData = [
     type: "Boarding School",
     managementType: "Government",
     board: "CBSE",
-    gender: "Co-ed",
+    gender: "co-ed", // Already correct
     grade: "Class 6 to Class 12",
     feesRange: "Under 1 Lac",
     isAdmissionOpen: false,
+    isVerified: true,
+    verificationBadge: "Government Verified",
     comment:
       "Jawahar Navodaya Vidyalayas are co-educational residential schools fully financed by the Government of India.",
     about:
@@ -797,7 +808,7 @@ export const schoolsData = [
         parentName: "Neha Singh",
         rating: 4,
         comment:
-          "Good facilities and supportive environment for my child’s growth.",
+          "Good facilities and supportive environment for my child's growth.",
         verified: true,
         date: "2023-10-12",
       },

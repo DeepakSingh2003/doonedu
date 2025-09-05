@@ -50,7 +50,8 @@ export default function HeroSection() {
       <section
         className="relative bg-cover bg-no-repeat bg-center text-center py-6 w-full flex items-center justify-center h-[12rem] mt-0 sm:mt-[53px]"
         style={{
-          backgroundImage: "url('hero-1300-min.avif')",
+          backgroundImage:
+            "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://res.cloudinary.com/dnq8fbcxh/image/upload/v1756989507/welcome-back-to-school-banner-background-school-supplies-on-blue-background-vector_bhxhzg.jpg')",
         }}
       >
         <div className="relative z-10 w-[580px] mx-auto px-4">
@@ -73,14 +74,6 @@ export default function HeroSection() {
               placeholder={currentText || "Search School by Name..."}
               readOnly
             />
-            <button className="relative px-3 text-gray-500 flex items-center justify-center">
-              <span className="absolute w-10 h-10 rounded-full border-2 border-blue-400 animate-pulse-circle"></span>
-              <span className="absolute w-14 h-14 rounded-full border-2 border-blue-200 animate-pulse-circle delay-150"></span>
-              <FaMicrophone
-                size={18}
-                className="relative z-10 text-[#1978cd]"
-              />
-            </button>
             <button className="px-4 text-[#1978cd] flex items-center justify-center">
               <FaSearch size={18} />
             </button>
@@ -134,16 +127,6 @@ export default function HeroSection() {
                   <MdClear size={20} />
                 </button>
               )}
-
-              {/* Mic with circular pulse animation */}
-              <button className="relative px-3 text-gray-500 flex items-center justify-center">
-                <span className="absolute w-10 h-10 rounded-full border-2 border-blue-400 animate-pulse-circle"></span>
-                <span className="absolute w-14 h-14 rounded-full border-2 border-blue-200 animate-pulse-circle delay-150"></span>
-                <FaMicrophone
-                  size={18}
-                  className="relative z-10 text-blue-600"
-                />
-              </button>
 
               {/* Search Button */}
               <button className="px-4 text-[#1978cd] h-full flex items-center justify-center">

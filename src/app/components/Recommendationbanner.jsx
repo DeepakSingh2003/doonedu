@@ -1,6 +1,7 @@
 "use client";
 import { FaTrophy, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function DiscoverSchools() {
   return (
@@ -54,9 +55,11 @@ export default function DiscoverSchools() {
           </ul>
 
           {/* CTA Button */}
-          <button className="mt-5 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 sm:py-3 rounded-md text-sm sm:text-base transition">
-            Get School List
-          </button>
+          <Link href="/exploreschools" className="mt-5 w-full">
+            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 sm:py-3 rounded-md text-sm sm:text-base transition cursor-pointer mt-5">
+              Get School List
+            </button>
+          </Link>
         </div>
       </div>
     </section>

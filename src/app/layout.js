@@ -4,6 +4,10 @@ import BottomNav from "./components/BottomNav";
 import Navbar from "./components/Navbar";
 import SubNavbar from "./components/Subnav";
 import Footer from "./components/footer";
+import { ModalProvider } from "./contexts/ModalContext";
+import { CityProvider } from "./contexts/CityContext";
+import { LoginProvider } from "./contexts/LoginContext";
+import { WishlistProvider } from "./contexts/WishlistContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +22,7 @@ const geistMono = Geist_Mono({
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"], // you can add/remove weights as needed
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata = {
@@ -34,13 +38,21 @@ export default function RootLayout({ children }) {
         style={{ fontFamily: "var(--font-poppins), sans-serif" }}
         cz-shortcut-listen="true"
       >
-        <Navbar />
-        <div className="pt-14 sm:pt-16">
-          <SubNavbar />
-        </div>
-        {children}
-        <Footer />
-        <BottomNav />
+        <ModalProvider>
+          <WishlistProvider>
+            <CityProvider>
+              <LoginProvider>
+                <Navbar />
+                <div className="pt-14 sm:pt-16">
+                  <SubNavbar />
+                </div>
+                {children}
+                <Footer />
+                <BottomNav />
+              </LoginProvider>
+            </CityProvider>
+          </WishlistProvider>
+        </ModalProvider>
       </body>
     </html>
   );

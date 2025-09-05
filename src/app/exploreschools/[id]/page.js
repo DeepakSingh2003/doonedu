@@ -1,15 +1,13 @@
 "use client";
+
 import { useState } from "react";
 import { schoolsData } from "../data";
 import { useParams, useRouter } from "next/navigation";
-
-// Import icons from react-icons for better visual appeal
 import {
   FaSchool,
   FaMapMarkerAlt,
   FaClock,
   FaHome,
-  FaPhone,
   FaEnvelope,
   FaGlobe,
   FaInfoCircle,
@@ -30,17 +28,36 @@ import {
   FaUserCheck,
   FaChevronDown,
   FaChevronUp,
-  FaExternalLinkAlt,
   FaUniversity,
   FaBus,
   FaTrain,
   FaPlaneDeparture,
-  FaTimes,
+  FaVenus,
+  FaMars,
+  FaVenusMars,
+  FaTableTennis,
+  FaBasketballBall,
+  FaVolleyballBall,
+  FaChess,
+  FaSwimmer,
+  FaRunning,
+  FaMusic,
+  FaBuilding,
+  FaTools,
+  FaFileAlt,
+  FaHandsHelping,
 } from "react-icons/fa";
+import { Phone, Heart } from "lucide-react";
+import { useModal } from "../../contexts/ModalContext";
+import { useWishlist } from "../../contexts/WishlistContext";
+import ApplyModal from "../../components/ApplyModal";
 
 export default function SchoolPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { openModal } = useModal();
+  const { wishlist, addToWishlist, removeFromWishlist, isWishlisted } =
+    useWishlist();
   const school = schoolsData.find((s) => String(s.id) === id);
   const [activeTab, setActiveTab] = useState("summary");
   const [reviewForm, setReviewForm] = useState({
@@ -53,9 +70,19 @@ export default function SchoolPage() {
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
 
+  const toggleWishlist = (school, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isWishlisted(school.id)) {
+      removeFromWishlist(school.id);
+    } else {
+      addToWishlist(school);
+    }
+  };
+
   if (!school) {
     return (
-      <div className="p-6 text-center text-red-500 font-semibold">
+      <div className="p-6 text-center text-red-500 font-semibold text-base sm:text-lg">
         ❌ School not found
       </div>
     );
@@ -67,7 +94,8 @@ export default function SchoolPage() {
     setReviewForm({ rating: 0, review: "", parentName: "" });
   };
 
-  const toggleFaq = (index) => {
+  const toggleFaq = (index, e) => {
+    e.stopPropagation();
     setExpandedFaq(expandedFaq === index ? null : index);
   };
 
@@ -89,7 +117,8 @@ export default function SchoolPage() {
     setShowGalleryModal(false);
   };
 
-  const navigateGallery = (direction) => {
+  const navigateGallery = (direction, e) => {
+    e.stopPropagation();
     if (direction === "next") {
       setCurrentGalleryIndex(
         (prevIndex) => (prevIndex + 1) % filteredGallery.length
@@ -101,14 +130,69 @@ export default function SchoolPage() {
     }
   };
 
-  const handleSimilarSchoolClick = (schoolId) => {
+  const handleSimilarSchoolClick = (schoolId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
     router.push(`/schools/${schoolId}`);
   };
 
-  // Placeholder for zoom functionality
-  const handleZoom = () => {
-    console.log("Zoom functionality placeholder");
-    // Add zoom logic here, e.g., using react-zoom-pan-pinch
+  const handleApplyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openModal(<ApplyModal schoolId={school.id} schoolName={school.name} />);
+  };
+
+  const handleCallNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.location.href = `tel:${school.phone || ""}`;
+  };
+
+  const getGalleryImageUrl = (index) => {
+    if (!school.gallery || school.gallery.length === 0)
+      return "/placeholder.jpg";
+
+    const item = school.gallery[index];
+    if (typeof item === "string") return item;
+    if (item && item.url) return item.url;
+    return "/placeholder.jpg";
+  };
+
+  const GenderIcon = () => {
+    switch (school.gender.toLowerCase()) {
+      case "boys":
+        return <FaMars className="h-4 w-4 mr-1 text-blue-500" />;
+      case "girls":
+        return <FaVenus className="h-4 w-4 mr-1 text-pink-500" />;
+      case "co-ed":
+        return <FaVenusMars className="h-4 w-4 mr-1 text-purple-500" />;
+      default:
+        return <FaUsers className="h-4 w-4 mr-1" />;
+    }
+  };
+
+  const getActivityIcon = (activity) => {
+    const activityLower = activity.toLowerCase();
+    switch (activityLower) {
+      case "cricket":
+        return <FaFutbol className="h-4 w-4 mr-1 text-green-500" />;
+      case "basketball":
+        return <FaBasketballBall className="h-4 w-4 mr-1 text-orange-500" />;
+      case "table tennis":
+        return <FaTableTennis className="h-4 w-4 mr-1 text-blue-500" />;
+      case "volleyball":
+        return <FaVolleyballBall className="h-4 w-4 mr-1 text-yellow-500" />;
+      case "chess":
+        return <FaChess className="h-4 w-4 mr-1 text-purple-500" />;
+      case "swimming":
+        return <FaSwimmer className="h-4 w-4 mr-1 text-blue-600" />;
+      case "athletics":
+        return <FaRunning className="h-4 w-4 mr-1 text-red-500" />;
+      case "music":
+        return <FaMusic className="h-4 w-4 mr-1 text-pink-500" />;
+      default:
+        return <FaGamepad className="h-4 w-4 mr-1 text-gray-500" />;
+    }
   };
 
   return (
@@ -116,39 +200,33 @@ export default function SchoolPage() {
       {showGalleryModal && (
         <div
           className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center"
-          onClick={closeGalleryModal} // Close when clicking on backdrop
+          onClick={closeGalleryModal}
         >
-          {/* Top Toolbar */}
-          <div className="absolute top-4 left-4 text-white text-sm sm:text-base">
+          <div className="absolute top-4 left-4 text-white text-xs sm:text-sm">
             {currentGalleryIndex + 1} / {filteredGallery.length}
           </div>
           <button
             onClick={(e) => {
-              e.stopPropagation(); // Prevent event from bubbling to backdrop
+              e.stopPropagation();
               closeGalleryModal();
             }}
-            className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl z-10"
+            className="absolute top-4 right-4 text-white hover:text-gray-300 text-xl sm:text-2xl z-10 cursor-pointer"
             aria-label="Close gallery"
           >
             ✕
           </button>
 
-          {/* Main Image - Prevent clicks on image from closing modal */}
           <div
             className="flex-1 flex items-center justify-center w-full px-4 relative"
-            onClick={(e) => e.stopPropagation()} // Prevent backdrop close when clicking on image
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Prev Button */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                navigateGallery("prev");
-              }}
-              className="absolute left-4 sm:left-6 bg-black bg-opacity-40 p-2 rounded-full hover:bg-opacity-60 transition z-10"
+              onClick={(e) => navigateGallery("prev", e)}
+              className="absolute left-4 sm:left-6 bg-black bg-opacity-40 p-2 rounded-full hover:bg-opacity-60 transition z-10 cursor-pointer"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-white"
+                className="h-5 sm:h-6 w-6 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -170,21 +248,17 @@ export default function SchoolPage() {
               />
             ) : (
               <div className="h-[70vh] w-full bg-gray-900 flex items-center justify-center rounded-lg">
-                <span className="text-6xl text-white">🎥</span>
+                <span className="text-4xl sm:text-6xl text-white">🎥</span>
               </div>
             )}
 
-            {/* Next Button */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                navigateGallery("next");
-              }}
-              className="absolute right-4 sm:right-6 bg-black bg-opacity-40 p-2 rounded-full hover:bg-opacity-60 transition z-10"
+              onClick={(e) => navigateGallery("next", e)}
+              className="absolute right-4 sm:right-6 bg-black bg-opacity-40 p-2 rounded-full hover:bg-opacity-60 transition z-10 cursor-pointer"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-white"
+                className="h-5 w-5 sm:h-6 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -199,23 +273,21 @@ export default function SchoolPage() {
             </button>
           </div>
 
-          {/* Caption */}
           <div
-            className="text-center text-white text-sm mt-3"
-            onClick={(e) => e.stopPropagation()} // Prevent backdrop close
+            className="text-center text-white text-xs sm:text-sm mt-3"
+            onClick={(e) => e.stopPropagation()}
           >
             {filteredGallery[currentGalleryIndex]?.caption || "Cover Pic"}
           </div>
 
-          {/* Thumbnail Row */}
           {filteredGallery.length > 1 && (
             <div
               className="mt-3 flex gap-2 overflow-x-auto px-4 pb-4"
-              onClick={(e) => e.stopPropagation()} // Prevent backdrop close
+              onClick={(e) => e.stopPropagation()}
             >
               {filteredGallery.map((item, index) => (
                 <div
-                  key={item.id}
+                  key={item.id || index}
                   className={`w-20 h-16 cursor-pointer border-2 rounded overflow-hidden ${
                     index === currentGalleryIndex
                       ? "border-red-500"
@@ -234,7 +306,7 @@ export default function SchoolPage() {
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-xl">🎥</span>
+                      <span className="text-lg sm:text-xl">🎥</span>
                     </div>
                   )}
                 </div>
@@ -245,24 +317,32 @@ export default function SchoolPage() {
       )}
 
       {/* HERO SECTION */}
-      <div className="relative mt-0 sm:mt-12">
-        <img
-          src={school.image}
-          alt={school.name}
-          className="w-full h-72 object-cover"
-        />
-
-        <div className="absolute top-4 right-4 flex gap-2">
-          <a
-            href="#"
-            className="text-white text-sm bg-blue-600/80 px-3 py-2 rounded-full hover:bg-blue-700 flex items-center gap-1"
-          >
-            <FaMapMarkerAlt className="h-4 w-4" />
-            View on map
-          </a>
+      <div className="relative mt-2 sm:mt-14 px-4 sm:px-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-auto">
+          <div className="col-span-1 md:col-span-2 h-full">
+            <img
+              src={school.image}
+              alt={school.name}
+              className="w-full object-cover rounded-lg h-[200px] sm:h-[400px]"
+            />
+          </div>
+          <div className="hidden md:flex flex-col gap-4 h-full">
+            <img
+              src={getGalleryImageUrl(0)}
+              alt="Gallery 1"
+              className="w-full h-48 object-cover rounded-lg"
+            />
+            <img
+              src={getGalleryImageUrl(1)}
+              alt="Gallery 2"
+              className="w-full h-48 object-cover rounded-lg"
+            />
+          </div>
+        </div>
+        <div className="absolute top-[10rem] right-8 sm:right-20 flex gap-2 sm:top-[22rem]">
           <button
             onClick={() => openGalleryModal()}
-            className="text-white text-sm bg-purple-600/80 px-3 py-2 rounded-full hover:bg-purple-700 flex items-center gap-1"
+            className="text-white text-xs sm:text-sm bg-purple-600/80 px-3 py-2 rounded-full hover:bg-purple-700 flex items-center gap-1 cursor-pointer"
           >
             <FaImages className="h-4 w-4" />
             View Gallery
@@ -276,12 +356,40 @@ export default function SchoolPage() {
           {/* LEFT COLUMN */}
           <div className="w-full lg:w-2/3">
             {/* School title and basic info */}
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-800">
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100 relative">
+              <button
+                onClick={(e) => toggleWishlist(school, e)}
+                className="absolute top-4 right-4 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-transform duration-200 ease-in-out transform hover:scale-110 cursor-pointer"
+                aria-label={
+                  isWishlisted(school.id)
+                    ? "Remove from wishlist"
+                    : "Add to wishlist"
+                }
+              >
+                <Heart
+                  size={20}
+                  className={`transition-colors duration-200 ${
+                    isWishlisted(school.id)
+                      ? "fill-red-500 text-red-500"
+                      : "fill-white text-red-500"
+                  }`}
+                />
+              </button>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
+                {school.isVerified && (
+                  <svg
+                    className="w-8 h-8 sm:w-5 sm:h-5 text-green-600 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                  </svg>
+                )}
                 {school.name} | {school.location}
               </h2>
-              <p className="text-gray-600 mt-1 flex items-center">
-                <FaMapMarkerAlt className="h-4 w-4 mr-1" />
+              <p className="text-gray-600 mt-1 flex items-center text-sm sm:text-base">
+                <FaMapMarkerAlt className="h-4 w-4 mr-4" />
                 {school.address || "Address not specified"}
               </p>
 
@@ -290,7 +398,7 @@ export default function SchoolPage() {
                   {[...Array(5)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-xl ${
+                      className={`text-lg sm:text-xl ${
                         i < Math.floor(school.rating)
                           ? "text-yellow-400"
                           : "text-gray-300"
@@ -299,17 +407,17 @@ export default function SchoolPage() {
                       ★
                     </span>
                   ))}
-                  <span className="ml-2 text-gray-700 font-medium">
+                  <span className="ml-2 text-gray-700 font-medium text-sm sm:text-base">
                     {school.rating} / 5
                   </span>
                 </div>
-                <div className="text-gray-700 flex items-center bg-blue-50 px-3 py-1 rounded-full">
+                <div className="text-gray-700 flex items-center bg-blue-50 px-3 py-1 rounded-full text-sm sm:text-base">
                   <FaClock className="h-4 w-4 mr-1 text-blue-500" />
                   <span className="font-medium">Day School</span> - ₹
                   {school.fees} / annum
                 </div>
                 {school.boardingFees && (
-                  <div className="text-gray-700 flex items-center bg-green-50 px-3 py-1 rounded-full">
+                  <div className="text-gray-700 flex items-center bg-green-50 px-3 py-1 rounded-full text-sm sm:text-base">
                     <FaHome className="h-4 w-4 mr-1 text-green-500" />
                     <span className="font-medium">Boarding</span> - ₹
                     {school.boardingFees} / annum
@@ -318,18 +426,30 @@ export default function SchoolPage() {
               </div>
 
               <div className="flex flex-wrap gap-3 mt-4">
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center">
+                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center">
                   <FaGraduationCap className="h-4 w-4 mr-1" />
                   {school.board}
                 </span>
-                <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm flex items-center">
-                  <FaUsers className="h-4 w-4 mr-1" />
+                <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center">
+                  <GenderIcon />
                   {school.gender}
                 </span>
-                <button className="bg-red-600 text-white px-4 py-2 rounded-full text-sm ml-auto hover:bg-red-700 flex items-center">
-                  <FaPhone className="h-4 w-4 mr-1" />
-                  Call Now
-                </button>
+                <div className="ml-auto flex gap-2 mt-2 sm:mt-0">
+                  <button
+                    onClick={handleCallNow}
+                    className="bg-red-600 text-white px-4 py-2 rounded-full text-xs sm:text-sm hover:bg-red-700 flex items-center cursor-pointer"
+                  >
+                    <Phone className="h-4 w-4 mr-1" />
+                    Call Now
+                  </button>
+                  <button
+                    onClick={handleApplyNow}
+                    className="bg-green-600 text-white px-4 py-2 rounded-full text-xs sm:text-sm hover:bg-green-700 flex items-center cursor-pointer"
+                  >
+                    <FaFileAlt className="h-4 w-4 mr-1" />
+                    Apply Now
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -337,7 +457,7 @@ export default function SchoolPage() {
             <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6 border border-gray-100">
               <div className="flex overflow-x-auto border-b">
                 <button
-                  className={`px-4 py-3 font-medium text-sm flex items-center ${
+                  className={`px-4 py-3 font-medium text-xs sm:text-sm flex items-center cursor-pointer ${
                     activeTab === "summary"
                       ? "text-blue-600 border-b-2 border-blue-600"
                       : "text-gray-600"
@@ -348,7 +468,7 @@ export default function SchoolPage() {
                   SUMMARY
                 </button>
                 <button
-                  className={`px-4 py-3 font-medium text-sm flex items-center ${
+                  className={`px-4 py-3 font-medium text-xs sm:text-sm flex items-center cursor-pointer ${
                     activeTab === "basic-info"
                       ? "text-blue-600 border-b-2 border-blue-600"
                       : "text-gray-600"
@@ -359,7 +479,7 @@ export default function SchoolPage() {
                   BASIC INFO
                 </button>
                 <button
-                  className={`px-4 py-3 font-medium text-sm flex items-center ${
+                  className={`px-4 py-3 font-medium text-xs sm:text-sm flex items-center cursor-pointer ${
                     activeTab === "fees"
                       ? "text-blue-600 border-b-2 border-blue-600"
                       : "text-gray-600"
@@ -370,7 +490,7 @@ export default function SchoolPage() {
                   FEES
                 </button>
                 <button
-                  className={`px-4 py-3 font-medium text-sm flex items-center ${
+                  className={`px-4 py-3 font-medium text-xs sm:text-sm flex items-center cursor-pointer ${
                     activeTab === "gallery"
                       ? "text-blue-600 border-b-2 border-blue-600"
                       : "text-gray-600"
@@ -381,14 +501,14 @@ export default function SchoolPage() {
                   GALLERY
                 </button>
                 <button
-                  className={`px-4 py-3 font-medium text-sm flex items-center ${
+                  className={`px-4 py-3 font-medium text-xs sm:text-sm flex items-center cursor-pointer ${
                     activeTab === "contact"
                       ? "text-blue-600 border-b-2 border-blue-600"
                       : "text-gray-600"
                   }`}
                   onClick={() => setActiveTab("contact")}
                 >
-                  <FaPhone className="h-4 w-4 mr-1" />
+                  <Phone className="h-4 w-4 mr-1" />
                   CONTACT
                 </button>
               </div>
@@ -397,52 +517,60 @@ export default function SchoolPage() {
               <div className="p-6">
                 {activeTab === "summary" && (
                   <div>
-                    <h3 className="text-lg font-bold mb-4 flex items-center">
-                      <FaInfoCircle className="h-5 w-5 mr-2 text-blue-500" />
+                    <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
+                      <FaInfoCircle className="h-5 w-5 mr-2 text-blue-700" />
                       About School
                     </h3>
-                    <p className="text-gray-700">
+                    <p className="text-gray-700 text-sm sm:text-base">
                       {school.about || school.comment}
                     </p>
 
-                    <h3 className="text-lg font-bold mt-6 mb-4 flex items-center">
-                      <FaBook className="h-5 w-5 mr-2 text-blue-500" />
+                    <h3 className="text-base sm:text-lg font-bold mt-6 mb-4 flex items-center">
+                      <FaBook className="h-5 w-5 mr-2 text-blue-700" />
                       Key Information
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="flex items-start">
-                        <FaGraduationCap className="h-5 w-5 mr-2 mt-1 text-blue-500" />
+                        <FaGraduationCap className="h-5 w-5 mr-2 mt-1 text-blue-700" />
                         <div>
-                          <p className="text-gray-600 text-sm">
+                          <p className="text-gray-600 text-xs sm:text-sm">
                             Affiliation / Examination Board
                           </p>
-                          <p className="font-medium">{school.board}</p>
+                          <p className="font-medium text-sm sm:text-base">
+                            {school.board}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-start">
-                        <FaSchool className="h-5 w-5 mr-2 mt-1 text-blue-500" />
+                        <FaSchool className="h-5 w-5 mr-2 mt-1 text-blue-700" />
                         <div>
-                          <p className="text-gray-600 text-sm">
+                          <p className="text-gray-600 text-xs sm:text-sm">
                             Type of School
                           </p>
-                          <p className="font-medium">{school.type}</p>
+                          <p className="font-medium text-sm sm:text-base">
+                            {school.type}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-start">
-                        <FaClock className="h-5 w-5 mr-2 mt-1 text-blue-500" />
+                        <FaClock className="h-5 w-5 mr-2 mt-1 text-blue-700" />
                         <div>
-                          <p className="text-gray-600 text-sm">Grade</p>
-                          <p className="font-medium">{school.grade}</p>
+                          <p className="text-gray-600 text-xs sm:text-sm">
+                            Grade
+                          </p>
+                          <p className="font-medium text-sm sm:text-base">
+                            {school.grade}
+                          </p>
                         </div>
                       </div>
                       {school.establishmentYear && (
                         <div className="flex items-start">
-                          <FaCalendarAlt className="h-5 w-5 mr-2 mt-1 text-blue-500" />
+                          <FaCalendarAlt className="h-5 w-5 mr-2 mt-1 text-blue-700" />
                           <div>
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               Establishment Year
                             </p>
-                            <p className="font-medium">
+                            <p className="font-medium text-sm sm:text-base">
                               {school.establishmentYear}
                             </p>
                           </div>
@@ -450,12 +578,12 @@ export default function SchoolPage() {
                       )}
                       {school.studentTeacherRatio && (
                         <div className="flex items-start">
-                          <FaChalkboardTeacher className="h-5 w-5 mr-2 mt-1 text-blue-500" />
+                          <FaChalkboardTeacher className="h-5 w-5 mr-2 mt-1 text-blue-700" />
                           <div>
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               Student Teacher Ratio
                             </p>
-                            <p className="font-medium">
+                            <p className="font-medium text-sm sm:text-base">
                               {school.studentTeacherRatio}
                             </p>
                           </div>
@@ -467,30 +595,32 @@ export default function SchoolPage() {
 
                 {activeTab === "basic-info" && (
                   <div>
-                    <h3 className="text-lg font-bold mb-4 flex items-center">
-                      <FaInfoCircle className="h-5 w-5 mr-2 text-blue-500" />
+                    <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
+                      <FaInfoCircle className="h-5 w-5 mr-2 text-blue-700" />
                       Basic Information
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {school.trustName && (
                         <div className="flex items-start">
-                          <FaShieldAlt className="h-5 w-5 mr-2 mt-1 text-blue-500" />
+                          <FaShieldAlt className="h-5 w-5 mr-2 mt-1 text-blue-700" />
                           <div>
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               Trust/Society/Company registered with
                             </p>
-                            <p className="font-medium">{school.trustName}</p>
+                            <p className="font-medium text-sm sm:text-base">
+                              {school.trustName}
+                            </p>
                           </div>
                         </div>
                       )}
                       {school.affiliationStatus && (
                         <div className="flex items-start">
-                          <FaCertificate className="h-5 w-5 mr-2 mt-1 text-blue-500" />
+                          <FaCertificate className="h-5 w-5 mr-2 mt-1 text-blue-700" />
                           <div>
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               Affiliation Status
                             </p>
-                            <p className="font-medium">
+                            <p className="font-medium text-sm sm:text-base">
                               {school.affiliationStatus}
                             </p>
                           </div>
@@ -498,12 +628,12 @@ export default function SchoolPage() {
                       )}
                       {school.affiliationGrantYear && (
                         <div className="flex items-start">
-                          <FaCalendarAlt className="h-5 w-5 mr-2 mt-1 text-blue-500" />
+                          <FaCalendarAlt className="h-5 w-5 mr-2 mt-1 text-blue-700" />
                           <div>
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               Affiliation Grant Year
                             </p>
-                            <p className="font-medium">
+                            <p className="font-medium text-sm sm:text-base">
                               {school.affiliationGrantYear}
                             </p>
                           </div>
@@ -511,12 +641,12 @@ export default function SchoolPage() {
                       )}
                       {school.totalTeachers && (
                         <div className="flex items-start">
-                          <FaChalkboardTeacher className="h-5 w-5 mr-2 mt-1 text-blue-500" />
+                          <FaChalkboardTeacher className="h-5 w-5 mr-2 mt-1 text-blue-700" />
                           <div>
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               Total no. of Teachers
                             </p>
-                            <p className="font-medium">
+                            <p className="font-medium text-sm sm:text-base">
                               {school.totalTeachers}
                             </p>
                           </div>
@@ -528,36 +658,44 @@ export default function SchoolPage() {
 
                 {activeTab === "fees" && (
                   <div>
-                    <h3 className="text-lg font-bold mb-4 flex items-center">
-                      <FaMoneyBill className="h-5 w-5 mr-2 text-blue-500" />
+                    <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
+                      <FaMoneyBill className="h-5 w-5 mr-2 text-blue-700" />
                       Fee Structure
                     </h3>
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                      <h4 className="font-medium text-blue-800 mb-2 flex items-center">
+                      <h4 className="font-medium text-blue-800 mb-2 flex items-center text-sm sm:text-base">
                         <FaClock className="h-4 w-4 mr-1" />
                         {school.board} Board Fee Structure - Day School
                       </h4>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center py-2 border-b border-blue-100">
-                          <span className="text-gray-600 flex items-center">
+                          <span className="text-gray-600 flex items-center text-xs sm:text-sm">
                             <FaMoneyBill className="h-4 w-4 mr-1" />
                             Annual Fee
                           </span>
-                          <span className="font-medium text-green-600">
+                          <span className="font-medium text-green-600 text-sm sm:text-base">
                             ₹{school.fees}
                           </span>
                         </div>
                         <div className="flex justify-between items-center py-2 border-b border-blue-100">
-                          <span className="text-gray-600">Admission Fee</span>
-                          <span className="font-medium">₹10,000</span>
+                          <span className="text-gray-600 text-xs sm:text-sm">
+                            Admission Fee
+                          </span>
+                          <span className="font-medium text-sm sm:text-base">
+                            ₹10,000
+                          </span>
                         </div>
                         <div className="flex justify-between items-center py-2">
-                          <span className="text-gray-600">Application Fee</span>
-                          <span className="font-medium">₹2,000</span>
+                          <span className="text-gray-600 text-xs sm:text-sm">
+                            Application Fee
+                          </span>
+                          <span className="font-medium text-sm sm:text-base">
+                            ₹2,000
+                          </span>
                         </div>
                       </div>
                     </div>
-                    <p className="text-gray-500 text-sm mt-4">
+                    <p className="text-gray-500 text-xs sm:text-sm mt-4">
                       *The above listed fees details are information available.
                       Current fees might vary, depending on recent changes.
                     </p>
@@ -566,15 +704,13 @@ export default function SchoolPage() {
 
                 {activeTab === "gallery" && (
                   <div>
-                    <h3 className="text-lg font-bold mb-4 flex items-center">
+                    <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
                       <FaImages className="h-5 w-5 mr-2 text-blue-500" />
                       Gallery
                     </h3>
-
-                    {/* Gallery tabs */}
                     <div className="flex border-b mb-4">
                       <button
-                        className={`px-4 py-2 flex items-center ${
+                        className={`px-4 py-2 flex items-center text-xs sm:text-sm cursor-pointer ${
                           galleryTab === "all"
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-600"
@@ -585,7 +721,7 @@ export default function SchoolPage() {
                         All
                       </button>
                       <button
-                        className={`px-4 py-2 flex items-center ${
+                        className={`px-4 py-2 flex items-center text-xs sm:text-sm cursor-pointer ${
                           galleryTab === "image"
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-600"
@@ -596,7 +732,7 @@ export default function SchoolPage() {
                         Photos
                       </button>
                       <button
-                        className={`px-4 py-2 flex items-center ${
+                        className={`px-4 py-2 flex items-center text-xs sm:text-sm cursor-pointer ${
                           galleryTab === "video"
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-600"
@@ -607,13 +743,11 @@ export default function SchoolPage() {
                         Videos
                       </button>
                     </div>
-
-                    {/* Gallery grid */}
                     {filteredGallery.length > 0 ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {filteredGallery.map((item, index) => (
                           <div
-                            key={item.id}
+                            key={item.id || index}
                             className="bg-gray-100 rounded-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105"
                             onClick={() => openGalleryModal(index)}
                           >
@@ -629,7 +763,7 @@ export default function SchoolPage() {
                               </div>
                             )}
                             <div className="p-3">
-                              <p className="text-sm font-medium">
+                              <p className="text-xs sm:text-sm font-medium">
                                 {item.caption}
                               </p>
                             </div>
@@ -639,7 +773,7 @@ export default function SchoolPage() {
                     ) : (
                       <div className="text-center py-8 bg-gray-50 rounded-lg">
                         <FaImages className="h-12 w-12 mx-auto text-gray-400" />
-                        <p className="text-gray-500 mt-2">
+                        <p className="text-gray-500 mt-2 text-sm sm:text-base">
                           No gallery items available
                         </p>
                       </div>
@@ -649,33 +783,36 @@ export default function SchoolPage() {
 
                 {activeTab === "contact" && (
                   <div>
-                    <h3 className="text-lg font-bold mb-4 flex items-center">
-                      <FaPhone className="h-5 w-5 mr-2 text-blue-500" />
+                    <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
+                      <Phone className="h-5 w-5 mr-2 text-blue-500" />
                       Contact Information
                     </h3>
                     <div className="space-y-3">
                       {school.email && (
-                        <p className="flex items-center p-3 bg-blue-50 rounded-lg">
+                        <p className="flex items-center p-3 bg-blue-50 rounded-lg text-sm sm:text-base">
                           <FaEnvelope className="h-5 w-5 mr-3 text-blue-500" />
                           <span>{school.email}</span>
                         </p>
                       )}
                       {school.phone && (
-                        <p className="flex items-center p-3 bg-green-50 rounded-lg">
-                          <FaPhone className="h-5 w-5 mr-3 text-green-500" />
+                        <p className="flex items-center p-3 bg-green-50 rounded-lg text-sm sm:text-base">
+                          <Phone className="h-5 w-5 mr-3 text-green-500" />
                           <span>{school.phone}</span>
                         </p>
                       )}
                       {school.address && (
-                        <p className="flex items-center p-3 bg-purple-50 rounded-lg">
+                        <p className="flex items-center p-3 bg-purple-50 rounded-lg text-sm sm:text-base">
                           <FaMapMarkerAlt className="h-5 w-5 mr-3 text-purple-500" />
                           <span>{school.address}</span>
                         </p>
                       )}
                       {school.website && (
-                        <p className="flex items-center p-3 bg-orange-50 rounded-lg">
+                        <p className="flex items-center p-3 bg-orange-50 rounded-lg text-sm sm:text-base">
                           <FaGlobe className="h-5 w-5 mr-3 text-orange-500" />
-                          <a href={school.website} className="text-blue-600">
+                          <a
+                            href={school.website}
+                            className="text-blue-600 cursor-pointer"
+                          >
                             {school.website}
                           </a>
                         </p>
@@ -688,13 +825,13 @@ export default function SchoolPage() {
 
             {/* Co-curricular Activities */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
-              <h3 className="text-lg font-bold mb-4 flex items-center">
+              <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
                 <FaFutbol className="h-5 w-5 mr-2 text-blue-500" />
                 Co-curricular Activities
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium text-gray-800 mb-2 flex items-center">
+                  <h4 className="font-medium text-gray-800 mb-2 flex items-center text-sm sm:text-base">
                     <FaFutbol className="h-4 w-4 mr-1 text-green-500" />
                     Outdoor Sports
                   </h4>
@@ -702,15 +839,20 @@ export default function SchoolPage() {
                     {school.outdoorSports?.map((sport, index) => (
                       <span
                         key={index}
-                        className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
+                        className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center"
                       >
+                        {getActivityIcon(sport)}
                         {sport}
                       </span>
-                    )) || <span className="text-gray-500">Not specified</span>}
+                    )) || (
+                      <span className="text-gray-500 text-sm">
+                        Not specified
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-800 mb-2 flex items-center">
+                  <h4 className="font-medium text-gray-800 mb-2 flex items-center text-sm sm:text-base">
                     <FaGamepad className="h-4 w-4 mr-1 text-purple-500" />
                     Indoor Sports
                   </h4>
@@ -718,25 +860,30 @@ export default function SchoolPage() {
                     {school.indoorSports?.map((sport, index) => (
                       <span
                         key={index}
-                        className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm"
+                        className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center"
                       >
+                        {getActivityIcon(sport)}
                         {sport}
                       </span>
-                    )) || <span className="text-gray-500">Not specified</span>}
+                    )) || (
+                      <span className="text-gray-500 text-sm">
+                        Not specified
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Travel Information */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
-              <h3 className="text-lg font-bold mb-4 flex items-center">
+              <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
                 <FaBus className="h-5 w-5 mr-2 text-yellow-500" />
                 Travel Information
               </h3>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Nearest Airport */}
                 <div>
-                  <h4 className="font-medium text-gray-800 mb-2 flex items-center">
+                  <h4 className="font-medium text-gray-800 mb-2 flex items-center text-sm sm:text-base">
                     <FaPlaneDeparture className="h-4 w-4 mr-1 text-blue-500" />
                     Nearest Airport
                   </h4>
@@ -746,10 +893,8 @@ export default function SchoolPage() {
                       : "Not specified"}
                   </p>
                 </div>
-
-                {/* Nearest Railway Station */}
                 <div>
-                  <h4 className="font-medium text-gray-800 mb-2 flex items-center">
+                  <h4 className="font-medium text-gray-800 mb-2 flex items-center text-sm sm:text-base">
                     <FaTrain className="h-4 w-4 mr-1 text-green-500" />
                     Nearest Railway Station
                   </h4>
@@ -759,10 +904,8 @@ export default function SchoolPage() {
                       : "Not specified"}
                   </p>
                 </div>
-
-                {/* Nearest Bus Stand */}
                 <div>
-                  <h4 className="font-medium text-gray-800 mb-2 flex items-center">
+                  <h4 className="font-medium text-gray-800 mb-2 flex items-center text-sm sm:text-base">
                     <FaBus className="h-4 w-4 mr-1 text-purple-500" />
                     Nearest Bus Stand
                   </h4>
@@ -770,10 +913,8 @@ export default function SchoolPage() {
                     {school.nearestBus || "Not specified"}
                   </p>
                 </div>
-
-                {/* Nearest Bank */}
                 <div>
-                  <h4 className="font-medium text-gray-800 mb-2 flex items-center">
+                  <h4 className="font-medium text-gray-800 mb-2 flex items-center text-sm sm:text-base">
                     <FaUniversity className="h-4 w-4 mr-1 text-red-500" />
                     Nearest Bank
                   </h4>
@@ -783,9 +924,10 @@ export default function SchoolPage() {
                 </div>
               </div>
             </div>
+
             {/* FAQ Section */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
-              <h3 className="text-lg font-bold mb-4 text-gray-800 flex items-center">
+              <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
                 <FaQuestionCircle className="h-5 w-5 mr-2 text-blue-500" />
                 Frequently Asked Questions
               </h3>
@@ -794,9 +936,11 @@ export default function SchoolPage() {
                   <div key={index} className="border-b pb-3">
                     <div
                       className="flex justify-between items-center cursor-pointer"
-                      onClick={() => toggleFaq(index)}
+                      onClick={(e) => toggleFaq(index, e)}
                     >
-                      <span className="text-gray-700">{faq.question}</span>
+                      <span className="text-gray-700 text-sm sm:text-base">
+                        {faq.question}
+                      </span>
                       <span className="text-gray-500">
                         {expandedFaq === index ? (
                           <FaChevronUp />
@@ -806,7 +950,7 @@ export default function SchoolPage() {
                       </span>
                     </div>
                     {expandedFaq === index && (
-                      <div className="mt-2 text-gray-600 text-sm bg-blue-50 p-3 rounded-lg">
+                      <div className="mt-2 text-gray-600 text-xs sm:text-sm bg-blue-50 p-3 rounded-lg">
                         {faq.answer}
                       </div>
                     )}
@@ -814,7 +958,9 @@ export default function SchoolPage() {
                 )) || (
                   <div className="text-center py-4 bg-gray-50 rounded-lg">
                     <FaQuestionCircle className="h-8 w-8 mx-auto text-gray-400" />
-                    <p className="text-gray-500 mt-2">No FAQs available</p>
+                    <p className="text-gray-500 mt-2 text-sm sm:text-base">
+                      No FAQs available
+                    </p>
                   </div>
                 )}
               </div>
@@ -822,22 +968,21 @@ export default function SchoolPage() {
 
             {/* Reviews Section */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
-              <h3 className="text-lg font-bold mb-4 flex items-center">
+              <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
                 <FaComment className="h-5 w-5 mr-2 text-blue-500" />
                 Reviews
               </h3>
-
               <div className="flex flex-col md:flex-row gap-6 mb-6">
                 <div className="bg-blue-50 p-4 rounded-lg text-center md:w-1/3 border border-blue-100">
-                  <p className="text-3xl font-bold text-blue-800">
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-800">
                     {school.rating}
                   </p>
-                  <p className="text-gray-600">out of 5</p>
+                  <p className="text-gray-600 text-sm sm:text-base">out of 5</p>
                   <div className="flex justify-center gap-1 mt-2">
                     {[...Array(5)].map((_, i) => (
                       <span
                         key={i}
-                        className={`text-xl ${
+                        className={`text-lg sm:text-xl ${
                           i < Math.floor(school.rating)
                             ? "text-yellow-400"
                             : "text-gray-300"
@@ -847,31 +992,95 @@ export default function SchoolPage() {
                       </span>
                     ))}
                   </div>
-                  <p className="text-gray-600 mt-2">
+                  <p className="text-gray-600 mt-2 text-sm sm:text-base">
                     ({school.votes} Parent Reviews)
                   </p>
                 </div>
-
                 <div className="md:w-2/3">
                   <div className="grid grid-cols-3 gap-4 mb-4">
                     <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
-                      <p className="text-gray-600 text-sm">Infrastructure</p>
-                      <p className="font-bold text-lg text-blue-600">4.5/5</p>
+                      <FaBuilding
+                        className="mx-auto mb-2 text-gray-600"
+                        size={24}
+                      />
+                      <p className="text-gray-600 text-[9px] sm:text-sm">
+                        Infrastructure
+                      </p>
+                      <p className="font-bold text-base sm:text-lg text-blue-600">
+                        4.5/5
+                      </p>
                     </div>
                     <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
-                      <p className="text-gray-600 text-sm">Academics</p>
-                      <p className="font-bold text-lg text-green-600">4.3/5</p>
+                      <FaBook
+                        className="mx-auto mb-2 text-gray-600"
+                        size={24}
+                      />
+                      <p className="text-gray-600 text-[9px] sm:text-sm">
+                        Academics
+                      </p>
+                      <p className="font-bold text-base sm:text-lg text-green-600">
+                        4.3/5
+                      </p>
                     </div>
                     <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
-                      <p className="text-gray-600 text-sm">Facilities</p>
-                      <p className="font-bold text-lg text-purple-600">3.5/5</p>
+                      <FaTools
+                        className="mx-auto mb-2 text-gray-600"
+                        size={24}
+                      />
+                      <p className="text-gray-600 text-[9px] sm:text-sm">
+                        Facilities
+                      </p>
+                      <p className="font-bold text-base sm:text-lg text-purple-600">
+                        3.5/5
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">
+              <div className="mt-6 bg-green-50 p-4 rounded-lg border border-green-100">
+                <h3 className="text-lg font-bold mb-2 text-green-800">
+                  Global Edu.Consulting Rating Score
+                </h3>
+                <p className="text-sm text-gray-600 mb-2">
+                  Our Counsellors provide these ratings to this school
+                </p>
+                <div className="flex justify-center mb-2">
+                  <span className="text-2xl font-bold text-green-700">
+                    4.9 out of 5
+                  </span>
+                </div>
+                <div className="flex justify-center items-center gap-4 text-center mt-4 sm:gap-36">
+                  <div>
+                    <div className="flex justify-center mb-1">
+                      <span className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <FaBuilding className="text-green-500" size={24} />
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600">Infrastructure</p>
+                    <p className="font-bold text-green-600">4.6/5</p>
+                  </div>
+                  <div>
+                    <div className="flex justify-center mb-1">
+                      <span className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <FaUsers className="text-green-500" size={24} />
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600">Academics</p>
+                    <p className="font-bold text-green-600">4.5/5</p>
+                  </div>
+                  <div>
+                    <div className="flex justify-center mb-1">
+                      <span className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <FaHandsHelping className="text-green-500" size={24} />
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600">Facilities</p>
+                    <p className="font-bold text-green-600">4.6/5</p>
+                  </div>
+                </div>
+              </div>
+              <div className="pt-4">
+                <h4 className="font-medium mb-3 text-sm sm:text-base">
                   How would you rate your overall experience with this school?
                 </h4>
                 <form onSubmit={handleReviewSubmit} className="space-y-4">
@@ -880,7 +1089,7 @@ export default function SchoolPage() {
                       <button
                         key={star}
                         type="button"
-                        className={`text-2xl ${
+                        className={`text-xl sm:text-2xl cursor-pointer ${
                           reviewForm.rating >= star
                             ? "text-yellow-400"
                             : "text-gray-300"
@@ -897,7 +1106,7 @@ export default function SchoolPage() {
                     <input
                       type="text"
                       placeholder="Enter Parent's name"
-                      className="w-full p-3 border rounded-lg"
+                      className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
                       value={reviewForm.parentName}
                       onChange={(e) =>
                         setReviewForm({
@@ -910,7 +1119,7 @@ export default function SchoolPage() {
                   <div>
                     <textarea
                       placeholder="Enter review"
-                      className="w-full p-3 border rounded-lg"
+                      className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
                       rows="3"
                       value={reviewForm.review}
                       onChange={(e) =>
@@ -920,23 +1129,24 @@ export default function SchoolPage() {
                   </div>
                   <button
                     type="submit"
-                    className="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 font-medium"
+                    className="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 font-medium text-sm sm:text-base cursor-pointer"
                   >
                     SUBMIT REVIEW
                   </button>
                 </form>
               </div>
-
               <div className="mt-6 space-y-4">
                 {school.reviews?.map((review) => (
                   <div key={review.id} className="border-b pb-4">
                     <div className="flex justify-between">
-                      <span className="font-medium">{review.parentName}</span>
+                      <span className="font-medium text-sm sm:text-base">
+                        {review.parentName}
+                      </span>
                       <div className="flex">
                         {[...Array(5)].map((_, i) => (
                           <span
                             key={i}
-                            className={`${
+                            className={`text-sm sm:text-base ${
                               i < review.rating
                                 ? "text-yellow-400"
                                 : "text-gray-300"
@@ -947,34 +1157,34 @@ export default function SchoolPage() {
                         ))}
                       </div>
                     </div>
-                    <p className="text-gray-600 mt-1">{review.comment}</p>
-                    <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                    <p className="text-gray-600 mt-1 text-sm sm:text-base">
+                      {review.comment}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2 text-xs sm:text-sm text-gray-500">
                       {review.verified && (
                         <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full flex items-center">
                           <FaUserCheck className="h-3 w-3 mr-1" />
                           Verified Parent
                         </span>
                       )}
-                      <button className="text-blue-600 hover:underline">
-                        Reply
-                      </button>
                     </div>
                   </div>
                 )) || (
                   <div className="text-center py-8 bg-gray-50 rounded-lg">
                     <FaComment className="h-12 w-12 mx-auto text-gray-400" />
-                    <p className="text-gray-500 mt-2">No reviews yet</p>
+                    <p className="text-gray-500 mt-2 text-sm sm:text-base">
+                      No reviews yet
+                    </p>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN - Only the form */}
+          {/* RIGHT COLUMN - Counselling Form and Similar Schools */}
           <div className="w-full lg:w-1/3">
-            {/* Free Counseling Form */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
-              <h3 className="text-lg font-bold mb-4 text-center text-gray-800 flex items-center justify-center">
+              <h3 className="text-base sm:text-lg font-bold mb-4 text-center text-gray-800 flex items-center justify-center">
                 <FaComment className="h-5 w-5 mr-2 text-blue-500" />
                 FREE Counselling
               </h3>
@@ -983,23 +1193,23 @@ export default function SchoolPage() {
                   <input
                     type="text"
                     placeholder="Enter Parent's name"
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
                   />
                 </div>
                 <div>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 border border-r-0 rounded-l-lg bg-gray-50 text-gray-600">
+                    <span className="inline-flex items-center px-3 border border-r-0 rounded-l-lg bg-gray-50 text-gray-600 text-sm sm:text-base">
                       +91
                     </span>
                     <input
                       type="tel"
                       placeholder="Enter Parent's mobile"
-                      className="w-full p-3 border rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full p-3 border rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
                     />
                   </div>
                 </div>
                 <div>
-                  <select className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <select className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer">
                     <option>Boarding School</option>
                     <option>Day School</option>
                   </select>
@@ -1007,21 +1217,20 @@ export default function SchoolPage() {
                 <div>
                   <textarea
                     placeholder="Message..."
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
                     rows="3"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                  className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base cursor-pointer"
                 >
                   GET COUNSELLING
                 </button>
               </form>
             </div>
-            {/* Similar Schools Section - Added to left column */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
-              <h3 className="text-lg font-bold mb-4 text-gray-800 flex items-center">
+              <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 mr-2 text-blue-500"
@@ -1043,7 +1252,9 @@ export default function SchoolPage() {
                   <div
                     key={similarSchool.id}
                     className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer border border-gray-100"
-                    onClick={() => handleSimilarSchoolClick(similarSchool.id)}
+                    onClick={(e) =>
+                      handleSimilarSchoolClick(similarSchool.id, e)
+                    }
                   >
                     <div className="bg-gray-200 w-16 h-16 rounded flex-shrink-0">
                       <img
@@ -1053,25 +1264,27 @@ export default function SchoolPage() {
                       />
                     </div>
                     <div>
-                      <p className="font-medium">{similarSchool.name}</p>
+                      <p className="font-medium text-sm sm:text-base">
+                        {similarSchool.name}
+                      </p>
                       <div className="flex items-center gap-1 mt-1">
                         {[...Array(5)].map((_, i) => (
                           <span
                             key={i}
-                            className={`${
+                            className={`text-xs sm:text-sm ${
                               i < Math.floor(similarSchool.rating)
                                 ? "text-yellow-400"
                                 : "text-gray-300"
-                            } text-sm`}
+                            }`}
                           >
                             ★
                           </span>
                         ))}
-                        <span className="text-gray-600 text-xs ml-1">
+                        <span className="text-gray-600 text-xs sm:text-sm ml-1">
                           ({similarSchool.votes} votes)
                         </span>
                       </div>
-                      <p className="text-gray-600 text-xs">
+                      <p className="text-gray-600 text-xs sm:text-sm">
                         {similarSchool.location}
                       </p>
                     </div>
@@ -1093,7 +1306,7 @@ export default function SchoolPage() {
                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                       />
                     </svg>
-                    <p className="text-gray-500 mt-2">
+                    <p className="text-gray-500 mt-2 text-sm sm:text-base">
                       No similar schools found
                     </p>
                   </div>

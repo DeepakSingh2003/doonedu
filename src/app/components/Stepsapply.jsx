@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { MdArrowForward } from "react-icons/md";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { FaCheckCircle } from "react-icons/fa";
+import LoginModal from "./LoginModal"; // 🔹 import global login modal
 
 export default function StepsSection() {
   const steps = [
@@ -39,12 +40,17 @@ export default function StepsSection() {
   ];
 
   const [openIndex, setOpenIndex] = useState(null);
+  const [isLoginOpen, setIsLoginOpen] = useState(false); // 🔹 same as navbar
+
   const toggleAccordion = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
     <section className="w-full py-12 px-6 bg-[#F8FAFB]">
+      {/* 🔹 Global Login Modal */}
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+
       <div className="text-center">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
           How to apply with{" "}
@@ -56,21 +62,6 @@ export default function StepsSection() {
       </div>
 
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
-        {/* LEFT SIDE: VIDEO */}
-        <div className="w-full lg:w-[27rem] hidden lg:block">
-          <div className="aspect-video rounded-xl overflow-hidden shadow-lg">
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/9wanL9P2GBo?si=7iesfKGq7R9qN76y"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            ></iframe>
-          </div>
-        </div>
-
         {/* RIGHT SIDE */}
         <div className="w-full">
           {/* ===== Desktop view (cards) ===== */}
@@ -103,7 +94,10 @@ export default function StepsSection() {
                   <p className="text-sm font-semibold text-gray-800 leading-tight mb-2 lg:text-[10px] text-center">
                     {step.title}
                   </p>
-                  <button className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded-md text-xs lg:text-[10px] font-medium hover:bg-blue-700 transition">
+                  <button
+                    onClick={() => setIsLoginOpen(true)} // 🔹 open login modal
+                    className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded-md text-xs lg:text-[10px] font-medium hover:bg-blue-700 transition"
+                  >
                     {step.button} <MdArrowForward className="text-xs" />
                   </button>
                 </div>
@@ -156,7 +150,10 @@ export default function StepsSection() {
                 {/* Expanded content */}
                 {openIndex === index && (
                   <div className="px-4 pb-4">
-                    <button className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-medium hover:bg-blue-700 transition mt-3">
+                    <button
+                      onClick={() => setIsLoginOpen(true)} // 🔹 open login modal
+                      className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-medium hover:bg-blue-700 transition mt-3"
+                    >
                       {step.button} <MdArrowForward className="text-xs" />
                     </button>
                   </div>
