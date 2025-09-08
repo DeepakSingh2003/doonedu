@@ -48,10 +48,10 @@ export default function HeroSection() {
     <>
       {/* Hero Section */}
       <section
-        className="relative bg-cover bg-no-repeat bg-center text-center py-6 w-full flex items-center justify-center h-[12rem] mt-0 sm:mt-[53px]"
+        className="relative bg-cover bg-no-repeat bg-center text-center py-6 w-full flex items-center justify-center h-[14rem] mt-0 sm:mt-[53px]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://res.cloudinary.com/dnq8fbcxh/image/upload/v1756989507/welcome-back-to-school-banner-background-school-supplies-on-blue-background-vector_bhxhzg.jpg')",
+            "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://res.cloudinary.com/dnq8fbcxh/image/upload/v1757161778/doon-edu_kqj01d.png')",
         }}
       >
         <div className="relative z-10 w-[580px] mx-auto px-4">

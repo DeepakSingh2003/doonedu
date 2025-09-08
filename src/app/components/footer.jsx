@@ -3,15 +3,58 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Footer() {
   const [openSections, setOpenSections] = useState({});
+  const router = useRouter();
 
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
+  };
+
+  // Function to handle navigation to explore schools with location filter for boarding schools
+  const handleLocationClick = (location) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("city", location.toLowerCase());
+    queryParams.append("type", "boarding"); // Add boarding school filter
+    router.push(`/exploreschools?${queryParams.toString()}`);
+  };
+
+  // Function to handle navigation to explore schools with region filter for boarding schools
+  const handleRegionClick = (region) => {
+    const queryParams = new URLSearchParams();
+
+    // Map region names to appropriate filter values
+    const regionMap = {
+      "North India": "north",
+      "Central India": "central",
+      "East India": "east",
+      "West India": "west",
+      India: "all",
+    };
+
+    if (regionMap[region]) {
+      queryParams.append("region", regionMap[region]);
+    } else if (region.includes("Girls")) {
+      queryParams.append("gender", "girls");
+    } else if (region.includes("Boys")) {
+      queryParams.append("gender", "boys");
+    } else if (region.includes("Co Ed")) {
+      queryParams.append("gender", "co-ed");
+    } else if (region.includes("International")) {
+      queryParams.append("board", "ib");
+    } else if (region.includes("Delhi NCR")) {
+      queryParams.append("city", "delhi");
+    }
+
+    // Add boarding school filter for all region-based searches
+    queryParams.append("type", "boarding");
+
+    router.push(`/exploreschools?${queryParams.toString()}`);
   };
 
   return (
@@ -22,12 +65,12 @@ export default function Footer() {
             <div className="md:col-span-6 lg:col-span-2 text-center">
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="flex rounded-md w-full max-w-[250px] justify-center">
-                  <Image
+                  <img
                     alt="Ezyschooling Logo"
                     title="Ezyschooling Logo"
                     width={250}
                     height={50}
-                    src="/logo.webp"
+                    src="https://res.cloudinary.com/dnq8fbcxh/image/upload/v1757137090/global-edu-consulting_1_uohjgy.png"
                     className="h-[50px] w-auto mr-2 pb-1"
                   />
                 </div>
@@ -71,7 +114,7 @@ export default function Footer() {
                       target="_blank"
                       rel="noopener noreferrer nofollow"
                       aria-label={label}
-                      className="text-slate-400 hover:text-blue-400 transition-all duration-200 transform hover:scale-110 p-2 rounded-full hover:bg-slate-800/50"
+                      className="text-slate-400 hover:text-blue-400 transition-all duration-200 transform hover:scale-110 p-2 rounded-full hover:bg-slate-800/50 cursor-pointer"
                     >
                       <svg
                         className="w-4 h-4"
@@ -89,7 +132,7 @@ export default function Footer() {
               <div className="space-y-3">
                 <button
                   onClick={() => toggleSection("contact")}
-                  className="flex justify-between items-center w-full md:cursor-default"
+                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
                 >
                   <h4 className="text-xs font-semibold text-white border-b border-slate-700 pb-1">
                     Contact Us
@@ -142,7 +185,7 @@ export default function Footer() {
                   </div>
                   <Link
                     href="mailto:query@ezyschooling.com"
-                    className="text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 flex items-center"
+                    className="text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 flex items-center cursor-pointer"
                   >
                     <svg
                       className="w-3 h-3 text-slate-300 flex-shrink-0 mr-2"
@@ -161,7 +204,7 @@ export default function Footer() {
                   </Link>
                   <Link
                     href="tel:+91-8766340464"
-                    className="text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 flex items-center"
+                    className="text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 flex items-center cursor-pointer"
                   >
                     <svg
                       className="w-3 h-3 text-slate-300 flex-shrink-0 mr-2"
@@ -185,7 +228,7 @@ export default function Footer() {
               <div className="space-y-3">
                 <button
                   onClick={() => toggleSection("quick-links")}
-                  className="flex justify-between items-center w-full md:cursor-default"
+                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
                 >
                   <h4 className="text-xs font-semibold text-white border-b border-slate-700 pb-1">
                     Quick Links
@@ -212,27 +255,17 @@ export default function Footer() {
                     openSections["quick-links"] ? "block" : "hidden"
                   } md:block`}
                 >
-                  {[
-                    "Search Schools",
-                    "Compare Schools",
-                    "Parenting",
-                    "News",
-                  ].map((text, index) => (
-                    <Link
-                      key={text}
-                      href={
-                        [
-                          "/admissions",
-                          "/compare-schools",
-                          "/parenting",
-                          "/news",
-                        ][index]
-                      }
-                      className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0"
-                    >
-                      {text}
-                    </Link>
-                  ))}
+                  {["Search Schools", "Parenting", "News"].map(
+                    (text, index) => (
+                      <Link
+                        key={text}
+                        href={["/exploreschools", "/Blog", "/Blog"][index]}
+                        className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 cursor-pointer"
+                      >
+                        {text}
+                      </Link>
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -240,7 +273,7 @@ export default function Footer() {
               <div className="space-y-3">
                 <button
                   onClick={() => toggleSection("for-schools")}
-                  className="flex justify-between items-center w-full md:cursor-default"
+                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
                 >
                   <h4 className="text-xs font-semibold text-white border-b border-slate-700 pb-1">
                     For Schools
@@ -267,26 +300,27 @@ export default function Footer() {
                     openSections["for-schools"] ? "block" : "hidden"
                   } md:block`}
                 >
-                  {[
-                    "Claim your School",
-                    "Add your School",
-                    "Manage Applications",
-                  ].map((text) => (
-                    <button
-                      key={text}
-                      className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 text-left w-full"
-                    >
-                      {text}
-                    </button>
-                  ))}
+                  <Link
+                    href="/schoolregister"
+                    className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 text-left w-full cursor-pointer"
+                  >
+                    Register School
+                  </Link>
+                  <Link
+                    href="/schoolregister"
+                    className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 text-left w-full cursor-pointer"
+                  >
+                    Login School
+                  </Link>
                 </div>
               </div>
             </div>
+
             <div className="md:col-span-1">
               <div className="space-y-3">
                 <button
                   onClick={() => toggleSection("about")}
-                  className="flex justify-between items-center w-full md:cursor-default"
+                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
                 >
                   <h4 className="text-xs font-semibold text-white border-b border-slate-700 pb-1">
                     About
@@ -313,33 +347,21 @@ export default function Footer() {
                     openSections["about"] ? "block" : "hidden"
                   } md:block`}
                 >
-                  {[
-                    "About Us",
-                    "Privacy Policy",
-                    "Refund Policy",
-                    "Terms of Use",
-                    "Contact Us",
-                    "Careers",
-                    "FAQs",
-                  ].map((text, index) => (
-                    <Link
-                      key={text}
-                      href={
-                        [
-                          "/aboutus",
-                          "/privacy-notice",
-                          "/refund-policy",
-                          "/terms-of-use",
-                          "/contactus",
-                          "/careers",
-                          "/faqs",
-                        ][index]
-                      }
-                      className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0"
-                    >
-                      {text}
-                    </Link>
-                  ))}
+                  {["About Us", "Privacy Policy", "Contact Us", "FAQs"].map(
+                    (text, index) => (
+                      <Link
+                        key={text}
+                        href={
+                          ["/Aboutus", "/Privacypolicy", "/Contactus", "/FAQs"][
+                            index
+                          ]
+                        }
+                        className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 cursor-pointer"
+                      >
+                        {text}
+                      </Link>
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -349,7 +371,7 @@ export default function Footer() {
               <div className="space-y-3">
                 <button
                   onClick={() => toggleSection("top-locations")}
-                  className="flex justify-between items-center w-full md:cursor-default"
+                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
                 >
                   <h4 className="text-xs font-semibold text-white border-b border-slate-700/50 pb-1">
                     Top Locations in India
@@ -389,20 +411,20 @@ export default function Footer() {
                     "Pune",
                     "Jaipur",
                   ].map((location) => (
-                    <Link
+                    <button
                       key={location}
-                      href={`https://www.doonedu.com/boarding-schools-${location.toLowerCase()}`}
-                      className="block text-[10px] text-slate-300 hover:text-white py-1 hover:underline transition-all duration-200 rounded-sm hover:bg-slate-800/30"
+                      onClick={() => handleLocationClick(location)}
+                      className="block text-[10px] text-slate-300 hover:text-white py-1 hover:underline transition-all duration-200 rounded-sm hover:bg-slate-800/30 w-full text-left cursor-pointer"
                     >
                       Boarding Schools In {location}
-                    </Link>
+                    </button>
                   ))}
                 </div>
               </div>
               <div className="space-y-3">
                 <button
                   onClick={() => toggleSection("popular-searches")}
-                  className="flex justify-between items-center w-full md:cursor-default"
+                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
                 >
                   <h4 className="text-xs font-semibold text-white border-b border-slate-700/50 pb-1">
                     Popular Boarding Searches
@@ -442,20 +464,20 @@ export default function Footer() {
                     "Bhopal",
                     "Indore",
                   ].map((location) => (
-                    <Link
+                    <button
                       key={location}
-                      href={`https://www.doonedu.com/boarding-schools-${location.toLowerCase()}`}
-                      className="block text-[10px] text-slate-300 hover:text-white py-1 hover:underline transition-all duration-200 rounded-sm hover:bg-slate-800/30"
+                      onClick={() => handleLocationClick(location)}
+                      className="block text-[10px] text-slate-300 hover:text-white py-1 hover:underline transition-all duration-200 rounded-sm hover:bg-slate-800/30 w-full text-left cursor-pointer"
                     >
                       Boarding Schools In {location}
-                    </Link>
+                    </button>
                   ))}
                 </div>
               </div>
               <div className="space-y-3">
                 <button
                   onClick={() => toggleSection("top-region")}
-                  className="flex justify-between items-center w-full md:cursor-default"
+                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
                 >
                   <h4 className="text-xs font-semibold text-white border-b border-slate-700/50 pb-1">
                     Top Region for Boarding Schools
@@ -494,17 +516,13 @@ export default function Footer() {
                     "Best International Boarding Schools In India",
                     "Top Boarding Schools Of Delhi NCR",
                   ].map((region) => (
-                    <Link
+                    <button
                       key={region}
-                      href={`https://www.doonedu.com/${region
-                        .toLowerCase()
-                        .replace(" ", "-")
-                        .replace("of", "of-")
-                        .replace("in", "in-")}`}
-                      className="block text-[10px] text-slate-300 hover:text-white py-1 hover:underline transition-all duration-200 rounded-sm hover:bg-slate-800/30"
+                      onClick={() => handleRegionClick(region)}
+                      className="block text-[10px] text-slate-300 hover:text-white py-1 hover:underline transition-all duration-200 rounded-sm hover:bg-slate-800/30 w-full text-left cursor-pointer"
                     >
                       {region}
-                    </Link>
+                    </button>
                   ))}
                 </div>
               </div>

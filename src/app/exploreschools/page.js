@@ -1,7 +1,7 @@
 "use client";
 
 import { FaEye } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, Heart, Phone, Filter, X } from "lucide-react";
 import { schoolsData } from "./data";
 import Link from "next/link";
@@ -9,9 +9,11 @@ import { useModal } from "../contexts/ModalContext";
 import ApplyModal from "../components/ApplyModal";
 import { useCity } from "../contexts/CityContext";
 import { useWishlist } from "../contexts/WishlistContext";
+import { useSearchParams } from "next/navigation";
 
 export default function Page() {
-  const { city } = useCity();
+  const searchParams = useSearchParams();
+  const { city: contextCity } = useCity();
   const { wishlist, addToWishlist, removeFromWishlist, isWishlisted } =
     useWishlist();
   const [filters, setFilters] = useState({
@@ -20,6 +22,7 @@ export default function Page() {
     gender: [],
     region: [],
     school: [],
+    type: [], // Added type filter for boarding/day schools
   });
 
   const [sortBy, setSortBy] = useState("");
@@ -30,6 +33,7 @@ export default function Page() {
     gender: false,
     region: false,
     school: false,
+    type: false, // Added type accordion
   });
 
   const [expanded, setExpanded] = useState({});
@@ -38,6 +42,77 @@ export default function Page() {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const { openModal } = useModal();
+
+  // Parse URL parameters and apply filters
+  useEffect(() => {
+    const urlCity = searchParams.get("city");
+    const area = searchParams.get("area");
+    const feeRange = searchParams.get("fee_range");
+    const board = searchParams.get("board");
+    const gender = searchParams.get("gender");
+    const classLevel = searchParams.get("class");
+    const type = searchParams.get("type"); // Get boarding school type from URL
+
+    const newFilters = { ...filters };
+
+    // Apply fee range filter
+    if (feeRange) {
+      if (feeRange === "below_rs50000") {
+        newFilters.fees = ["Under 1 Lac"];
+      } else if (feeRange === "rs50000_rs100000") {
+        newFilters.fees = ["Under 3 Lac"];
+      } else if (feeRange === "rs100000_rs200000") {
+        newFilters.fees = [
+          "Above 3 Lac And Under 5 Lac",
+          "Above 5 Lac And Under 7 Lac",
+        ];
+      } else if (feeRange === "above_rs200000") {
+        newFilters.fees = ["Above 7 Lac And Under 10 Lac", "Above 10 Lac"];
+      }
+    }
+
+    // Apply board filter
+    if (board) {
+      if (board === "cbse") {
+        newFilters.board = ["CBSE"];
+      } else if (board === "icse") {
+        newFilters.board = ["ICSE & ISC"];
+      } else if (board === "ib") {
+        newFilters.board = ["IB"];
+      } else if (board === "state board") {
+        // Handle state board schools
+        newFilters.board = ["CBSE", "ICSE & ISC", "IB", "IGCSE & CIE"];
+      }
+    }
+
+    // Apply gender filter
+    if (gender) {
+      if (gender === "boys") {
+        newFilters.gender = ["Boys"];
+      } else if (gender === "girls") {
+        newFilters.gender = ["Girls"];
+      } else if (gender === "co-ed") {
+        newFilters.gender = ["Co-Ed"];
+      }
+    }
+
+    // Apply type filter (boarding/day schools)
+    if (type) {
+      if (type === "boarding") {
+        newFilters.type = ["Boarding School"];
+      } else if (type === "day") {
+        newFilters.type = ["Day School"];
+      }
+    }
+
+    setFilters(newFilters);
+
+    // Open relevant accordions based on filters
+    if (feeRange) setAccordion((prev) => ({ ...prev, fees: true }));
+    if (board) setAccordion((prev) => ({ ...prev, board: true }));
+    if (gender) setAccordion((prev) => ({ ...prev, gender: true }));
+    if (type) setAccordion((prev) => ({ ...prev, type: true }));
+  }, [searchParams]);
 
   const toggleAccordion = (section) => {
     setAccordion((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -96,6 +171,69 @@ export default function Page() {
   };
 
   const filteredSchools = schoolsData.filter((school) => {
+    // Get URL parameters
+    const urlCity = searchParams.get("city");
+    const area = searchParams.get("area");
+    const feeRange = searchParams.get("fee_range");
+    const board = searchParams.get("board");
+    const gender = searchParams.get("gender");
+    const classLevel = searchParams.get("class");
+    const type = searchParams.get("type"); // Get boarding school type from URL
+
+    // Filter by city from URL or context
+    const targetCity = urlCity || contextCity;
+    if (targetCity) {
+      const schoolCity = getCityFromLocation(school.location).toLowerCase();
+      if (schoolCity !== targetCity.toLowerCase()) return false;
+    }
+
+    // Filter by area
+    if (area) {
+      const schoolLocation = school.location.toLowerCase();
+      if (!schoolLocation.includes(area.toLowerCase())) return false;
+    }
+
+    // Filter by class level
+    if (classLevel) {
+      const classLevelLower = classLevel.toLowerCase();
+      if (classLevelLower === "nursery") {
+        if (!school.grade.toLowerCase().includes("nursery")) return false;
+      } else if (classLevelLower === "primary") {
+        if (
+          !school.grade.toLowerCase().includes("primary") &&
+          !school.grade.toLowerCase().includes("class 1") &&
+          !school.grade.toLowerCase().includes("class 2") &&
+          !school.grade.toLowerCase().includes("class 3") &&
+          !school.grade.toLowerCase().includes("class 4") &&
+          !school.grade.toLowerCase().includes("class 5")
+        )
+          return false;
+      } else if (classLevelLower === "secondary") {
+        if (
+          !school.grade.toLowerCase().includes("class 6") &&
+          !school.grade.toLowerCase().includes("class 7") &&
+          !school.grade.toLowerCase().includes("class 8") &&
+          !school.grade.toLowerCase().includes("class 9") &&
+          !school.grade.toLowerCase().includes("class 10")
+        )
+          return false;
+      } else if (classLevelLower === "senior secondary") {
+        if (
+          !school.grade.toLowerCase().includes("class 11") &&
+          !school.grade.toLowerCase().includes("class 12")
+        )
+          return false;
+      }
+    }
+
+    // Filter by boarding school type from URL
+    if (type) {
+      if (type === "boarding" && school.type !== "Boarding School")
+        return false;
+      if (type === "day" && school.type !== "Day School") return false;
+    }
+
+    // Apply UI filters
     if (filters.fees.length > 0 && !filters.fees.includes(school.feesRange))
       return false;
 
@@ -130,15 +268,21 @@ export default function Page() {
     )
       return false;
 
+    // Apply type filter from UI
+    if (filters.type.length > 0 && !filters.type.includes(school.type))
+      return false;
+
     return true;
   });
 
   const sortedSchools = [...filteredSchools].sort((a, b) => {
-    if (city) {
+    // Prioritize schools from the selected city
+    const targetCity = searchParams.get("city") || contextCity;
+    if (targetCity) {
       const aCity = getCityFromLocation(a.location).toLowerCase();
       const bCity = getCityFromLocation(b.location).toLowerCase();
-      const aMatchesCity = aCity === city.toLowerCase();
-      const bMatchesCity = bCity === city.toLowerCase();
+      const aMatchesCity = aCity === targetCity.toLowerCase();
+      const bMatchesCity = bCity === targetCity.toLowerCase();
       if (aMatchesCity && !bMatchesCity) return -1;
       if (!aMatchesCity && bMatchesCity) return 1;
     }
@@ -187,7 +331,7 @@ export default function Page() {
             ].map((fee) => (
               <label
                 key={fee}
-                className="flex items-center space-x-2 text-[13px]"
+                className="flex items-center space-x-2 text-[13px] cursor-pointer"
               >
                 <input
                   type="checkbox"
@@ -219,7 +363,7 @@ export default function Page() {
             {["CBSE", "IB", "ICSE & ISC", "IGCSE & CIE"].map((board) => (
               <label
                 key={board}
-                className="flex items-center space-x-2 text-[13px]"
+                className="flex items-center space-x-2 text-[13px] cursor-pointer"
               >
                 <input
                   type="checkbox"
@@ -251,7 +395,7 @@ export default function Page() {
             {["Boys", "Girls", "Co-Ed"].map((g) => (
               <label
                 key={g}
-                className="flex items-center space-x-2 text-[13px]"
+                className="flex items-center space-x-2 text-[13px] cursor-pointer"
               >
                 <input
                   type="checkbox"
@@ -260,6 +404,38 @@ export default function Page() {
                   className="h-3 w-3 text-indigo-600 border-gray-300 rounded cursor-pointer"
                 />
                 <span className="text-gray-700">{g}</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="border-b border-gray-300">
+        <button
+          onClick={() => toggleAccordion("type")}
+          className="flex justify-between w-full px-4 py-5 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+        >
+          <span className="font-bold text-black">School Type</span>
+          {accordion.type ? (
+            <ChevronUp size={18} className="text-gray-500" />
+          ) : (
+            <ChevronDown size={18} className="text-gray-500" />
+          )}
+        </button>
+        {accordion.type && (
+          <div className="px-4 py-2 space-y-1">
+            {["Boarding School", "Day School"].map((type) => (
+              <label
+                key={type}
+                className="flex items-center space-x-2 text-[13px] cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={filters.type.includes(type)}
+                  onChange={() => toggleFilter("type", type)}
+                  className="h-3 w-3 text-indigo-600 border-gray-300 rounded cursor-pointer"
+                />
+                <span className="text-gray-700">{type}</span>
               </label>
             ))}
           </div>
@@ -283,7 +459,7 @@ export default function Page() {
             {["North", "South", "West"].map((region) => (
               <label
                 key={region}
-                className="flex items-center space-x-2 text-[13px]"
+                className="flex items-center space-x-2 text-[13px] cursor-pointer"
               >
                 <input
                   type="checkbox"
@@ -315,7 +491,7 @@ export default function Page() {
             {["Private", "Government"].map((s) => (
               <label
                 key={s}
-                className="flex items-center space-x-2 text-[13px]"
+                className="flex items-center space-x-2 text-[13px] cursor-pointer"
               >
                 <input
                   type="checkbox"

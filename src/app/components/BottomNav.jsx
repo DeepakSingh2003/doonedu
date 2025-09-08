@@ -1,13 +1,17 @@
 "use client";
 import Link from "next/link";
-import { FaHome, FaList, FaSearch, FaUser } from "react-icons/fa";
+import { FaHome, FaList, FaPhoneAlt, FaUser } from "react-icons/fa"; // ✅ use FaPhoneAlt
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useLogin } from "../contexts/LoginContext";
 
 const BottomNav = () => {
   const [isHidden, setIsHidden] = useState(false);
   const lastScroll = useRef(0);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const { isLoggedIn, openModal } = useLogin();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,12 +28,10 @@ const BottomNav = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Nav items data
   const navItems = [
     { path: "/", label: "Home", icon: FaHome },
-    { path: "/schools", label: "All Schools", icon: FaList },
-    { path: "/search", label: "Search", icon: FaSearch },
-    { path: "/profile", label: "Profile", icon: FaUser },
+    { path: "/exploreschools", label: "All Schools", icon: FaList },
+    { path: "/Counselling", label: "Counselling", icon: FaPhoneAlt }, // ✅ updated icon
   ];
 
   return (
@@ -38,6 +40,7 @@ const BottomNav = () => {
         isHidden ? "translate-y-full" : ""
       }`}
     >
+      {/* Standard nav links */}
       {navItems.map(({ path, label, icon: Icon }) => {
         const isActive = pathname === path;
         return (
@@ -46,19 +49,14 @@ const BottomNav = () => {
             href={path}
             className="relative flex flex-col items-center justify-center w-full py-2"
           >
-            {/* Blue line indicator */}
             {isActive && (
               <span className="absolute top-0 left-0 right-0 h-0.5 bg-[#1978CD] rounded-full"></span>
             )}
-
-            {/* Icon */}
             <Icon
               className={`text-lg ${
                 isActive ? "text-[#1978CD]" : "text-gray-600"
               }`}
             />
-
-            {/* Label with more gap */}
             <span
               className={`mt-2 text-[11px] ${
                 isActive ? "text-[#1978CD]" : "text-gray-600"
@@ -69,6 +67,34 @@ const BottomNav = () => {
           </Link>
         );
       })}
+
+      {/* Profile Button */}
+      <button
+        onClick={() => {
+          if (isLoggedIn) {
+            router.push("/profile");
+          } else {
+            openModal("login");
+          }
+        }}
+        className="relative flex flex-col items-center justify-center w-full py-2"
+      >
+        {pathname === "/profile" && (
+          <span className="absolute top-0 left-0 right-0 h-0.5 bg-[#1978CD] rounded-full"></span>
+        )}
+        <FaUser
+          className={`text-lg ${
+            pathname === "/profile" ? "text-[#1978CD]" : "text-gray-600"
+          }`}
+        />
+        <span
+          className={`mt-2 text-[11px] ${
+            pathname === "/profile" ? "text-[#1978CD]" : "text-gray-600"
+          }`}
+        >
+          Profile
+        </span>
+      </button>
     </nav>
   );
 };

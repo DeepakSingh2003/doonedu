@@ -1,6 +1,5 @@
 import Image from "next/image";
-import Navbar from "./components/Navbar";
-import SubNav from "./components/subnav";
+
 import HeroSection from "./components/Herosection";
 import SchoolCarousel from "./components/SchoolCarousel";
 import SchoolSuggestionCard from "./components/SchoolSuggestionCard";

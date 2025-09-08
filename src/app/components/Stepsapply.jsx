@@ -52,11 +52,11 @@ export default function StepsSection() {
       <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
 
       <div className="text-center">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-2">
           How to apply with{" "}
           <span className="text-red-500">Global Edu.Consulting</span>
         </h2>
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-600 mb-4 sm:mb-8 text-[12px] sm:text-lg">
           Getting Started: Complete these steps to fill form
         </p>
       </div>
@@ -107,19 +107,19 @@ export default function StepsSection() {
 
           {/* ===== Mobile view (accordion) ===== */}
           <div className="lg:hidden flex flex-col gap-3">
-            <div className="flex flex-col items-center p-6 ">
+            <div className="flex flex-col items-center mb-1">
               {/* Top Image */}
               <img
                 src="https://ezyschooling.com/_next/image?url=%2Fimages%2Fhomepage%2Fstep-5.webp&w=128&q=80"
                 alt="Completed Steps"
-                className="w-16 h-16 mb-3"
+                className="w-16 h-16"
               />
 
               {/* Title */}
               <h3 className="text-lg  text-gray-900">Completed Steps</h3>
 
               {/* Subtitle */}
-              <p className="text-sm text-gray-600 text-center mt-1">
+              <p className="text-sm text-gray-600 text-center">
                 It takes only 5 steps to apply
               </p>
             </div>

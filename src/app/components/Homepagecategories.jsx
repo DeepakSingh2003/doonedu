@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   MapPin,
   ChevronRight,
@@ -11,11 +10,12 @@ import {
   Users,
   BookOpen,
 } from "lucide-react";
-import { useCity } from "../contexts/CityContext"; // Adjust path as needed
+import { useCity } from "../contexts/CityContext";
 
 export default function SchoolTabs() {
-  const { city } = useCity(); // Get selected city from context
+  const { city } = useCity();
   const [activeTab, setActiveTab] = useState("locations");
+  const router = useRouter();
 
   const tabs = [
     {
@@ -326,7 +326,7 @@ export default function SchoolTabs() {
     ? content.locations.filter(
         (item) => item.city.toLowerCase() === city.toLowerCase()
       )
-    : content.locations; // Show all locations if no city is selected
+    : content.locations;
 
   // Map tab IDs to their respective icons for content
   const getContentIcon = (tabId) => {
@@ -344,6 +344,66 @@ export default function SchoolTabs() {
       default:
         return <MapPin className="h-4 w-4 text-primary" />;
     }
+  };
+
+  // Function to handle navigation to explore schools
+  const handleNavigateToExploreSchools = (tabType, filterValue, title) => {
+    // Create query parameters based on the tab type and filter value
+    const queryParams = new URLSearchParams();
+
+    // Add city filter if available
+    if (city) {
+      queryParams.append("city", city.toLowerCase());
+    }
+
+    // Add the specific filter based on tab type
+    switch (tabType) {
+      case "locations":
+        // For locations, we need to extract the area from the title
+        if (title.includes("All Schools")) {
+          queryParams.append(
+            "city",
+            title.replace("All Schools in ", "").toLowerCase()
+          );
+        } else {
+          const area = title
+            .replace("Schools in ", "")
+            .split(",")[0]
+            .toLowerCase();
+          queryParams.append("area", area);
+        }
+        break;
+      case "fees":
+        queryParams.append(
+          "fee_range",
+          title
+            .toLowerCase()
+            .replace("₹", "rs")
+            .replace(",", "")
+            .replace(" ", "_")
+        );
+        break;
+      case "boards":
+        queryParams.append(
+          "board",
+          title.replace(" Schools", "").toLowerCase()
+        );
+        break;
+      case "coeds":
+        queryParams.append(
+          "gender",
+          title.replace(" Schools", "").toLowerCase()
+        );
+        break;
+      case "classes":
+        queryParams.append("class", title.toLowerCase());
+        break;
+      default:
+        break;
+    }
+
+    // Navigate to explore schools page with query parameters
+    router.push(`/exploreschools?${queryParams.toString()}`);
   };
 
   return (
@@ -400,10 +460,16 @@ export default function SchoolTabs() {
                   ? filteredLocations
                   : content[activeTab]
                 ).map((item, idx) => (
-                  <Link
+                  <div
                     key={idx}
-                    href={item.link}
-                    className="flex items-center py-3 px-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-all hover:shadow-sm group h-[60px]"
+                    onClick={() =>
+                      handleNavigateToExploreSchools(
+                        activeTab,
+                        item.title,
+                        item.title
+                      )
+                    }
+                    className="flex items-center py-3 px-4 hover:bg-gray-50 rounded-lg border border-gray-100 transition-all hover:shadow-sm group h-[60px] cursor-pointer"
                   >
                     <div className="flex-shrink-0 w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center mr-3">
                       {getContentIcon(activeTab)}
@@ -414,7 +480,7 @@ export default function SchoolTabs() {
                       </span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors" />
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}

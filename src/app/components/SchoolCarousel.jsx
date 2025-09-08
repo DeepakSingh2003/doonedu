@@ -2,6 +2,7 @@
 import React, { useRef, useEffect } from "react";
 import Link from "next/link";
 import { schoolsData } from "../exploreschools/data";
+import { FaSchool, FaMapMarkerAlt, FaCertificate } from "react-icons/fa";
 
 export default function SchoolCarousel() {
   const carouselRef = useRef(null);
@@ -49,7 +50,7 @@ export default function SchoolCarousel() {
         {/* Prev Button */}
         <button
           aria-label="carousel-previous"
-          className="absolute left-2 md:left-[-20px] top-1/2 -translate-y-1/2 z-30 flex w-9 h-9 md:w-10 md:h-10 items-center justify-center rounded-full bg-gray-300 text-black shadow-lg cursor-pointer"
+          className="absolute left-0 md:left-[-20px] top-1/2 -translate-y-1/2 z-30 flex w-7 h-7 md:w-10 md:h-10 items-center justify-center rounded-full bg-gray-300 text-black shadow-lg cursor-pointer"
           onClick={() => scroll(-1)}
         >
           &#8249;
@@ -63,7 +64,7 @@ export default function SchoolCarousel() {
           {schoolsData.map((school) => (
             <div
               key={school.id}
-              className="flex-none w-[80%] sm:w-[250px] md:w-[320px] bg-white shadow-lg rounded-2xl overflow-hidden transition hover:shadow-xl snap-start mb-7"
+              className="flex-none w-[95%] sm:w-[250px] md:w-[320px] bg-white shadow-lg rounded-2xl overflow-hidden transition hover:shadow-xl snap-start mb-7"
             >
               <div className="h-[140px] md:h-[160px]">
                 <img
@@ -74,9 +75,16 @@ export default function SchoolCarousel() {
               </div>
 
               <div className="p-3 flex flex-col gap-2">
-                <h2 className="text-sm font-semibold">{school.name}</h2>
-                <p className="text-xs text-gray-600">{school.location}</p>
-                <p className="text-xs">
+                <h2 className="text-sm font-semibold flex items-center gap-2">
+                  <FaSchool className="text-blue-600" />
+                  {school.name}
+                </h2>
+                <p className="text-xs text-gray-600 flex items-center gap-2">
+                  <FaMapMarkerAlt className="text-blue-600" />
+                  {school.location}
+                </p>
+                <p className="text-xs flex items-center gap-2">
+                  <FaCertificate className="text-blue-600" />
                   <span className="font-medium">Affiliated To: </span>
                   {school.board}
                 </p>
@@ -96,7 +104,7 @@ export default function SchoolCarousel() {
         {/* Next Button */}
         <button
           aria-label="carousel-next"
-          className="absolute right-2 md:right-[-20px] top-1/2 -translate-y-1/2 z-30 flex w-9 h-9 md:w-10 md:h-10 items-center justify-center rounded-full bg-gray-300 text-black shadow-lg cursor-pointer"
+          className="absolute right-0 md:right-[-20px] top-1/2 -translate-y-1/2 z-30 flex w-7 h-7 md:w-10 md:h-10 sm:w-9 sm:h-9 items-center justify-center rounded-full bg-gray-300 text-black shadow-lg cursor-pointer"
           onClick={() => scroll(1)}
         >
           &#8250;
