@@ -52,8 +52,9 @@ import { useModal } from "../contexts/ModalContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import ApplyModal from "../components/ApplyModal";
 
-export default function SchoolProfile({ school = {} }) {
+export default function SchoolProfile({ school, seo }) {
   console.log("Rendering SchoolProfile for:", school);
+  console.log("seo title", seo.seo_html);
   const { slug } = useParams();
   const router = useRouter();
   const { openModal } = useModal();
@@ -75,6 +76,33 @@ export default function SchoolProfile({ school = {} }) {
 
   // Parse FAQs from school_additional_information
   useEffect(() => {
+    if (seo.seo_html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(seo.seo_html, "text/html");
+      const title = doc.querySelector("title")?.textContent;
+
+      if (title) {
+        document.title = title;
+      }
+
+      // You can also update the description if needed
+      const description = doc
+        .querySelector('meta[name="description"]')
+        ?.getAttribute("content");
+      if (description) {
+        const metaDescription = document.querySelector(
+          'meta[name="description"]'
+        );
+        if (metaDescription) {
+          metaDescription.setAttribute("content", description);
+        } else {
+          const meta = document.createElement("meta");
+          meta.name = "description";
+          meta.content = description;
+          document.head.appendChild(meta);
+        }
+      }
+    }
     const faqInfo = school?.school_additional_information?.find(
       (info) => info?.title === "Frequently Asked Questions"
     );
@@ -1332,10 +1360,7 @@ export default function SchoolProfile({ school = {} }) {
                         key={blog.id}
                         className="flex flex-col sm:flex-row items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer border border-gray-100"
                         onClick={() =>
-                          window.open(
-                            `https://www.doonedu.com/${blog.url || "#"}`,
-                            "_blank"
-                          )
+                          window.open(`/${blog.url || "#"}`, "_blank")
                         }
                       >
                         <div className="bg-gray-200 w-full sm:w-24 h-24 rounded flex-shrink-0 overflow-hidden">

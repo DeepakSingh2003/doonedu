@@ -4,6 +4,7 @@ import { FaEye } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, Heart, Phone, Filter, X } from "lucide-react";
 import Link from "next/link";
+
 import { useModal } from "../contexts/ModalContext";
 import ApplyModal from "../components/ApplyModal";
 import { useCity } from "../contexts/CityContext";
@@ -13,6 +14,7 @@ import DOMPurify from "dompurify";
 
 export default function Location({ locationData }) {
   console.log("Location Data:", locationData.response.data.location_descripton);
+  console.log("SEO HTML:", locationData.response.data.seo_html); // Log SEO HTML for debugging
   const schoolsData = locationData?.response.data.schools_list || [];
   console.log("Schools Data:", schoolsData);
   const searchParams = useSearchParams();
@@ -49,17 +51,14 @@ export default function Location({ locationData }) {
     if (feeNum < 1000000) return "Above 7 Lac And Under 10 Lac";
     return "Above 10 Lac";
   };
+
   const toggleFandq = (index) => {
     setFaqOpen((prev) => {
-      // Create a new object with all values set to false
       const newState = {};
       Object.keys(prev).forEach((key) => {
         newState[key] = false;
       });
-
-      // Toggle the clicked FAQ (if it was closed, open it; if open, close it)
       newState[index] = !prev[index];
-
       return newState;
     });
   };
@@ -82,8 +81,40 @@ export default function Location({ locationData }) {
     return tmp.textContent || tmp.innerText || "";
   };
 
+  // Parse SEO HTML content
+
   // Parse URL parameters & pretty slugs
   useEffect(() => {
+    if (locationData?.response?.data?.seo_html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(
+        locationData.response.data.seo_html,
+        "text/html"
+      );
+      const title = doc.querySelector("title")?.textContent;
+
+      if (title) {
+        document.title = title;
+      }
+
+      // You can also update the description if needed
+      const description = doc
+        .querySelector('meta[name="description"]')
+        ?.getAttribute("content");
+      if (description) {
+        const metaDescription = document.querySelector(
+          'meta[name="description"]'
+        );
+        if (metaDescription) {
+          metaDescription.setAttribute("content", description);
+        } else {
+          const meta = document.createElement("meta");
+          meta.name = "description";
+          meta.content = description;
+          document.head.appendChild(meta);
+        }
+      }
+    }
     let urlCity = searchParams.get("city");
     let feeRange = searchParams.get("fee_range");
     let board = searchParams.get("board");
@@ -373,329 +404,290 @@ export default function Location({ locationData }) {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 pt-0 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8 sm:pt-20">
-      <aside className="hidden lg:block w-72 bg-white rounded-xl shadow-lg p-4 sticky top-24 h-fit max-h-[85vh] overflow-y-auto">
-        <SidebarContent />
-      </aside>
-      <div className="flex-1 space-y-2">
-        <div className="lg:hidden sticky top-14 z-40 bg-white py-3">
-          <button
-            onClick={() => setMobileFilterOpen(true)}
-            className="flex items-center justify-center gap-2 w-full py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
-          >
-            <Filter size={18} /> Filter Schools
-          </button>
-        </div>
-        {mobileFilterOpen && (
-          <div className="fixed inset-0 z-50 flex flex-col">
-            <div
-              className="absolute inset-0 bg-black/60"
-              onClick={() => setMobileFilterOpen(false)}
-            ></div>
-            <div className="relative bg-white w-full max-h-[85vh] mt-16 rounded-t-2xl overflow-y-auto animate-slideUp">
-              <div className="sticky top-0 bg-white flex justify-between items-center p-4 border-b">
-                <h2 className="text-xl font-bold">Filter Schools</h2>
-                <button
-                  onClick={() => setMobileFilterOpen(false)}
-                  className="p-1 rounded-full bg-gray-100 cursor-pointer"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-              <div className="p-4">
-                <SidebarContent />
-                <div className="mt-6">
+    <>
+      <div className="max-w-7xl mx-auto px-4 pt-0 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8 sm:pt-20">
+        <aside className="hidden lg:block w-72 bg-white rounded-xl shadow-lg p-4 sticky top-24 h-fit max-h-[85vh] overflow-y-auto">
+          <SidebarContent />
+        </aside>
+        <div className="flex-1 space-y-2">
+          <div className="lg:hidden sticky top-14 z-40 bg-white py-3">
+            <button
+              onClick={() => setMobileFilterOpen(true)}
+              className="flex items-center justify-center gap-2 w-full py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
+            >
+              <Filter size={18} /> Filter Schools
+            </button>
+          </div>
+          {mobileFilterOpen && (
+            <div className="fixed inset-0 z-50 flex flex-col">
+              <div
+                className="absolute inset-0 bg-black/60"
+                onClick={() => setMobileFilterOpen(false)}
+              ></div>
+              <div className="relative bg-white w-full max-h-[85vh] mt-16 rounded-t-2xl overflow-y-auto animate-slideUp">
+                <div className="sticky top-0 bg-white flex justify-between items-center p-4 border-b">
+                  <h2 className="text-xl font-bold">Filter Schools</h2>
                   <button
                     onClick={() => setMobileFilterOpen(false)}
-                    className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium cursor-pointer"
+                    className="p-1 rounded-full bg-gray-100 cursor-pointer"
                   >
-                    Apply Filters
+                    <X size={24} />
                   </button>
+                </div>
+                <div className="p-4">
+                  <SidebarContent />
+                  <div className="mt-6">
+                    <button
+                      onClick={() => setMobileFilterOpen(false)}
+                      className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium cursor-pointer"
+                    >
+                      Apply Filters
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
-        <div className="bg-white shadow-md rounded-xl p-6 space-y-4 border-l-8 border-blue-400">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-800">
-              {locationData.response.data.location_ad.page_title}
-            </h2>
-            {locationData?.response?.data?.location_descripton &&
-              stripHtml(locationData.response.data.location_descripton).length >
-                150 && (
-                <button
-                  onClick={() => setShowMoreHighlights(!showMoreHighlights)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-4 py-1.5 rounded-full transition-all duration-200"
-                >
-                  {showMoreHighlights ? "Show Less" : "Show More"}
-                </button>
-              )}
-          </div>
-          <div className="relative text-gray-700 text-sm leading-relaxed">
-            {locationData?.response?.data?.location_descripton ? (
-              <>
-                <div
-                  className="custom-html"
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(
-                      showMoreHighlights
-                        ? locationData.response.data.location_descripton
-                        : stripHtml(
-                            locationData.response.data.location_descripton
-                          ).slice(0, 300) + "..."
-                    ),
-                  }}
-                />
-                {!showMoreHighlights && (
-                  <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
-                )}
-              </>
-            ) : (
-              <p className="text-gray-500 italic">No highlights available.</p>
-            )}
-          </div>
-        </div>
-        <div className="flex justify-end items-center bg-white p-4 rounded-xl">
-          <div className="relative">
-            <button
-              onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-            >
-              {sortBy === "fee-high-to-low"
-                ? "Fee - high to low"
-                : sortBy === "fee-low-to-high"
-                ? "Fee - low to high"
-                : "Sort By"}
-              <ChevronDown
-                size={16}
-                className={`transition-transform ${
-                  sortDropdownOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {sortDropdownOpen && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
-                <div className="py-1">
-                  <button
-                    onClick={() => handleSort("fee-high-to-low")}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                  >
-                    Fee - high to low
-                  </button>
-                  <button
-                    onClick={() => handleSort("fee-low-to-high")}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                  >
-                    Fee - low to high
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-        {sortedSchools.length > 0 ? (
-          sortedSchools.map((school) => (
-            <Link
-              key={school.id}
-              href={new URL(school.url).pathname}
-              className="block"
-            >
-              <div className="relative bg-white rounded-xl shadow-md hover:shadow-lg transition p-5 flex flex-col md:flex-row gap-5 cursor-pointer">
-                <button
-                  onClick={(e) => toggleWishlist(school, e)}
-                  className="absolute top-3 right-3 z-10 bg-white p-1 rounded-full shadow-md cursor-pointer"
-                >
-                  <Heart
-                    size={20}
-                    className={`transition-colors ${
-                      isWishlisted(school.id)
-                        ? "fill-red-500 text-red-500"
-                        : "text-red-500"
-                    }`}
-                  />
-                </button>
-                {school.isAdmissionOpen && (
-                  <img
-                    src="https://res.cloudinary.com/dnq8fbcxh/image/upload/v1756874282/vecteezy_admissions-open-sign-red-yellow-hanging-board-new-student_60579933_echl2d.png"
-                    alt="Admission Open"
-                    className="absolute top-2 right-12 w-12 sm:w-14 animate-hang"
-                  />
-                )}
-                <div className="w-full md:w-56 flex-shrink-0 mx-auto">
-                  <div className="h-40 rounded-lg overflow-hidden">
-                    <img
-                      src={`https://www.doonedu.com/images/schools/${school.id}/${school.thumbnail}`}
-                      alt={school.school_title}
-                      className="w-full h-full object-cover hover:scale-105 transition"
-                    />
-                  </div>
-                  <div className="mx-auto -mt-3 bg-black/70 text-white text-xs px-4 py-1 rounded-t-xl flex items-center justify-center gap-2 w-36 sm:w-40 relative z-10">
-                    <FaEye className="text-xs" />
-                    <span>{school.views}</span>
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col">
-                  <h3 className="text-base md:text-lg font-semibold text-gray-800 flex items-center">
-                    {school.isVerified && (
-                      <svg
-                        className="w-4 h-4 md:w-5 md:h-5 text-green-600 mr-1.5"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                      </svg>
-                    )}
-                    {school.school_title}
-                  </h3>
-                  <p className="text-gray-600 text-xs mt-1 flex items-center gap-1">
-                    📍 {school.address}
-                  </p>
-                  <p className="text-red-600 font-bold text-sm md:text-base mt-1">
-                    ₹ {school.average_fee}
-                    <span className="font-normal text-xs text-gray-500">
-                      {" "}
-                      / annum
-                    </span>
-                  </p>
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    <span className="px-2 py-1 bg-purple-50 text-purple-700 text-[0.65rem] rounded-full font-medium">
-                      {school.category}
-                    </span>
-                    <span className="px-2 py-1 bg-purple-50 text-purple-700 text-[0.65rem] rounded-full font-medium">
-                      {school.board?.title}
-                    </span>
-                    <span className="px-2 py-1 bg-pink-50 text-pink-700 text-[0.65rem] rounded-full font-medium">
-                      {school.classification?.title}
-                    </span>
-                    <span className="px-2 py-1 bg-green-50 text-green-700 text-[0.65rem] rounded-full font-medium">
-                      Class {school.grade?.title}
-                    </span>
-                  </div>
-                  {school.about && (
-                    <div className="text-xs text-gray-700 mt-2">
-                      <span
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(
-                            expanded[`about-${school.id}`]
-                              ? decodeBase64(school.about)
-                              : decodeBase64(school.about).slice(0, 150) + "..."
-                          ),
-                        }}
-                      />
-                      {decodeBase64(school.about).length > 140 && (
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setExpanded((prev) => ({
-                              ...prev,
-                              [`about-${school.id}`]:
-                                !prev[`about-${school.id}`],
-                            }));
-                          }}
-                          className="text-red-500 font-medium cursor-pointer"
-                        >
-                          {expanded[`about-${school.id}`]
-                            ? "Read less"
-                            : "Read more"}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  <div className="mt-5 flex flex-wrap gap-1 md:gap-3">
-                    <button className="px-3 py-1.5 border border-red-600 text-red-600 text-xs rounded-lg hover:bg-red-600 hover:text-white transition cursor-pointer">
-                      View School
-                    </button>
-                    <button
-                      onClick={(e) => handleApplyNow(school, e)}
-                      className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition cursor-pointer"
-                    >
-                      Apply Now
-                    </button>
-                    <button
-                      onClick={(e) => handleCallNow(school, e)}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 transition cursor-pointer"
-                    >
-                      <Phone size={12} />
-                      Call Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))
-        ) : (
-          <p className="text-gray-500 text-sm text-center py-6 bg-white rounded-xl shadow-md">
-            No schools match the selected filters.
-          </p>
-        )}
-        {faqItems.length > 0 && (
-          <div className="bg-white shadow-lg rounded-xl p-6 mt-8 border border-gray-100">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                Frequently Asked Questions
+          )}
+          <div className="bg-white shadow-md rounded-xl p-6 space-y-4 border-l-8 border-blue-400">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-800">
+                {locationData.response.data.location_ad.page_title}
               </h2>
-              <p className="text-gray-600 text-sm">
-                Find answers to common questions about our schools
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {faqItems.map((faq, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-sm"
-                >
+              {locationData?.response?.data?.location_descripton &&
+                stripHtml(locationData.response.data.location_descripton)
+                  .length > 150 && (
                   <button
-                    onClick={() => toggleFandq(index)}
-                    className="flex justify-between items-center w-full text-left p-5 bg-gradient-to-r from-gray-50 to-white hover:from-blue-50 hover:to-blue-50 transition-all duration-200 cursor-pointer"
+                    onClick={() => setShowMoreHighlights(!showMoreHighlights)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-4 py-1.5 rounded-full transition-all duration-200"
                   >
-                    <div className="flex items-start space-x-4">
-                      <div className="bg-blue-100 p-2 rounded-full mt-0.5">
+                    {showMoreHighlights ? "Show Less" : "Show More"}
+                  </button>
+                )}
+            </div>
+            <div className="relative text-gray-700 text-sm leading-relaxed">
+              {locationData?.response?.data?.location_descripton ? (
+                <>
+                  <div
+                    className="custom-html"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        showMoreHighlights
+                          ? locationData.response.data.location_descripton
+                          : stripHtml(
+                              locationData.response.data.location_descripton
+                            ).slice(0, 300) + "..."
+                      ),
+                    }}
+                  />
+                  {!showMoreHighlights && (
+                    <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                  )}
+                </>
+              ) : (
+                <p className="text-gray-500 italic">No highlights available.</p>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-end items-center bg-white p-4 rounded-xl">
+            <div className="relative">
+              <button
+                onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                {sortBy === "fee-high-to-low"
+                  ? "Fee - high to low"
+                  : sortBy === "fee-low-to-high"
+                  ? "Fee - low to high"
+                  : "Sort By"}
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${
+                    sortDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {sortDropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleSort("fee-high-to-low")}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                    >
+                      Fee - high to low
+                    </button>
+                    <button
+                      onClick={() => handleSort("fee-low-to-high")}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                    >
+                      Fee - low to high
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          {sortedSchools.length > 0 ? (
+            sortedSchools.map((school) => (
+              <Link
+                key={school.id}
+                href={new URL(school.url).pathname}
+                className="block"
+              >
+                <div className="relative bg-white rounded-xl shadow-md hover:shadow-lg transition p-5 flex flex-col md:flex-row gap-5 cursor-pointer">
+                  <button
+                    onClick={(e) => toggleWishlist(school, e)}
+                    className="absolute top-3 right-3 z-10 bg-white p-1 rounded-full shadow-md cursor-pointer"
+                  >
+                    <Heart
+                      size={20}
+                      className={`transition-colors ${
+                        isWishlisted(school.id)
+                          ? "fill-red-500 text-red-500"
+                          : "text-red-500"
+                      }`}
+                    />
+                  </button>
+                  {school.isAdmissionOpen && (
+                    <img
+                      src="https://res.cloudinary.com/dnq8fbcxh/image/upload/v1756874282/vecteezy_admissions-open-sign-red-yellow-hanging-board-new-student_60579933_echl2d.png"
+                      alt="Admission Open"
+                      className="absolute top-2 right-12 w-12 sm:w-14 animate-hang"
+                    />
+                  )}
+                  <div className="w-full md:w-56 flex-shrink-0 mx-auto">
+                    <div className="h-40 rounded-lg overflow-hidden">
+                      <img
+                        src={`https://www.doonedu.com/images/schools/${school.id}/${school.thumbnail}`}
+                        alt={school.school_title}
+                        className="w-full h-full object-cover hover:scale-105 transition"
+                      />
+                    </div>
+                    <div className="mx-auto -mt-3 bg-black/70 text-white text-xs px-4 py-1 rounded-t-xl flex items-center justify-center gap-2 w-36 sm:w-40 relative z-10">
+                      <FaEye className="text-xs" />
+                      <span>{school.views}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 flex flex-col">
+                    <h3 className="text-base md:text-lg font-semibold text-gray-800 flex items-center">
+                      {school.isVerified && (
                         <svg
-                          className="w-5 h-5 text-blue-600"
-                          fill="none"
-                          stroke="currentColor"
+                          className="w-4 h-4 md:w-5 md:h-5 text-green-600 mr-1.5"
+                          fill="currentColor"
                           viewBox="0 0 24 24"
                           xmlns="http://www.w3.org/2000/svg"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          ></path>
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                         </svg>
-                      </div>
-                      <span className="text-base font-semibold text-gray-800">
-                        {faq.question}
+                      )}
+                      {school.school_title}
+                    </h3>
+                    <p className="text-gray-600 text-xs mt-1 flex items-center gap-1">
+                      📍 {school.address}
+                    </p>
+                    <p className="text-red-600 font-bold text-sm md:text-base mt-1">
+                      ₹ {school.average_fee}
+                      <span className="font-normal text-xs text-gray-500">
+                        {" "}
+                        / annum
+                      </span>
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <span className="px-2 py-1 bg-purple-50 text-purple-700 text-[0.65rem] rounded-full font-medium">
+                        {school.category}
+                      </span>
+                      <span className="px-2 py-1 bg-purple-50 text-purple-700 text-[0.65rem] rounded-full font-medium">
+                        {school.board?.title}
+                      </span>
+                      <span className="px-2 py-1 bg-pink-50 text-pink-700 text-[0.65rem] rounded-full font-medium">
+                        {school.classification?.title}
+                      </span>
+                      <span className="px-2 py-1 bg-green-50 text-green-700 text-[0.65rem] rounded-full font-medium">
+                        Class {school.grade?.title}
                       </span>
                     </div>
-                    {faqOpen[index] ? (
-                      <div className="bg-blue-100 p-1 rounded-full">
-                        <ChevronUp
-                          size={20}
-                          className="text-blue-600 flex-shrink-0"
+                    {school.about && (
+                      <div className="text-xs text-gray-700 mt-2">
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(
+                              expanded[`about-${school.id}`]
+                                ? decodeBase64(school.about)
+                                : decodeBase64(school.about).slice(0, 150) +
+                                    "..."
+                            ),
+                          }}
                         />
-                      </div>
-                    ) : (
-                      <div className="bg-gray-100 p-1 rounded-full">
-                        <ChevronDown
-                          size={20}
-                          className="text-gray-600 flex-shrink-0"
-                        />
+                        {decodeBase64(school.about).length > 140 && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setExpanded((prev) => ({
+                                ...prev,
+                                [`about-${school.id}`]:
+                                  !prev[`about-${school.id}`],
+                              }));
+                            }}
+                            className="text-red-500 font-medium cursor-pointer"
+                          >
+                            {expanded[`about-${school.id}`]
+                              ? "Read less"
+                              : "Read more"}
+                          </button>
+                        )}
                       </div>
                     )}
-                  </button>
-
-                  {faqOpen[index] && (
-                    <div className="p-5 bg-white border-t border-gray-100 transition-all duration-300">
-                      <div className="flex space-x-4">
-                        <div className="bg-green-100 p-2 rounded-full h-9 w-9 flex-shrink-0">
+                    <div className="mt-5 flex flex-wrap gap-1 md:gap-3">
+                      <button className="px-3 py-1.5 border border-red-600 text-red-600 text-xs rounded-lg hover:bg-red-600 hover:text-white transition cursor-pointer">
+                        View School
+                      </button>
+                      <button
+                        onClick={(e) => handleApplyNow(school, e)}
+                        className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition cursor-pointer"
+                      >
+                        Apply Now
+                      </button>
+                      <button
+                        onClick={(e) => handleCallNow(school, e)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 transition cursor-pointer"
+                      >
+                        <Phone size={12} />
+                        Call Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <p className="text-gray-500 text-sm text-center py-6 bg-white rounded-xl shadow-md">
+              No schools match the selected filters.
+            </p>
+          )}
+          {faqItems.length > 0 && (
+            <div className="bg-white shadow-lg rounded-xl p-6 mt-8 border border-gray-100">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  Frequently Asked Questions
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Find answers to common questions about our schools
+                </p>
+              </div>
+              <div className="space-y-4">
+                {faqItems.map((faq, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-sm"
+                  >
+                    <button
+                      onClick={() => toggleFandq(index)}
+                      className="flex justify-between items-center w-full text-left p-5 bg-gradient-to-r from-gray-50 to-white hover:from-blue-50 hover:to-blue-50 transition-all duration-200 cursor-pointer"
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className="bg-blue-100 p-2 rounded-full mt-0.5">
                           <svg
-                            className="w-5 h-5 text-green-600"
+                            className="w-5 h-5 text-blue-600"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -705,23 +697,63 @@ export default function Location({ locationData }) {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth="2"
-                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                             ></path>
                           </svg>
                         </div>
-                        <div
-                          className="text-sm text-gray-700 leading-relaxed prose prose-sm"
-                          dangerouslySetInnerHTML={{ __html: faq.answer }}
-                        />
+                        <span className="text-base font-semibold text-gray-800">
+                          {faq.question}
+                        </span>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                      {faqOpen[index] ? (
+                        <div className="bg-blue-100 p-1 rounded-full">
+                          <ChevronUp
+                            size={20}
+                            className="text-blue-600 flex-shrink-0"
+                          />
+                        </div>
+                      ) : (
+                        <div className="bg-gray-100 p-1 rounded-full">
+                          <ChevronDown
+                            size={20}
+                            className="text-gray-600 flex-shrink-0"
+                          />
+                        </div>
+                      )}
+                    </button>
+                    {faqOpen[index] && (
+                      <div className="p-5 bg-white border-t border-gray-100 transition-all duration-300">
+                        <div className="flex space-x-4">
+                          <div className="bg-green-100 p-2 rounded-full h-9 w-9 flex-shrink-0">
+                            <svg
+                              className="w-5 h-5 text-green-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              ></path>
+                            </svg>
+                          </div>
+                          <div
+                            className="text-sm text-gray-700 leading-relaxed prose prose-sm"
+                            dangerouslySetInnerHTML={{ __html: faq.answer }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

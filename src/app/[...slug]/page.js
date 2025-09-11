@@ -48,7 +48,7 @@ export default function Page() {
 
   // ✅ School page
   if (slugArray.length === 2 && data.response?.page_type === "school_view") {
-    return <School school={data.response.school} />;
+    return <School school={data.response.school} seo={data.response.data} />;
   }
 
   // ✅ Blog list page

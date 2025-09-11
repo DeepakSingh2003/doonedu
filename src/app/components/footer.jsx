@@ -46,21 +46,21 @@ export default function Footer() {
     <footer className="bg-gradient-to-b from-[#2B2B39] to-[#1F1F2A] text-white">
       <div className="max-w-[90%] md:max-w-[80%] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-8">
-          <div className="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-7 gap-8 md:mb-8">
+          <div className="flex flex-col md:flex-row  gap-6 md:mb-8">
             {/* Logo Section */}
-            <div className="md:col-span-6 lg:col-span-2 text-center">
-              <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="flex-1 min-w-[200px] text-center md:text-left">
+              <div className="flex flex-col items-center md:items-start space-y-4">
                 <img
                   src="https://res.cloudinary.com/dnq8fbcxh/image/upload/v1757137090/global-edu-consulting_1_uohjgy.png"
                   alt="Ezyschooling Logo"
                   title="Ezyschooling Logo"
                   className="h-[50px] w-auto"
                 />
-                <p className="text-slate-300 text-[10px] leading-relaxed max-w-sm mx-auto px-4">
+                <p className="text-slate-300 text-[10px] leading-relaxed max-w-sm md:max-w-xs px-4 md:px-0">
                   Your trusted partner in finding the perfect school for your
                   child's bright future.
                 </p>
-                <div className="flex space-x-4 pt-2">
+                <div className="flex pt-2">
                   {socialLinks.map(({ href, label, icon }) => (
                     <Link
                       key={label}
@@ -220,7 +220,7 @@ export default function Footer() {
                 ),
               },
             ].map(({ key, title, content }) => (
-              <div key={key} className="md:col-span-1">
+              <div key={key} className="flex-1 min-w-[200px]">
                 <div className="space-y-3">
                   <button
                     onClick={() => toggleSection(key)}
@@ -256,7 +256,6 @@ export default function Footer() {
               </div>
             ))}
           </div>
-
           {/* Locations & Regions */}
           <div className="border-t border-slate-700/50 pt-6 md:pt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {[
