@@ -18,7 +18,7 @@ export default function SubNavbar() {
   ];
 
   const linksRight = [
-    { name: "Blog", href: "/Blog" },
+    { name: "Blog", href: "/blog" },
     { name: "Ask a Question", href: "/Askquestion" },
   ];
 

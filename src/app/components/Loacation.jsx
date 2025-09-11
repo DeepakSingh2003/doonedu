@@ -3,16 +3,18 @@
 import { FaEye } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, Heart, Phone, Filter, X } from "lucide-react";
-import { schoolsData } from "./data";
 import Link from "next/link";
 import { useModal } from "../contexts/ModalContext";
 import ApplyModal from "../components/ApplyModal";
 import { useCity } from "../contexts/CityContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useSearchParams, usePathname } from "next/navigation";
-import { slugify } from "../utils/slugify"; // make sure this helper exists
+import DOMPurify from "dompurify";
 
-export default function Page() {
+export default function Location({ locationData }) {
+  console.log("Location Data:", locationData.response.data.location_descripton);
+  const schoolsData = locationData?.response.data.schools_list || [];
+  console.log("Schools Data:", schoolsData);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { city: contextCity } = useCity();
@@ -22,30 +24,65 @@ export default function Page() {
     fees: [],
     board: [],
     gender: [],
-    region: [],
-    school: [],
-    type: [],
-    city: [],
   });
-
   const [sortBy, setSortBy] = useState("");
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const [accordion, setAccordion] = useState({
     fees: true,
     board: false,
     gender: false,
-    region: false,
-    school: false,
-    type: false,
   });
-
   const [expanded, setExpanded] = useState({});
   const [showMoreHighlights, setShowMoreHighlights] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-
+  const [faqOpen, setFaqOpen] = useState({});
   const { openModal } = useModal();
 
-  // 🔹 Parse URL parameters & pretty slugs
+  // Helper function to get fee range from average_fee
+  const getFeeRange = (fee) => {
+    if (!fee) return "Unknown";
+    const feeNum = parseFloat(fee.replace(/[^0-9.]/g, ""));
+    if (feeNum < 100000) return "Under 1 Lac";
+    if (feeNum < 300000) return "Under 3 Lac";
+    if (feeNum < 500000) return "Above 3 Lac And Under 5 Lac";
+    if (feeNum < 700000) return "Above 5 Lac And Under 7 Lac";
+    if (feeNum < 1000000) return "Above 7 Lac And Under 10 Lac";
+    return "Above 10 Lac";
+  };
+  const toggleFandq = (index) => {
+    setFaqOpen((prev) => {
+      // Create a new object with all values set to false
+      const newState = {};
+      Object.keys(prev).forEach((key) => {
+        newState[key] = false;
+      });
+
+      // Toggle the clicked FAQ (if it was closed, open it; if open, close it)
+      newState[index] = !prev[index];
+
+      return newState;
+    });
+  };
+
+  // Helper to decode base64 safely
+  const decodeBase64 = (str) => {
+    if (!str) return "";
+    try {
+      return decodeURIComponent(escape(window.atob(str)));
+    } catch (e) {
+      return "";
+    }
+  };
+
+  // Helper to strip HTML tags for length calculation
+  const stripHtml = (html) => {
+    if (!html) return "";
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
+  // Parse URL parameters & pretty slugs
   useEffect(() => {
     let urlCity = searchParams.get("city");
     let feeRange = searchParams.get("fee_range");
@@ -53,7 +90,6 @@ export default function Page() {
     let gender = searchParams.get("gender");
     let type = searchParams.get("type");
 
-    // If no query params, check pathname for SEO slugs
     if (pathname) {
       if (pathname.startsWith("/boarding-schools-in-")) {
         urlCity = pathname.replace("/boarding-schools-in-", "");
@@ -78,10 +114,6 @@ export default function Page() {
       fees: [],
       board: [],
       gender: [],
-      region: [],
-      school: [],
-      type: [],
-      city: [],
     };
 
     if (feeRange) {
@@ -101,10 +133,10 @@ export default function Page() {
 
     if (board) {
       if (board === "cbse") newFilters.board = ["CBSE"];
-      else if (board === "icse") newFilters.board = ["ICSE & ISC"];
+      else if (board === "icse") newFilters.board = ["ICSE"];
       else if (board === "ib") newFilters.board = ["IB"];
       else if (board === "state board")
-        newFilters.board = ["CBSE", "ICSE & ISC", "IB", "IGCSE & CIE"];
+        newFilters.board = ["CBSE", "ICSE", "IB", "IGCSE"];
     }
 
     if (gender) {
@@ -113,20 +145,11 @@ export default function Page() {
       else if (gender === "co-ed") newFilters.gender = ["Co-Ed"];
     }
 
-    if (type) {
-      if (type === "boarding") newFilters.type = ["Boarding School"];
-      else if (type === "day") newFilters.type = ["Day School"];
-    }
-
-    if (urlCity) newFilters.city = [urlCity];
-
     setFilters(newFilters);
 
-    // Auto open accordions for active filters
     if (feeRange) setAccordion((prev) => ({ ...prev, fees: true }));
     if (board) setAccordion((prev) => ({ ...prev, board: true }));
     if (gender) setAccordion((prev) => ({ ...prev, gender: true }));
-    if (type) setAccordion((prev) => ({ ...prev, type: true }));
   }, [searchParams, pathname]);
 
   const toggleAccordion = (section) =>
@@ -156,7 +179,9 @@ export default function Page() {
   const handleApplyNow = (school, e) => {
     e.preventDefault();
     e.stopPropagation();
-    openModal(<ApplyModal schoolId={school.id} schoolName={school.name} />);
+    openModal(
+      <ApplyModal schoolId={school.id} schoolName={school.school_title} />
+    );
   };
 
   const handleCallNow = (school, e) => {
@@ -165,75 +190,82 @@ export default function Page() {
     window.location.href = `tel:${school.phone || ""}`;
   };
 
-  const getCityFromLocation = (location) => location.split(", ")[0].trim();
-
-  const getRegionFromLocation = (location) => {
-    const state = location.split(", ")[1]?.trim().toLowerCase();
-    const regionMap = {
-      uttarakhand: "North",
-      "andhra pradesh": "South",
-      rajasthan: "West",
-      "uttar pradesh": "North",
-      delhi: "North",
-    };
-    return regionMap[state] || "Unknown";
+  const toggleFaq = (index) => {
+    setFaqOpen((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
   };
 
-  // 🔹 Apply all filters (query + slug + UI)
+  // Apply all filters (query + slug + UI)
   const filteredSchools = schoolsData.filter((school) => {
-    if (filters.city.length > 0) {
-      const schoolCity = getCityFromLocation(school.location).toLowerCase();
-      if (!filters.city.some((c) => schoolCity.includes(c.toLowerCase())))
+    if (filters.fees.length > 0) {
+      const schoolFeeRange = getFeeRange(school.average_fee);
+      if (!filters.fees.includes(schoolFeeRange)) return false;
+    }
+
+    if (filters.board.length > 0) {
+      const schoolBoard = school.board?.title || "";
+      if (
+        !filters.board.some((b) =>
+          schoolBoard.toLowerCase().includes(b.toLowerCase())
+        )
+      )
         return false;
     }
 
-    if (filters.fees.length > 0 && !filters.fees.includes(school.feesRange))
-      return false;
-
-    if (
-      filters.board.length > 0 &&
-      !filters.board.some((b) =>
-        school.board.toLowerCase().includes(b.toLowerCase())
+    if (filters.gender.length > 0) {
+      const schoolGender = school.classification?.title || "";
+      if (
+        !filters.gender.some((g) =>
+          schoolGender.toLowerCase().includes(g.toLowerCase())
+        )
       )
-    )
-      return false;
-
-    if (filters.gender.length > 0 && !filters.gender.includes(school.gender))
-      return false;
-
-    if (
-      filters.region.length > 0 &&
-      !filters.region.includes(getRegionFromLocation(school.location))
-    )
-      return false;
-
-    if (
-      filters.school.length > 0 &&
-      !filters.school.includes(school.managementType)
-    )
-      return false;
-
-    if (filters.type.length > 0 && !filters.type.includes(school.type))
-      return false;
+        return false;
+    }
 
     return true;
   });
 
   const sortedSchools = [...filteredSchools].sort((a, b) => {
-    if (sortBy === "fee-high-to-low")
-      return (
-        parseFloat(b.fees.replace(/,/g, "")) -
-        parseFloat(a.fees.replace(/,/g, ""))
-      );
-    if (sortBy === "fee-low-to-high")
-      return (
-        parseFloat(a.fees.replace(/,/g, "")) -
-        parseFloat(b.fees.replace(/,/g, ""))
-      );
-    if (sortBy === "rating-high-to-low")
-      return parseFloat(b.rating) - parseFloat(a.rating);
+    if (sortBy === "fee-high-to-low") {
+      const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
+      const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
+      return feeB - feeA;
+    }
+    if (sortBy === "fee-low-to-high") {
+      const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
+      const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
+      return feeA - feeB;
+    }
     return 0;
   });
+
+  // Function to parse FAQ content from API
+  const parseFaqContent = () => {
+    if (!locationData?.response?.data?.footer_content) return [];
+
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(
+        locationData.response.data.footer_content,
+        "text/html"
+      );
+      const faqWrappers = doc.querySelectorAll(".faq-location-wrapper");
+
+      return Array.from(faqWrappers).map((wrapper) => {
+        const question =
+          wrapper.querySelector(".faq-question")?.textContent || "";
+        const answer = wrapper.querySelector(".faq-answer")?.innerHTML || "";
+        return { question, answer: DOMPurify.sanitize(answer) };
+      });
+    } catch (error) {
+      console.error("Error parsing FAQ content:", error);
+      return [];
+    }
+  };
+
+  const faqItems = parseFaqContent();
 
   const SidebarContent = () => (
     <>
@@ -275,7 +307,6 @@ export default function Page() {
           </div>
         )}
       </div>
-
       <div className="border-b border-gray-300">
         <button
           onClick={() => toggleAccordion("board")}
@@ -290,7 +321,7 @@ export default function Page() {
         </button>
         {accordion.board && (
           <div className="px-4 py-2 space-y-1">
-            {["CBSE", "IB", "ICSE & ISC", "IGCSE & CIE"].map((board) => (
+            {["CBSE", "IB", "ICSE", "IGCSE"].map((board) => (
               <label
                 key={board}
                 className="flex items-center space-x-2 text-[13px] cursor-pointer"
@@ -307,7 +338,6 @@ export default function Page() {
           </div>
         )}
       </div>
-
       <div className="border-b border-gray-300">
         <button
           onClick={() => toggleAccordion("gender")}
@@ -339,102 +369,6 @@ export default function Page() {
           </div>
         )}
       </div>
-
-      <div className="border-b border-gray-300">
-        <button
-          onClick={() => toggleAccordion("type")}
-          className="flex justify-between w-full px-4 py-5 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-        >
-          <span className="font-bold text-black">School Type</span>
-          {accordion.type ? (
-            <ChevronUp size={18} className="text-gray-500" />
-          ) : (
-            <ChevronDown size={18} className="text-gray-500" />
-          )}
-        </button>
-        {accordion.type && (
-          <div className="px-4 py-2 space-y-1">
-            {["Boarding School", "Day School"].map((type) => (
-              <label
-                key={type}
-                className="flex items-center space-x-2 text-[13px] cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={filters.type.includes(type)}
-                  onChange={() => toggleFilter("type", type)}
-                  className="h-3 w-3 text-indigo-600 border-gray-300 rounded cursor-pointer"
-                />
-                <span className="text-gray-700">{type}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="border-b border-gray-300">
-        <button
-          onClick={() => toggleAccordion("region")}
-          className="flex justify-between w-full px-4 py-5 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-        >
-          <span className="font-bold text-black">Region</span>
-          {accordion.region ? (
-            <ChevronUp size={18} className="text-gray-500" />
-          ) : (
-            <ChevronDown size={18} className="text-gray-500" />
-          )}
-        </button>
-        {accordion.region && (
-          <div className="px-4 py-2 space-y-1">
-            {["North", "South", "West"].map((region) => (
-              <label
-                key={region}
-                className="flex items-center space-x-2 text-[13px] cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={filters.region.includes(region)}
-                  onChange={() => toggleFilter("region", region)}
-                  className="h-3 w-3 text-indigo-600 border-gray-300 rounded cursor-pointer"
-                />
-                <span className="text-gray-700">{region}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="border-b border-gray-300">
-        <button
-          onClick={() => toggleAccordion("school")}
-          className="flex justify-between w-full px-4 py-5 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-        >
-          <span className="font-bold text-black">School</span>
-          {accordion.school ? (
-            <ChevronUp size={18} className="text-gray-500" />
-          ) : (
-            <ChevronDown size={18} className="text-gray-500" />
-          )}
-        </button>
-        {accordion.school && (
-          <div className="px-4 py-2 space-y-1">
-            {["Private", "Government"].map((s) => (
-              <label
-                key={s}
-                className="flex items-center space-x-2 text-[13px] cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={filters.school.includes(s)}
-                  onChange={() => toggleFilter("school", s)}
-                  className="h-3 w-3 text-indigo-600 border-gray-300 rounded cursor-pointer"
-                />
-                <span className="text-gray-700">{s}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
     </>
   );
 
@@ -443,7 +377,6 @@ export default function Page() {
       <aside className="hidden lg:block w-72 bg-white rounded-xl shadow-lg p-4 sticky top-24 h-fit max-h-[85vh] overflow-y-auto">
         <SidebarContent />
       </aside>
-
       <div className="flex-1 space-y-2">
         <div className="lg:hidden sticky top-14 z-40 bg-white py-3">
           <button
@@ -453,7 +386,6 @@ export default function Page() {
             <Filter size={18} /> Filter Schools
           </button>
         </div>
-
         {mobileFilterOpen && (
           <div className="fixed inset-0 z-50 flex flex-col">
             <div
@@ -484,33 +416,46 @@ export default function Page() {
             </div>
           </div>
         )}
-
-        <div className="bg-white shadow-md rounded-xl p-6 space-y-3 border-l-8 border-blue-400">
+        <div className="bg-white shadow-md rounded-xl p-6 space-y-4 border-l-8 border-blue-400">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold">Highlights</h2>
-            <button
-              onClick={() => setShowMoreHighlights(!showMoreHighlights)}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-full cursor-pointer"
-            >
-              {showMoreHighlights ? "Show Less" : "Show More"}
-            </button>
+            <h2 className="text-xl font-bold text-gray-800">
+              {locationData.response.data.location_ad.page_title}
+            </h2>
+            {locationData?.response?.data?.location_descripton &&
+              stripHtml(locationData.response.data.location_descripton).length >
+                150 && (
+                <button
+                  onClick={() => setShowMoreHighlights(!showMoreHighlights)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-4 py-1.5 rounded-full transition-all duration-200"
+                >
+                  {showMoreHighlights ? "Show Less" : "Show More"}
+                </button>
+              )}
           </div>
-          <ul className="text-gray-700 text-sm space-y-2">
-            <li>
-              ✅ The top boarding schools in India are known for their rich
-              legacy of academic excellence, holistic development and
-              disciplined environment.
-            </li>
-            {showMoreHighlights && (
-              <li>
-                ✅ From The Doon School, Mayo College or Bishop Cotton School to
-                newer ones such as The International School Bangalore, the best
-                schools offer national + international curricula.
-              </li>
+          <div className="relative text-gray-700 text-sm leading-relaxed">
+            {locationData?.response?.data?.location_descripton ? (
+              <>
+                <div
+                  className="custom-html"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      showMoreHighlights
+                        ? locationData.response.data.location_descripton
+                        : stripHtml(
+                            locationData.response.data.location_descripton
+                          ).slice(0, 300) + "..."
+                    ),
+                  }}
+                />
+                {!showMoreHighlights && (
+                  <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                )}
+              </>
+            ) : (
+              <p className="text-gray-500 italic">No highlights available.</p>
             )}
-          </ul>
+          </div>
         </div>
-
         <div className="flex justify-end items-center bg-white p-4 rounded-xl">
           <div className="relative">
             <button
@@ -521,8 +466,6 @@ export default function Page() {
                 ? "Fee - high to low"
                 : sortBy === "fee-low-to-high"
                 ? "Fee - low to high"
-                : sortBy === "rating-high-to-low"
-                ? "Rating - high to low"
                 : "Sort By"}
               <ChevronDown
                 size={16}
@@ -531,7 +474,6 @@ export default function Page() {
                 }`}
               />
             </button>
-
             {sortDropdownOpen && (
               <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
                 <div className="py-1">
@@ -547,23 +489,16 @@ export default function Page() {
                   >
                     Fee - low to high
                   </button>
-                  <button
-                    onClick={() => handleSort("rating-high-to-low")}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                  >
-                    Rating - high to low
-                  </button>
                 </div>
               </div>
             )}
           </div>
         </div>
-
         {sortedSchools.length > 0 ? (
           sortedSchools.map((school) => (
             <Link
               key={school.id}
-              href={`/${slugify(school.name)}`}
+              href={new URL(school.url).pathname}
               className="block"
             >
               <div className="relative bg-white rounded-xl shadow-md hover:shadow-lg transition p-5 flex flex-col md:flex-row gap-5 cursor-pointer">
@@ -580,7 +515,6 @@ export default function Page() {
                     }`}
                   />
                 </button>
-
                 {school.isAdmissionOpen && (
                   <img
                     src="https://res.cloudinary.com/dnq8fbcxh/image/upload/v1756874282/vecteezy_admissions-open-sign-red-yellow-hanging-board-new-student_60579933_echl2d.png"
@@ -588,12 +522,11 @@ export default function Page() {
                     className="absolute top-2 right-12 w-12 sm:w-14 animate-hang"
                   />
                 )}
-
                 <div className="w-full md:w-56 flex-shrink-0 mx-auto">
                   <div className="h-40 rounded-lg overflow-hidden">
                     <img
-                      src={school.image}
-                      alt={school.name}
+                      src={`https://www.doonedu.com/images/schools/${school.id}/${school.thumbnail}`}
+                      alt={school.school_title}
                       className="w-full h-full object-cover hover:scale-105 transition"
                     />
                   </div>
@@ -602,7 +535,6 @@ export default function Page() {
                     <span>{school.views}</span>
                   </div>
                 </div>
-
                 <div className="flex-1 flex flex-col">
                   <h3 className="text-base md:text-lg font-semibold text-gray-800 flex items-center">
                     {school.isVerified && (
@@ -615,60 +547,63 @@ export default function Page() {
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                       </svg>
                     )}
-                    {school.name}
+                    {school.school_title}
                   </h3>
                   <p className="text-gray-600 text-xs mt-1 flex items-center gap-1">
-                    📍 {school.location}
+                    📍 {school.address}
                   </p>
                   <p className="text-red-600 font-bold text-sm md:text-base mt-1">
-                    ₹ {school.fees}
+                    ₹ {school.average_fee}
                     <span className="font-normal text-xs text-gray-500">
                       {" "}
                       / annum
                     </span>
                   </p>
-
                   <div className="flex flex-wrap items-center gap-2 mt-2">
-                    <div className="flex items-center gap-1 text-xs bg-yellow-50 px-2 py-1 rounded-full">
-                      <span className="text-yellow-500">★</span>
-                      <span className="font-medium">{school.rating}</span>
-                      <span className="text-gray-500">({school.votes})</span>
-                    </div>
-                    <span className="px-2 py-1 bg-blue-50 text-blue-700 text-[0.65rem] rounded-full font-medium">
-                      {school.type}
+                    <span className="px-2 py-1 bg-purple-50 text-purple-700 text-[0.65rem] rounded-full font-medium">
+                      {school.category}
                     </span>
                     <span className="px-2 py-1 bg-purple-50 text-purple-700 text-[0.65rem] rounded-full font-medium">
-                      {school.board}
+                      {school.board?.title}
                     </span>
                     <span className="px-2 py-1 bg-pink-50 text-pink-700 text-[0.65rem] rounded-full font-medium">
-                      {school.gender}
+                      {school.classification?.title}
                     </span>
                     <span className="px-2 py-1 bg-green-50 text-green-700 text-[0.65rem] rounded-full font-medium">
-                      Class {school.grade}
+                      Class {school.grade?.title}
                     </span>
                   </div>
-
-                  <p className="text-xs text-gray-700 mt-4">
-                    <span className="font-semibold">Expert Comment: </span>
-                    {expanded[school.id]
-                      ? school.comment
-                      : school.comment.slice(0, 150) + "... "}
-                    {school.comment.length > 150 && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setExpanded((prev) => ({
-                            ...prev,
-                            [school.id]: !prev[school.id],
-                          }));
+                  {school.about && (
+                    <div className="text-xs text-gray-700 mt-2">
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(
+                            expanded[`about-${school.id}`]
+                              ? decodeBase64(school.about)
+                              : decodeBase64(school.about).slice(0, 150) + "..."
+                          ),
                         }}
-                        className="text-red-500 font-medium cursor-pointer"
-                      >
-                        {expanded[school.id] ? "Read less" : "Read more"}
-                      </button>
-                    )}
-                  </p>
+                      />
+                      {decodeBase64(school.about).length > 140 && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setExpanded((prev) => ({
+                              ...prev,
+                              [`about-${school.id}`]:
+                                !prev[`about-${school.id}`],
+                            }));
+                          }}
+                          className="text-red-500 font-medium cursor-pointer"
+                        >
+                          {expanded[`about-${school.id}`]
+                            ? "Read less"
+                            : "Read more"}
+                        </button>
+                      )}
+                    </div>
+                  )}
                   <div className="mt-5 flex flex-wrap gap-1 md:gap-3">
                     <button className="px-3 py-1.5 border border-red-600 text-red-600 text-xs rounded-lg hover:bg-red-600 hover:text-white transition cursor-pointer">
                       View School
@@ -695,6 +630,96 @@ export default function Page() {
           <p className="text-gray-500 text-sm text-center py-6 bg-white rounded-xl shadow-md">
             No schools match the selected filters.
           </p>
+        )}
+        {faqItems.length > 0 && (
+          <div className="bg-white shadow-lg rounded-xl p-6 mt-8 border border-gray-100">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-gray-600 text-sm">
+                Find answers to common questions about our schools
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {faqItems.map((faq, index) => (
+                <div
+                  key={index}
+                  className="border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-sm"
+                >
+                  <button
+                    onClick={() => toggleFandq(index)}
+                    className="flex justify-between items-center w-full text-left p-5 bg-gradient-to-r from-gray-50 to-white hover:from-blue-50 hover:to-blue-50 transition-all duration-200 cursor-pointer"
+                  >
+                    <div className="flex items-start space-x-4">
+                      <div className="bg-blue-100 p-2 rounded-full mt-0.5">
+                        <svg
+                          className="w-5 h-5 text-blue-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <span className="text-base font-semibold text-gray-800">
+                        {faq.question}
+                      </span>
+                    </div>
+                    {faqOpen[index] ? (
+                      <div className="bg-blue-100 p-1 rounded-full">
+                        <ChevronUp
+                          size={20}
+                          className="text-blue-600 flex-shrink-0"
+                        />
+                      </div>
+                    ) : (
+                      <div className="bg-gray-100 p-1 rounded-full">
+                        <ChevronDown
+                          size={20}
+                          className="text-gray-600 flex-shrink-0"
+                        />
+                      </div>
+                    )}
+                  </button>
+
+                  {faqOpen[index] && (
+                    <div className="p-5 bg-white border-t border-gray-100 transition-all duration-300">
+                      <div className="flex space-x-4">
+                        <div className="bg-green-100 p-2 rounded-full h-9 w-9 flex-shrink-0">
+                          <svg
+                            className="w-5 h-5 text-green-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            ></path>
+                          </svg>
+                        </div>
+                        <div
+                          className="text-sm text-gray-700 leading-relaxed prose prose-sm"
+                          dangerouslySetInnerHTML={{ __html: faq.answer }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>

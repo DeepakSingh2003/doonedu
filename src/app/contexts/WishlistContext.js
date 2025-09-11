@@ -1,4 +1,4 @@
-// context/WishlistContext.js
+// app/contexts/WishlistContext.jsx
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
@@ -8,30 +8,33 @@ const WishlistContext = createContext();
 export function WishlistProvider({ children }) {
   const [wishlist, setWishlist] = useState([]);
 
-  // Load from localStorage on first render
+  // Load wishlist from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem("wishlist");
-    if (stored) {
-      setWishlist(JSON.parse(stored));
+    const storedWishlist = localStorage.getItem("wishlist");
+    if (storedWishlist) {
+      setWishlist(JSON.parse(storedWishlist));
     }
   }, []);
 
-  // Save to localStorage whenever wishlist changes
+  // Save wishlist to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("wishlist", JSON.stringify(wishlist));
   }, [wishlist]);
 
   const addToWishlist = (school) => {
-    if (!wishlist.find((item) => item.id === school.id)) {
-      setWishlist([...wishlist, school]);
+    // Check if school is already in wishlist
+    if (!wishlist.some((item) => item.id === school.id)) {
+      setWishlist((prev) => [...prev, school]);
     }
   };
 
-  const removeFromWishlist = (id) => {
-    setWishlist(wishlist.filter((item) => item.id !== id));
+  const removeFromWishlist = (schoolId) => {
+    setWishlist((prev) => prev.filter((school) => school.id !== schoolId));
   };
 
-  const isWishlisted = (id) => wishlist.some((item) => item.id === id);
+  const isWishlisted = (schoolId) => {
+    return wishlist.some((school) => school.id === schoolId);
+  };
 
   return (
     <WishlistContext.Provider
@@ -42,4 +45,10 @@ export function WishlistProvider({ children }) {
   );
 }
 
-export const useWishlist = () => useContext(WishlistContext);
+export function useWishlist() {
+  const context = useContext(WishlistContext);
+  if (!context) {
+    throw new Error("useWishlist must be used within a WishlistProvider");
+  }
+  return context;
+}

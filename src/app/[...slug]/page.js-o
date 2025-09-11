@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { schoolsData } from "../data";
+import { schoolsData } from "../exploreschools/data";
 import { useParams, useRouter } from "next/navigation";
+import { slugify } from "../utils/slugify"; // make sure this helper exists
 import {
   FaSchool,
   FaMapMarkerAlt,
@@ -48,17 +49,20 @@ import {
   FaHandsHelping,
 } from "react-icons/fa";
 import { Phone, Heart } from "lucide-react";
-import { useModal } from "../../contexts/ModalContext";
-import { useWishlist } from "../../contexts/WishlistContext";
-import ApplyModal from "../../components/ApplyModal";
+import { useModal } from "../contexts/ModalContext";
+import { useWishlist } from "../contexts/WishlistContext";
+import ApplyModal from "../components/ApplyModal";
 
 export default function SchoolPage() {
-  const { id } = useParams();
+  const { slug } = useParams(); // get slug from URL
   const router = useRouter();
   const { openModal } = useModal();
   const { wishlist, addToWishlist, removeFromWishlist, isWishlisted } =
     useWishlist();
-  const school = schoolsData.find((s) => String(s.id) === id);
+
+  // find school by slugified name
+  const school = schoolsData.find((s) => slugify(s.name) === slug);
+
   const [activeTab, setActiveTab] = useState("summary");
   const [reviewForm, setReviewForm] = useState({
     rating: 0,
@@ -104,8 +108,8 @@ export default function SchoolPage() {
       ? school.gallery || []
       : (school.gallery || []).filter((item) => item.type === galleryTab);
 
-  const similarSchools = schoolsData.filter(
-    (s) => school.similarSchools?.includes(Number(s.id)) || []
+  const similarSchools = schoolsData.filter((s) =>
+    school.similarSchools?.includes(Number(s.id))
   );
 
   const openGalleryModal = (index = 0) => {
@@ -130,10 +134,10 @@ export default function SchoolPage() {
     }
   };
 
-  const handleSimilarSchoolClick = (schoolId, e) => {
+  const handleSimilarSchoolClick = (schoolObj, e) => {
     e.preventDefault();
     e.stopPropagation();
-    router.push(`/schools/${schoolId}`);
+    router.push(`/${slugify(schoolObj.name)}`);
   };
 
   const handleApplyNow = (e) => {
@@ -194,7 +198,6 @@ export default function SchoolPage() {
         return <FaGamepad className="h-4 w-4 mr-1 text-gray-500" />;
     }
   };
-
   return (
     <div className="bg-gray-50 min-h-screen">
       {showGalleryModal && (

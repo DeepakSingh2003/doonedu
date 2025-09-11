@@ -45,10 +45,7 @@ export default function Navbar() {
       setWishlistCount(storedWishlist.length);
     };
 
-    // Listen for storage events to update count across tabs
     window.addEventListener("storage", handleStorageChange);
-
-    // Also check localStorage periodically for updates in the same tab
     const interval = setInterval(handleStorageChange, 1000);
 
     return () => {
@@ -57,119 +54,93 @@ export default function Navbar() {
     };
   }, []);
 
-  const tabs = [
-    { id: "day", label: "Day Schools" },
-    { id: "boarding", label: "Boarding Schools" },
-    { id: "online", label: "Online Schools" },
-  ];
+  const tabs = [{ id: "day", label: "Boarding Schools" }];
 
   const popularCities = [
     {
       name: "Delhi",
       image:
         "https://d3bat55ebwjhsf.cloudfront.net/schools/city/delhi/Delhi_India_Gate_vruZc1j.svg",
+      href: "/boarding-schools-delhi",
     },
     {
       name: "Bangalore",
       image:
         "https://d3bat55ebwjhsf.cloudfront.net/schools/city/bangalore/banglore_j0eqVHu_88dSI8P.svg",
+      href: "boarding-schools-bengaluru",
     },
     {
       name: "Pune",
       image:
         "https://d3bat55ebwjhsf.cloudfront.net/schools/city/pune/Pune_Saniwarwada.svg",
+      href: "/boarding-schools-pune",
     },
     {
       name: "Kolkata",
       image:
         "https://d3bat55ebwjhsf.cloudfront.net/schools/city/kolkata/kolkata_xqXrXjl_hU0Hgr9.svg",
+      href: "/boarding-schools-kolkata",
     },
     {
       name: "Gurgaon",
       image:
         "https://d3bat55ebwjhsf.cloudfront.net/schools/city/gurgaon/Gurgoan_DLF.svg",
+      href: "/boarding-schools-gurugram",
     },
     {
       name: "Ghaziabad",
       image:
         "https://d3bat55ebwjhsf.cloudfront.net/schools/city/ghaziabad/Ghaziabad_vtMnilQ_vYVfN7t.svg",
+      href: "/boarding-schools-ghaziabad",
     },
     {
       name: "Faridabad",
       image:
         "https://d3bat55ebwjhsf.cloudfront.net/schools/city/faridabad/Faridabad_Nahar_Singh_Palce_1yWHXub.svg",
+      href: "/boarding-schools-faridabad",
     },
     {
       name: "Noida",
       image:
         "https://d3bat55ebwjhsf.cloudfront.net/schools/city/noida/Noida_Border.svg",
+      href: "/boarding-schools-noida",
+    },
+
+    {
+      name: "Dehradun",
+      image:
+        "https://res.cloudinary.com/dnq8fbcxh/image/upload/v1757399898/hand-drawn-sketch-forest-research-260nw-746498470-removebg-preview_kx5hzh.png",
+      href: "/boarding-schools-dehradun",
     },
     {
-      name: "Greater Noida",
+      name: "Shimla",
       image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/greater-noida/Gr_Noida_Parichock.svg",
-    },
-    {
-      name: "Greater Noida West",
-      image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/greater-noida-west/Gr_noida_west.svg",
+        "https://res.cloudinary.com/dnq8fbcxh/image/upload/v1757400035/240167208-detailed-vector-coloring-page-of-an-ancient-cobblestone-street_nsdghy.jpg",
+      href: "/boarding-schools-shimla",
     },
   ];
 
   const otherCities = [
-    "Agra",
-    "Ahmednagar",
-    "Amritsar",
-    "Aurangabad",
-    "Bareilly",
-    "Bathinda",
-    "Bhopal",
-    "Chennai",
-    "Firozabad",
-    "Hisar",
-    "Hyderabad",
-    "Indore",
-    "Jabalpur",
-    "Jaipur",
-    "Jodhpur",
-    "Kanpur",
-    "Kochi",
-    "Ludhiana",
-    "Meerut",
-    "Mohali",
-    "Moradabad",
-  ];
+    { name: "Agra", href: "/boarding-schools-agra" },
 
-  const boardingStates = [
-    "Andhra Pradesh",
-    "Arunachal Pradesh",
-    "Assam",
-    "Bihar",
-    "Chandigarh",
-    "Chhattisgarh",
-    "Delhi",
-    "Goa",
-    "Gujarat",
-    "Haryana",
-    "Himachal Pradesh",
-    "Jammu and Kashmir",
-    "Jharkhand",
-    "Karnataka",
-    "Kerala",
-    "Madhya Pradesh",
-    "Maharashtra",
-    "Manipur",
-    "Meghalaya",
-    "Nagaland",
-    "Odisha",
-    "Punjab",
-    "Rajasthan",
-    "Sikkim",
-    "Tamil Nadu",
-    "Telangana",
-    "Uttar Pradesh",
-    "Uttarakhand",
-    "West Bengal",
+    { name: "Amritsar", href: "/boarding-schools-amritsar" },
+
+    { name: "Bathinda", href: "/boarding-schools-bathinda" },
+    { name: "Bhopal", href: "/boarding-schools-bhopal" },
+    { name: "Chennai", href: "/boarding-schools-chennai" },
+    { name: "Firozabad", href: "/boarding-schools-firozabad" },
+    { name: "Hisar", href: "/boarding-schools-hisar" },
+    { name: "Hyderabad", href: "/boarding-schools-hyderabad" },
+    { name: "Indore", href: "/boarding-schools-indore" },
+    { name: "Jabalpur", href: "/boarding-schools-jabalpur" },
+    { name: "Jaipur", href: "/boarding-schools-jaipur" },
+    { name: "Jodhpur", href: "/boarding-schools-jodhpur" },
+    { name: "Kanpur", href: "/boarding-schools-kanpur" },
+    { name: "Kochi", href: "/boarding-schools-kochi" },
+    { name: "Ludhiana", href: "/boarding-schools-ludhiana" },
+    { name: "Meerut", href: "/boarding-schools-meerut" },
+    { name: "Mohali", href: "/boarding-schools-mohali" },
+    { name: "Moradabad", href: "/boarding-schools-moradabad" },
   ];
 
   return (
@@ -218,7 +189,6 @@ export default function Navbar() {
               )}
             </button>
           </Link>
-
           {isLoggedIn ? (
             <>
               <span className="text-sm">Hi, {user?.name}</span>
@@ -237,7 +207,6 @@ export default function Navbar() {
               Log in
             </button>
           )}
-
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="cursor-pointer"
@@ -294,7 +263,6 @@ export default function Navbar() {
       </div>
 
       {/* ----------- MENU DROPDOWN ----------- */}
-      {/* ----------- MENU DROPDOWN ----------- */}
       {menuOpen && (
         <div className="fixed inset-0 z-50">
           <div
@@ -315,7 +283,7 @@ export default function Navbar() {
                 <button
                   onClick={() => {
                     setShowLogin(true);
-                    setMenuOpen(false); // Close menu when login button is clicked
+                    setMenuOpen(false);
                   }}
                   className="px-4 py-2.5 text-xs md:text-sm font-semibold text-white bg-blue-500 rounded-md shadow hover:bg-blue-600 transition cursor-pointer"
                 >
@@ -326,18 +294,17 @@ export default function Navbar() {
                 <Link
                   href="/exploreschools"
                   className="flex items-center gap-3 px-5 py-2.5 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setMenuOpen(false)} // Close menu on click
+                  onClick={() => setMenuOpen(false)}
                 >
                   <FaSchool className="text-blue-500" />
                   <span className="text-xs font-medium text-gray-800">
                     Explore Schools
                   </span>
                 </Link>
-
                 <Link
                   href="/Blog"
                   className="flex items-center gap-3 px-5 py-2.5 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setMenuOpen(false)} // Close menu on click
+                  onClick={() => setMenuOpen(false)}
                 >
                   <FaBookOpen className="text-blue-500" />
                   <span className="text-xs font-medium text-gray-800">
@@ -347,7 +314,7 @@ export default function Navbar() {
                 <Link
                   href="/Askquestion"
                   className="flex items-center gap-3 px-5 py-2.5 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setMenuOpen(false)} // Close menu on click
+                  onClick={() => setMenuOpen(false)}
                 >
                   <FaQuestionCircle className="text-blue-500" />
                   <span className="text-xs font-medium text-gray-800">
@@ -357,7 +324,7 @@ export default function Navbar() {
                 <Link
                   href="/Counselling"
                   className="flex items-center gap-3 px-5 py-2.5 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setMenuOpen(false)} // Close menu on click
+                  onClick={() => setMenuOpen(false)}
                 >
                   <FaPhoneAlt className="text-blue-500" />
                   <span className="text-xs font-medium text-gray-800">
@@ -416,20 +383,28 @@ export default function Navbar() {
 
             {activeTab === "day" && (
               <>
+                <Link
+                  href="/day-schools"
+                  className="text-blue-600 font-semibold underline mb-3 text-sm md:text-base cursor-pointer flex items-center justify-center gap-2"
+                  onClick={() => setCityModalOpen(false)}
+                >
+                  <FaSchool /> View All Boarding Schools in India
+                </Link>
                 <h3 className="font-medium mb-2 flex items-center gap-2">
                   <FaMapMarkerAlt className="text-blue-500" /> Popular Cities
                 </h3>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:flex md:flex-wrap justify-center gap-4 mb-4">
                   {popularCities.map((c) => (
-                    <button
+                    <Link
                       key={c.name}
+                      href={c.href}
+                      className="flex flex-col items-center hover:scale-105 transition cursor-pointer"
                       onClick={() => {
                         setCity(c.name);
                         setCityModalOpen(false);
                       }}
-                      className="flex flex-col items-center hover:scale-105 transition cursor-pointer"
                     >
-                      <Image
+                      <img
                         src={c.image}
                         alt={c.name}
                         width={80}
@@ -439,7 +414,7 @@ export default function Navbar() {
                       <span className="text-xs md:text-sm font-medium flex items-center gap-1">
                         {c.name}
                       </span>
-                    </button>
+                    </Link>
                   ))}
                 </div>
                 <h3 className="font-medium mb-2 flex items-center gap-2">
@@ -447,60 +422,21 @@ export default function Navbar() {
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {otherCities.map((c) => (
-                    <button
-                      key={c}
+                    <Link
+                      key={c.name}
+                      href={c.href}
+                      className="px-3 py-1 border rounded-full text-xs md:text-sm hover:bg-blue-50 cursor-pointer flex items-center gap-1"
                       onClick={() => {
-                        setCity(c);
+                        setCity(c.name);
                         setCityModalOpen(false);
                       }}
-                      className="px-3 py-1 border rounded-full text-xs md:text-sm hover:bg-blue-50 cursor-pointer flex items-center gap-1"
                     >
                       <FaMapMarkerAlt className="text-gray-400" size={10} />
-                      {c}
-                    </button>
+                      {c.name}
+                    </Link>
                   ))}
                 </div>
               </>
-            )}
-
-            {activeTab === "boarding" && (
-              <div className="text-center">
-                <a
-                  href="/boarding-schools"
-                  className="text-blue-600 font-semibold underline mb-3 text-sm md:text-base cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <FaClipboardList /> View All Boarding Schools in India
-                </a>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {boardingStates.map((state) => (
-                    <button
-                      key={state}
-                      onClick={() => {
-                        setCity(state);
-                        setCityModalOpen(false);
-                      }}
-                      className="px-3 py-1 border rounded-lg text-xs md:text-sm hover:bg-blue-50 cursor-pointer flex items-center gap-1"
-                    >
-                      <FaMapMarkerAlt className="text-gray-400" size={10} />
-                      {state}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {activeTab === "online" && (
-              <div className="flex justify-center">
-                <button
-                  onClick={() => {
-                    setCity("Online");
-                    setCityModalOpen(false);
-                  }}
-                  className="px-4 py-2 border rounded-lg bg-gray-50 hover:bg-gray-100 font-medium text-sm md:text-base cursor-pointer flex items-center gap-2"
-                >
-                  <FaGlobeAmericas /> Explore Online/Virtual Schools in India
-                </button>
-              </div>
             )}
           </div>
         </div>

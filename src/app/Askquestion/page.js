@@ -1,19 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { FaGraduationCap, FaCheckCircle, FaSearch } from "react-icons/fa";
+import { FaCheckCircle, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 export default function AskQuestionPage() {
-  const [activeCategory, setActiveCategory] = useState("");
   const [faqOpen, setFaqOpen] = useState({});
-
-  const categories = [
-    { name: "Admissions", color: "blue" },
-    { name: "Fees", color: "green" },
-    { name: "Curriculum", color: "purple" },
-    { name: "Transport", color: "yellow" },
-    { name: "Facilities", color: "red" },
-  ];
 
   const faqs = [
     {
@@ -44,9 +35,7 @@ export default function AskQuestionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 font-inter mt-0 sm:mt-12">
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Heading */}
         <div className="text-center mb-10 sm:mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
             How can we help you?
@@ -66,6 +55,45 @@ export default function AskQuestionPage() {
               </h3>
 
               <form className="space-y-4 sm:space-y-6">
+                {/* Name (mandatory) */}
+                <div>
+                  <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                {/* Phone Number (mandatory) */}
+                <div>
+                  <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+
+                {/* Email (optional) */}
+                <div>
+                  <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
+                    Email (optional)
+                  </label>
+                  <input
+                    type="email"
+                    className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                    placeholder="Enter your email address"
+                  />
+                </div>
+
+                {/* Question Title */}
                 <div>
                   <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
                     Question Title
@@ -77,6 +105,7 @@ export default function AskQuestionPage() {
                   />
                 </div>
 
+                {/* Question Details */}
                 <div>
                   <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
                     Question Details
@@ -88,6 +117,7 @@ export default function AskQuestionPage() {
                   />
                 </div>
 
+                {/* Category */}
                 <div>
                   <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
                     Category
@@ -104,6 +134,7 @@ export default function AskQuestionPage() {
                   </select>
                 </div>
 
+                {/* School Name */}
                 <div>
                   <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
                     School (if applicable)
@@ -115,6 +146,7 @@ export default function AskQuestionPage() {
                   />
                 </div>
 
+                {/* Anonymous Checkbox */}
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -129,6 +161,7 @@ export default function AskQuestionPage() {
                   </label>
                 </div>
 
+                {/* Submit Button */}
                 <button
                   type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium text-base sm:text-lg transition"
@@ -153,9 +186,14 @@ export default function AskQuestionPage() {
                     className="bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200 cursor-pointer transition hover:shadow-md"
                     onClick={() => toggleFaq(idx)}
                   >
-                    <h4 className="font-medium text-gray-800 text-sm sm:text-base">
-                      {faq.question}
-                    </h4>
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-medium text-gray-800 text-sm sm:text-base">
+                        {faq.question}
+                      </h4>
+                      <span className="ml-2 text-gray-500">
+                        {faqOpen[idx] ? <FaChevronUp /> : <FaChevronDown />}
+                      </span>
+                    </div>
                     {faqOpen[idx] && (
                       <p className="text-gray-600 mt-1 text-xs sm:text-sm">
                         {faq.answer}
