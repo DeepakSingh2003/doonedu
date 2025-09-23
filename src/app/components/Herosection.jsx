@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaMicrophone, FaSearch } from "react-icons/fa";
-import { FiExternalLink, FiX } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { FaSearch } from "react-icons/fa";
+import { FiX, FiExternalLink } from "react-icons/fi";
 import { MdClear } from "react-icons/md";
 
 export default function HeroSection() {
@@ -16,8 +17,9 @@ export default function HeroSection() {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const router = useRouter();
 
-  // Typing effect
+  // 🔹 Typing effect for placeholder
   useEffect(() => {
     if (index < placeholders[placeholderIndex].length) {
       const timeout = setTimeout(() => {
@@ -35,7 +37,7 @@ export default function HeroSection() {
     }
   }, [index, placeholderIndex, placeholders]);
 
-  // Close modal on ESC
+  // 🔹 Close modal on ESC
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") setIsModalOpen(false);
@@ -43,6 +45,26 @@ export default function HeroSection() {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
+
+  // 🔹 Handle Search & Redirect
+  const handleSearch = (query) => {
+    if (!query.trim()) return;
+
+    const lower = query.toLowerCase().trim();
+    const slug = lower.replace(/\s+/g, "-");
+
+    if (lower.split(" ").length === 1) {
+      // ✅ Only location → boarding-schools-location
+      router.push(`/boarding-schools-${slug}`);
+    } else {
+      // ✅ School → location + school
+      // 👇 default location "mussoorie" for now
+      router.push(`/mussoorie/${slug}`);
+    }
+
+    setIsModalOpen(false);
+    setSearchText("");
+  };
 
   return (
     <>
@@ -55,15 +77,12 @@ export default function HeroSection() {
         }}
       >
         <div className="relative z-10 w-[580px] mx-auto px-4">
-          {/* Heading */}
           <p className="text-3xl md:text-2xl font-bold text-white mb-4">
             Find the right School
           </p>
           <p className="text-sm text-white mb-8">
             Your admission, our responsibility
           </p>
-
-          {/* Search Box */}
           <div
             className="flex items-center bg-white rounded-sm shadow-lg overflow-hidden h-[38px] cursor-pointer"
             onClick={() => setIsModalOpen(true)}
@@ -71,7 +90,7 @@ export default function HeroSection() {
             <input
               type="text"
               className="w-full px-4 py-3 outline-none text-gray-700 text-[11px] pointer-events-none"
-              placeholder={currentText || "Search School by Name..."}
+              placeholder="Search School by Location..."
               readOnly
             />
             <button className="px-4 text-[#1978cd] flex items-center justify-center">
@@ -91,7 +110,6 @@ export default function HeroSection() {
             className="bg-white rounded-lg shadow-lg w-[90%] max-w-[900px] p-6 relative animate-[fadeIn_0.25s_ease-out]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
@@ -99,7 +117,6 @@ export default function HeroSection() {
               <FiX size={20} />
             </button>
 
-            {/* Modal Content */}
             <h2 className="text-xl font-bold mb-2">
               Find the right <span className="text-blue-600">school</span>
             </h2>
@@ -107,18 +124,17 @@ export default function HeroSection() {
               Your admission, our responsibility
             </p>
 
-            {/* Styled Search Input */}
+            {/* Search Input */}
             <div className="flex items-center bg-white rounded-full shadow-md border overflow-hidden h-[44px] transition-all">
               <input
                 type="text"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 className="w-full px-4 py-2 outline-none text-gray-700 text-sm"
-                placeholder="Search School by Name or Location..."
+                placeholder="Search School by Location..."
                 autoFocus
+                onKeyDown={(e) => e.key === "Enter" && handleSearch(searchText)}
               />
-
-              {/* Clear Button (only when typing) */}
               {searchText && (
                 <button
                   onClick={() => setSearchText("")}
@@ -127,30 +143,40 @@ export default function HeroSection() {
                   <MdClear size={20} />
                 </button>
               )}
-
-              {/* Search Button */}
-              <button className="px-4 text-[#1978cd] h-full flex items-center justify-center">
+              <button
+                onClick={() => handleSearch(searchText)}
+                className="px-4 text-[#1978cd] h-full flex items-center justify-center"
+              >
                 <FaSearch size={18} />
               </button>
             </div>
 
             {/* Quick Links */}
-            <div className="mt-4">
+            <div className="mt-6">
               <p className="text-sm text-gray-500 mb-2">Quick Links</p>
               <div className="flex gap-2 flex-wrap">
                 {[
-                  "Schools Near Me",
-                  "Boarding Schools in India",
-                  "Online Schools in India",
+                  {
+                    label: "Boarding Schools in Mussoorie",
+                    path: "/boarding-schools-mussoorie",
+                  },
+                  {
+                    label: "Boarding Schools in Dehradun",
+                    path: "/boarding-schools-dehradun",
+                  },
+                  {
+                    label: "Boarding Schools in Noida",
+                    path: "/boarding-schools-noida",
+                  },
                 ].map((link, i) => (
-                  <a
+                  <button
                     key={i}
-                    href="#"
+                    onClick={() => router.push(link.path)}
                     className="flex items-center gap-2 px-4 py-2 text-blue-600 bg-blue-100 rounded-full text-sm font-semibold hover:bg-blue-200"
                   >
                     <FiExternalLink size={16} />
-                    {link}
-                  </a>
+                    {link.label}
+                  </button>
                 ))}
               </div>
             </div>
