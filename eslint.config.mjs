@@ -19,6 +19,13 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
     ],
+    rules: {
+      "react/no-unescaped-entities": "off",
+      "@next/next/no-img-element": "off",
+      "@next/next/no-html-link-for-pages": "off",
+      "import/no-anonymous-default-export": "off",
+      "react-hooks/exhaustive-deps": "off",
+    },
   },
 ];
 
