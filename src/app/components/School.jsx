@@ -46,6 +46,8 @@ import {
   FaFileAlt,
   FaHandsHelping,
   FaPlayCircle,
+  FaCheckCircle,
+  FaCrown,
 } from "react-icons/fa";
 import { Phone, Heart } from "lucide-react";
 import { useModal } from "../contexts/ModalContext";
@@ -55,6 +57,10 @@ import ApplyModal from "../components/ApplyModal";
 export default function SchoolProfile({ school, seo }) {
   console.log("Rendering SchoolProfile for:", school);
   console.log("seo title", seo.seo_html);
+
+  // Check if school is a partner (partner: "2")
+  const isPartnerSchool = school?.school?.partner === "2";
+
   const { slug } = useParams();
   const router = useRouter();
   const { openModal } = useModal();
@@ -198,6 +204,7 @@ export default function SchoolProfile({ school, seo }) {
     votes: s?.view_count || 0,
     location: s?.address || s?.location || "Location not specified",
     url: s?.url || "#",
+    isPartner: s?.partner === "2", // Add partner status for similar schools
   }));
 
   const openGalleryModal = (index = 0) => {
@@ -441,7 +448,25 @@ export default function SchoolProfile({ school, seo }) {
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="w-full lg:w-2/3">
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100 relative">
+            {/* Main School Card - Updated with Partner Styling */}
+            <div
+              className={`
+              rounded-xl shadow-lg p-6 mb-6 border relative
+              ${
+                isPartnerSchool
+                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-blue-200"
+                  : "bg-white border-gray-100"
+              }
+            `}
+            >
+              {/* Partner Badge */}
+              {isPartnerSchool && (
+                <div className="absolute -top-3 -right-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-10">
+                  <FaCrown className="h-4 w-4" />
+                  <span className="text-xs font-bold">PARTNER SCHOOL</span>
+                </div>
+              )}
+
               {/* <button
                 onClick={(e) => toggleWishlist(school, e)}
                 className="absolute top-4 right-4 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-transform duration-200 ease-in-out transform hover:scale-110 cursor-pointer"
@@ -460,8 +485,13 @@ export default function SchoolProfile({ school, seo }) {
                   }`}
                 />
               </button> */}
+
               <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
-                {school?.isVerified && (
+                {/* Verified Check for Partner Schools */}
+                {isPartnerSchool && (
+                  <FaCheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2" />
+                )}
+                {school?.isVerified && !isPartnerSchool && (
                   <svg
                     className="w-8 h-8 sm:w-5 sm:h-5 text-green-600 mr-2"
                     fill="currentColor"
@@ -474,32 +504,75 @@ export default function SchoolProfile({ school, seo }) {
                 {school?.school?.school_title || "Unknown School"} |{" "}
                 {school?.city_title || "Unknown City"}
               </h2>
+
               <p className="text-gray-600 mt-1 flex items-center text-sm sm:text-base">
-                <FaMapMarkerAlt className="h-4 w-4 mr-4" />
+                <FaMapMarkerAlt
+                  className={`h-4 w-4 mr-4 ${
+                    isPartnerSchool ? "text-blue-600" : ""
+                  }`}
+                />
                 {school?.school?.address || "Address not specified"}
               </p>
 
               <div className="flex flex-wrap items-center gap-4 mt-4">
-                <div className="text-gray-700 flex items-center bg-green-50 px-3 py-1 rounded-full text-sm sm:text-base">
-                  <FaHome className="h-4 w-4 mr-1 text-green-500" />
+                <div
+                  className={`
+                  flex items-center px-3 py-1 rounded-full text-sm sm:text-base
+                  ${
+                    isPartnerSchool
+                      ? "bg-blue-100 text-blue-800"
+                      : "text-gray-700 bg-green-50"
+                  }
+                `}
+                >
+                  <FaHome
+                    className={`h-4 w-4 mr-1 ${
+                      isPartnerSchool ? "text-blue-600" : "text-green-500"
+                    }`}
+                  />
                   <span className="font-medium">Boarding</span> - ₹
                   {school?.school?.average_fee || "Not specified"} / annum
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-3 mt-4">
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center">
+                <span
+                  className={`
+                  px-3 py-1 rounded-full text-xs sm:text-sm flex items-center
+                  ${
+                    isPartnerSchool
+                      ? "bg-blue-200 text-blue-800"
+                      : "bg-blue-100 text-blue-800"
+                  }
+                `}
+                >
                   <FaGraduationCap className="h-4 w-4 mr-1" />
                   {school?.school?.board?.title || "Not specified"}
                 </span>
-                <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center">
+                <span
+                  className={`
+                  px-3 py-1 rounded-full text-xs sm:text-sm flex items-center
+                  ${
+                    isPartnerSchool
+                      ? "bg-pink-200 text-pink-800"
+                      : "bg-pink-100 text-pink-800"
+                  }
+                `}
+                >
                   <GenderIcon />
                   {school?.school?.classification?.title || "Not specified"}
                 </span>
                 <div className="ml-auto flex gap-2 mt-2 sm:mt-0">
                   <button
                     onClick={handleCallNow}
-                    className="bg-red-600 text-white px-4 py-2 rounded-full text-xs sm:text-sm hover:bg-red-700 flex items-center cursor-pointer"
+                    className={`
+                      text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer
+                      ${
+                        isPartnerSchool
+                          ? "bg-blue-600 hover:bg-blue-700"
+                          : "bg-red-600 hover:bg-red-700"
+                      }
+                    `}
                     disabled={!school?.school?.phone}
                   >
                     <Phone className="h-4 w-4 mr-1" />
@@ -507,13 +580,33 @@ export default function SchoolProfile({ school, seo }) {
                   </button>
                   <button
                     onClick={handleApplyNow}
-                    className="bg-green-600 text-white px-4 py-2 rounded-full text-xs sm:text-sm hover:bg-green-700 flex items-center cursor-pointer"
+                    className={`
+                      text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer
+                      ${
+                        isPartnerSchool
+                          ? "bg-purple-600 hover:bg-purple-700"
+                          : "bg-green-600 hover:bg-green-700"
+                      }
+                    `}
                   >
                     <FaFileAlt className="h-4 w-4 mr-1" />
                     Apply Now
                   </button>
                 </div>
               </div>
+
+              {/* Partner School Benefits */}
+              {isPartnerSchool && (
+                <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-2 text-blue-800 text-sm font-medium">
+                    <FaCheckCircle className="h-4 w-4" />
+                    <span>
+                      Partner Benefits: Priority Admission • Special Discounts •
+                      Dedicated Support
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6 border border-gray-100">
@@ -1196,11 +1289,30 @@ export default function SchoolProfile({ school, seo }) {
           </div>
 
           <div className="w-full lg:w-1/3">
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+            {/* Counseling Section - Updated for Partner Schools */}
+            <div
+              className={`
+              rounded-xl shadow-lg p-6 mb-6 border
+              ${
+                isPartnerSchool
+                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"
+                  : "bg-white border-gray-100"
+              }
+            `}
+            >
               <h3 className="text-base sm:text-lg font-bold mb-4 text-center text-gray-800 flex items-center justify-center">
                 <FaComment className="h-5 w-5 mr-2 text-blue-500" />
-                FREE Counselling
+                {isPartnerSchool
+                  ? "PARTNER SCHOOL COUNSELLING"
+                  : "FREE Counselling"}
               </h3>
+              {isPartnerSchool && (
+                <div className="mb-4 p-2 bg-blue-100 rounded-lg text-center">
+                  <p className="text-blue-800 text-sm font-medium">
+                    ⚡ Priority Support for Partner Schools
+                  </p>
+                </div>
+              )}
               <form className="space-y-4">
                 <div>
                   <input
@@ -1236,12 +1348,22 @@ export default function SchoolProfile({ school, seo }) {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base cursor-pointer"
+                  className={`
+                    w-full text-white py-3 rounded-lg font-medium transition-colors text-sm sm:text-base cursor-pointer
+                    ${
+                      isPartnerSchool
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        : "bg-green-600 hover:bg-green-700"
+                    }
+                  `}
                 >
-                  GET COUNSELLING
+                  {isPartnerSchool
+                    ? "GET PRIORITY COUNSELLING"
+                    : "GET COUNSELLING"}
                 </button>
               </form>
             </div>
+
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
                 <svg
@@ -1265,12 +1387,19 @@ export default function SchoolProfile({ school, seo }) {
                   similarSchools.map((similarSchool) => (
                     <div
                       key={similarSchool.id}
-                      className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer border border-gray-100"
+                      className={`
+                        flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer border
+                        ${
+                          similarSchool.isPartner
+                            ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:bg-blue-100"
+                            : "hover:bg-gray-50 border-gray-100"
+                        }
+                      `}
                       onClick={(e) =>
                         handleSimilarSchoolClick(similarSchool, e)
                       }
                     >
-                      <div className="bg-gray-200 w-16 h-16 rounded flex-shrink-0">
+                      <div className="bg-gray-200 w-16 h-16 rounded flex-shrink-0 relative">
                         <img
                           src={similarSchool.image}
                           alt={similarSchool.name}
@@ -1279,11 +1408,25 @@ export default function SchoolProfile({ school, seo }) {
                             e.currentTarget.src = "/placeholder.jpg";
                           }}
                         />
+                        {/* Partner badge for similar schools */}
+                        {similarSchool.isPartner && (
+                          <div className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full p-1">
+                            <FaCheckCircle className="h-3 w-3" />
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <p className="font-medium text-sm sm:text-base">
-                          {similarSchool.name}
-                        </p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm sm:text-base">
+                            {similarSchool.name}
+                          </p>
+                          {similarSchool.isPartner && (
+                            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                              <FaCrown className="h-3 w-3" />
+                              Partner
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-1 mt-1">
                           {[...Array(5)].map((_, i) => (
                             <span
