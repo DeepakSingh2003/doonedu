@@ -15,7 +15,6 @@ export default function SchoolCarousel() {
         const res = await fetch("https://www.doonedu.com/?api_call=true");
         const data = await res.json();
         if (data.response.featured_schools) {
-          console.log("Fetched schools:", data);
           setSchools(data.response.featured_schools);
         }
       } catch (error) {

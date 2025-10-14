@@ -55,9 +55,6 @@ import { useWishlist } from "../contexts/WishlistContext";
 import ApplyModal from "../components/ApplyModal";
 
 export default function SchoolProfile({ school, seo }) {
-  console.log("Rendering SchoolProfile for:", school);
-  console.log("seo title", seo.seo_html);
-
   // Check if school is a partner (partner: "2")
   const isPartnerSchool = school?.school?.partner === "2";
 

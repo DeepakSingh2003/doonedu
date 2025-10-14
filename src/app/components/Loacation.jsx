@@ -13,10 +13,8 @@ import { useSearchParams, usePathname } from "next/navigation";
 import DOMPurify from "dompurify";
 
 export default function Location({ locationData }) {
-  console.log("Location Data:", locationData.response.data.location_descripton);
-  console.log("SEO HTML:", locationData.response.data.seo_html); // Log SEO HTML for debugging
   const schoolsData = locationData?.response.data.schools_list || [];
-  console.log("Schools Data:", schoolsData);
+
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { city: contextCity } = useCity();

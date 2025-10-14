@@ -23,13 +23,10 @@ export default function Page() {
           "/"
         )}?api_call=true`;
 
-        console.log("Fetching:", apiUrl);
-
         const res = await fetch(apiUrl, { cache: "no-store" });
         const json = await res.json();
         setData(json);
       } catch (e) {
-        console.error("Error fetching:", e);
       } finally {
         setLoading(false);
       }

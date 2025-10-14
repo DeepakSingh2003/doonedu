@@ -1,31 +1,50 @@
 "use client";
 import { useModal } from "../contexts/ModalContext";
-import {
-  X,
-  User,
-  Mail,
-  Phone,
-  PhoneCall,
-  GraduationCap,
-  Send,
-} from "lucide-react";
+import { X, User, Mail, Phone, GraduationCap, Send } from "lucide-react";
+import { useState } from "react";
 
 export default function ApplyModal({ schoolId, schoolName }) {
   const { closeModal } = useModal();
+  const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', or 'error'
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitStatus(null); // Reset status
+
     const formData = new FormData(e.target);
-    console.log({
-      schoolId,
-      schoolName,
-      parentName: formData.get("parentName"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      alternateNumber: formData.get("alternateNumber"),
-      class: formData.get("class"),
-    });
-    closeModal();
+    const apiData = new FormData();
+    apiData.append("name", formData.get("parentName"));
+    apiData.append("email", formData.get("email"));
+    apiData.append("phone", formData.get("phone"));
+    apiData.append("student_class", formData.get("class"));
+    apiData.append("message", formData.get("message"));
+    apiData.append("school_id", schoolId);
+
+    try {
+      const response = await fetch(
+        "https://www.doonedu.com/school/school_enquiry_api",
+        {
+          method: "POST",
+          body: apiData,
+        }
+      );
+      const responseText = await response.text();
+
+      if (response.ok) {
+        setSubmitStatus("success");
+
+        // Optional: Close modal after 3 seconds
+        setTimeout(() => {
+          closeModal();
+        }, 3000);
+      } else {
+        console.error("Error submitting application");
+        setSubmitStatus("error");
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      setSubmitStatus("error");
+    }
   };
 
   return (
@@ -156,7 +175,7 @@ export default function ApplyModal({ schoolId, schoolName }) {
                     <option value="UKG">UKG</option>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(
                       (grade) => (
-                        <option key={grade} value={`Class ${grade}`}>
+                        <option key={grade} value={grade.toString()}>
                           Class {grade}
                         </option>
                       )
@@ -165,27 +184,43 @@ export default function ApplyModal({ schoolId, schoolName }) {
                 </div>
               </div>
 
-              {/* Alternate Number */}
+              {/* Message */}
               <div>
                 <label
-                  htmlFor="alternateNumber"
+                  htmlFor="message"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Alternate Number
+                  Message
                 </label>
-                <div className="flex items-center border rounded-lg overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-blue-400">
-                  <span className="px-3 text-gray-500">
-                    <PhoneCall size={18} />
-                  </span>
-                  <input
-                    type="tel"
-                    id="alternateNumber"
-                    name="alternateNumber"
-                    placeholder="Enter Alternate Number"
-                    className="flex-1 p-3 focus:outline-none text-sm"
-                  />
-                </div>
+                <textarea
+                  id="message"
+                  name="message"
+                  placeholder="Enter any additional message"
+                  className="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                  rows="4"
+                />
               </div>
+
+              {/* Success Message */}
+              {submitStatus === "success" && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                  <strong className="font-bold">Success! </strong>
+                  <span className="block sm:inline">
+                    Application submitted successfully!
+                  </span>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {submitStatus === "error" && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                  <strong className="font-bold">Error! </strong>
+                  <span className="block sm:inline">
+                    There was an error submitting your application. Please try
+                    again.
+                  </span>
+                </div>
+              )}
 
               {/* Privacy */}
               <p className="text-xs text-gray-600 text-center">
@@ -226,7 +261,7 @@ export default function ApplyModal({ schoolId, schoolName }) {
                 className="w-40 h-40 md:w-48 md:h-36 object-contain drop-shadow-lg"
               />
               <h3 className="text-xl md:text-2xl font-bold mb-3">
-                Unlock Your Child’s Bright Future
+                Unlock Your Child's Bright Future
               </h3>
               <p className="text-sm md:text-lg max-w-md leading-relaxed">
                 Join thousands of parents who trusted us for the best school
