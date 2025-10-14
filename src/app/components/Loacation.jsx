@@ -7,6 +7,7 @@ import Link from "next/link";
 
 import { useModal } from "../contexts/ModalContext";
 import ApplyModal from "../components/ApplyModal";
+import EnquireModal from "../components/EnquireModal"; // You'll need to create this
 import { useCity } from "../contexts/CityContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useSearchParams, usePathname } from "next/navigation";
@@ -210,6 +211,15 @@ export default function Location({ locationData }) {
     e.stopPropagation();
     openModal(
       <ApplyModal schoolId={school.id} schoolName={school.school_title} />
+    );
+  };
+
+  // NEW: Handle Request Call Back for partner schools
+  const handleRequestCallBack = (school, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openModal(
+      <EnquireModal schoolId={school.id} schoolName={school.school_title} />
     );
   };
 
@@ -735,22 +745,29 @@ export default function Location({ locationData }) {
                             }
                           `}
                         >
-                          Apply Now
+                          Enquire Now
                         </button>
-                        <button
-                          onClick={(e) => handleCallNow(school, e)}
-                          className={`
-                            flex items-center gap-1 px-3 py-1.5 text-white text-xs rounded-lg transition cursor-pointer
-                            ${
-                              isPartnerSchool
-                                ? "bg-blue-600 hover:bg-blue-700"
-                                : "bg-red-600 hover:bg-red-700"
-                            }
-                          `}
-                        >
-                          <Phone size={12} />
-                          Call Now
-                        </button>
+                        {/* Conditional rendering for partner vs non-partner schools */}
+
+                        {isPartnerSchool ? (
+                          <>
+                            <button
+                              onClick={(e) => handleRequestCallBack(school, e)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition cursor-pointer"
+                            >
+                              <Phone size={12} />
+                              Request a Call Back
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={(e) => handleCallNow(school, e)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition cursor-pointer"
+                          >
+                            <Phone size={12} />
+                            Call Now
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

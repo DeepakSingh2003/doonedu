@@ -14,7 +14,7 @@ export default function SubNavbar() {
   // Define your links with their paths
   const linksLeft = [
     { name: "Home", href: "/" },
-    { name: "Explore Schools", href: "/exploreschools" },
+    { name: "Online Registration", href: "/OnlineRegistration" },
   ];
 
   const linksRight = [

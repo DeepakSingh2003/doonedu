@@ -53,6 +53,7 @@ import { Phone, Heart } from "lucide-react";
 import { useModal } from "../contexts/ModalContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import ApplyModal from "../components/ApplyModal";
+import EnquireModal from "../components/EnquireModal";
 
 export default function SchoolProfile({ school, seo }) {
   // Check if school is a partner (partner: "2")
@@ -152,15 +153,36 @@ export default function SchoolProfile({ school, seo }) {
     }
   }, [school]);
 
-  // const toggleWishlist = (school, e) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   if (isWishlisted(school?.school?.id)) {
-  //     removeFromWishlist(school?.school?.id);
-  //   } else {
-  //     addToWishlist(school?.school);
-  //   }
-  // };
+  // NEW: Handle Request Call Back for partner schools
+  const handleRequestCallBack = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openModal(
+      <EnquireModal
+        schoolId={school?.school?.id || "unknown"}
+        schoolName={school?.school?.school_title || "Unknown School"}
+      />
+    );
+  };
+
+  const handleCallNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (school?.school?.phone) {
+      window.location.href = `tel:${school.school.phone}`;
+    }
+  };
+
+  const handleApplyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openModal(
+      <ApplyModal
+        schoolId={school?.school?.id || "unknown"}
+        schoolName={school?.school?.school_title || "Unknown School"}
+      />
+    );
+  };
 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
@@ -230,25 +252,6 @@ export default function SchoolProfile({ school, seo }) {
     e.preventDefault();
     e.stopPropagation();
     router.push(`/${schoolObj.url}`);
-  };
-
-  const handleApplyNow = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    openModal(
-      <ApplyModal
-        schoolId={school?.school?.id || "unknown"}
-        schoolName={school?.school?.school_title || "Unknown School"}
-      />
-    );
-  };
-
-  const handleCallNow = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (school?.school?.phone) {
-      window.location.href = `tel:${school.school.phone}`;
-    }
   };
 
   const getGalleryImageUrl = (index) => {
@@ -464,25 +467,6 @@ export default function SchoolProfile({ school, seo }) {
                 </div>
               )}
 
-              {/* <button
-                onClick={(e) => toggleWishlist(school, e)}
-                className="absolute top-4 right-4 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-transform duration-200 ease-in-out transform hover:scale-110 cursor-pointer"
-                aria-label={
-                  isWishlisted(school?.school?.id)
-                    ? "Remove from wishlist"
-                    : "Add to wishlist"
-                }
-              >
-                <Heart
-                  size={20}
-                  className={`transition-colors duration-200 ${
-                    isWishlisted(school?.school?.id)
-                      ? "fill-red-500 text-red-500"
-                      : "fill-white text-red-500"
-                  }`}
-                />
-              </button> */}
-
               <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
                 {/* Verified Check for Partner Schools */}
                 {isPartnerSchool && (
@@ -560,21 +544,25 @@ export default function SchoolProfile({ school, seo }) {
                   {school?.school?.classification?.title || "Not specified"}
                 </span>
                 <div className="ml-auto flex gap-2 mt-2 sm:mt-0">
-                  <button
-                    onClick={handleCallNow}
-                    className={`
-                      text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer
-                      ${
-                        isPartnerSchool
-                          ? "bg-blue-600 hover:bg-blue-700"
-                          : "bg-red-600 hover:bg-red-700"
-                      }
-                    `}
-                    disabled={!school?.school?.phone}
-                  >
-                    <Phone className="h-4 w-4 mr-1" />
-                    Call Now
-                  </button>
+                  {/* UPDATED: Conditional rendering for Call Now / Request Call Back */}
+                  {isPartnerSchool ? (
+                    <button
+                      onClick={handleRequestCallBack}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer"
+                    >
+                      <Phone className="h-4 w-4 mr-1" />
+                      Request a Call Back
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleCallNow}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer"
+                      disabled={!school?.school?.phone}
+                    >
+                      <Phone className="h-4 w-4 mr-1" />
+                      Call Now
+                    </button>
+                  )}
                   <button
                     onClick={handleApplyNow}
                     className={`
@@ -587,7 +575,7 @@ export default function SchoolProfile({ school, seo }) {
                     `}
                   >
                     <FaFileAlt className="h-4 w-4 mr-1" />
-                    Apply Now
+                    Enquire Now
                   </button>
                 </div>
               </div>
