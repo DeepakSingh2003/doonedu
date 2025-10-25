@@ -12,7 +12,7 @@ export default function SchoolCarousel() {
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-        const res = await fetch("https://www.doonedu.com/?api_call=true");
+        const res = await fetch("https://admin.doonedu.com/?api_call=true");
         const data = await res.json();
         if (data.response.featured_schools) {
           setSchools(data.response.featured_schools);

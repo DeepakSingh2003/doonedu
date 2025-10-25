@@ -19,7 +19,7 @@ export default function Page() {
 
     const fetchData = async () => {
       try {
-        let apiUrl = `https://www.doonedu.com/${slugArray.join(
+        let apiUrl = `https://admin.doonedu.com/${slugArray.join(
           "/"
         )}?api_call=true`;
 
