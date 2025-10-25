@@ -5,7 +5,7 @@ import SchoolCarousel from "./components/SchoolCarousel";
 import SchoolSuggestionCard from "./components/SchoolSuggestionCard";
 import Stepsapply from "./components/Stepsapply";
 import Didyouknow from "./components/Didyouknow";
-import Recommenationbanner from "./components/recommendationbanner";
+import Recommenationbanner from "./components/Recommendationbanner";
 import HomepageCategories from "./components/Homepagecategories";
 import Testimonials from "./components/Testimonials";
 
