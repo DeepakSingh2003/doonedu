@@ -585,7 +585,7 @@ export default function Location({ locationData }) {
                     <div className="w-full md:w-56 flex-shrink-0 mx-auto">
                       <div className="h-40 rounded-lg overflow-hidden relative">
                         <img
-                          src={`https://www.doonedu.com/images/schools/${school.id}/${school.thumbnail}`}
+                          src={`https://img.doonedu.com/images/schools/${school.id}/${school.thumbnail}`}
                           alt={school.school_title}
                           className="w-full h-full object-cover hover:scale-105 transition"
                         />

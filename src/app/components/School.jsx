@@ -1480,7 +1480,7 @@ export default function SchoolProfile({ school, seo }) {
                         })
                       : "Date not available";
                     const imageUrl = blog.thumb_image
-                      ? `https://www.doonedu.com/images/blogs/${blog.id}/${blog.thumb_image}`
+                      ? `https://img.doonedu.com/images/blogs/${blog.id}/${blog.thumb_image}`
                       : "/placeholder.jpg";
 
                     return (
