@@ -19,9 +19,9 @@ export default function Page() {
 
     const fetchData = async () => {
       try {
-        let apiUrl = `https://admin.doonedu.com/${slugArray.join(
-          "/"
-        )}?api_call=true`;
+        let apiUrl = `${
+          process.env.NEXT_PUBLIC_MAIN_API_URL_SLUG
+        }/${slugArray.join("/")}?api_call=true`;
 
         const res = await fetch(apiUrl, { cache: "no-store" });
         const json = await res.json();

@@ -30,7 +30,7 @@ const BottomNav = () => {
 
   const navItems = [
     { path: "/", label: "Home", icon: FaHome },
-    { path: "/exploreschools", label: "All Schools", icon: FaList },
+
     { path: "/Counselling", label: "Counselling", icon: FaPhoneAlt }, // ✅ updated icon
   ];
 

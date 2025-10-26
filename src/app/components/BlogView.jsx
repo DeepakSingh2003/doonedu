@@ -15,12 +15,11 @@ export default function BlogView({ blogData }) {
   }
 
   // Base URL for images
-  const baseUrl = "https://www.doonedu.com";
+  const baseUrl = process.env.NEXT_PUBLIC_MAIN_API_URL_SLUG;
 
   // Sanitize content with error handling
   const sanitizeHtml = (html) => {
     if (!html) {
-      console.warn("No HTML content provided for post:", data.id);
       return "";
     }
     try {
@@ -121,12 +120,6 @@ export default function BlogView({ blogData }) {
         ADD_ATTR: ["target"],
       });
 
-      console.log(
-        "Sanitized HTML for post",
-        data.id,
-        ":",
-        sanitized.substring(0, 200) + (sanitized.length > 200 ? "..." : "")
-      );
       return sanitized;
     } catch (e) {
       console.error("Error sanitizing HTML for post", data.id, ":", e);
@@ -303,7 +296,7 @@ export default function BlogView({ blogData }) {
               data.recent_posts.map((post, idx) => {
                 // Construct relative URL
                 const relativeUrl = post.seo_url
-                  ? post.seo_url.replace("https://www.doonedu.com", "")
+                  ? post.seo_url.replace("https://admin.doonedu.com", "")
                   : "#";
 
                 // Format post date

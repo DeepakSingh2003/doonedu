@@ -198,12 +198,12 @@ export default function SchoolProfile({ school, seo }) {
   const transformedGallery = (school?.gallery || []).map((item) => ({
     id: item?.id || Date.now(),
     url: item?.image
-      ? `https://www.doonedu.com/images/schools/${
+      ? `${process.env.NEXT_PUBLIC_GALLERY_URL}/${
           item?.school_id || school?.school?.id || "unknown"
         }/gallery/${item.image}`
       : "/placeholder.jpg",
     thumbnailUrl: item?.image
-      ? `https://www.doonedu.com/images/schools/${
+      ? `${process.env.NEXT_PUBLIC_GALLERY_URL}/${
           item?.school_id || school?.school?.id || "unknown"
         }/gallery/${item.image}`
       : "/placeholder.jpg",
@@ -217,7 +217,7 @@ export default function SchoolProfile({ school, seo }) {
     id: s?.id || Date.now(),
     name: s?.school_title || "Unknown School",
     image: s?.thumbnail
-      ? `https://www.doonedu.com/images/schools/${s.id}/${s.thumbnail}`
+      ? `${process.env.NEXT_PUBLIC_GALLERY_URL}/${s.id}/${s.thumbnail}`
       : "/placeholder.jpg",
     rating: s?.rating || 4.5,
     votes: s?.view_count || 0,
@@ -412,7 +412,7 @@ export default function SchoolProfile({ school, seo }) {
             <img
               src={
                 school?.school?.thumbnail
-                  ? `https://www.doonedu.com/images/schools/${
+                  ? `${process.env.NEXT_PUBLIC_GALLERY_URL}/${
                       school?.school?.id || "unknown"
                     }/${school?.school?.thumbnail}`
                   : "/placeholder.jpg"
@@ -988,7 +988,7 @@ export default function SchoolProfile({ school, seo }) {
                                 >
                                   {attr.image ? (
                                     <img
-                                      src={`https://www.doonedu.com/images/attribute/${attr.id}/${attr.image}`}
+                                      src={`${process.env.NEXT_PUBLIC_CO_CURRICULAR_ICONS_URL}/${attr.id}/${attr.image}`}
                                       alt={attr.title}
                                       className="w-5 h-5 rounded-full object-cover"
                                       onError={(e) => {
@@ -1480,7 +1480,7 @@ export default function SchoolProfile({ school, seo }) {
                         })
                       : "Date not available";
                     const imageUrl = blog.thumb_image
-                      ? `https://img.doonedu.com/images/blogs/${blog.id}/${blog.thumb_image}`
+                      ? `${process.env.NEXT_PUBLIC_BLOG_IMAGES_URL}/${blog.id}/${blog.thumb_image}`
                       : "/placeholder.jpg";
 
                     return (

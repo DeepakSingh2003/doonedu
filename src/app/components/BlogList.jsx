@@ -212,7 +212,7 @@ export default function Blog() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("https://www.doonedu.com/blog?api_call=true");
+        const res = await fetch(process.env.NEXT_PUBLIC_BLOG_LISTPAGE_URL);
         if (!res.ok) throw new Error("Failed to fetch data");
         const json = await res.json();
         setData(json);

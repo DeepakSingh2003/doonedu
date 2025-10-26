@@ -170,7 +170,7 @@ export default function BlogCategory({ categoryData }) {
         id: blog.id,
         title: blog.title,
         description: blog.short_description.replace(/(\r\n)+/g, " ").trim(),
-        image: `https://www.doonedu.com/images/blogs/${blog.id}/${blog.thumb_image}`,
+        image: `${process.env.NEXT_PUBLIC_BLOG_IMAGES_URL}/${blog.id}/${blog.thumb_image}`,
         author: { name: blog.auther_name },
         views: Math.floor(Math.random() * 10000),
         date: new Date(blog.created_at),

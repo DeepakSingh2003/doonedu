@@ -21,13 +21,10 @@ export default function ApplyModal({ schoolId, schoolName }) {
     apiData.append("school_id", schoolId);
 
     try {
-      const response = await fetch(
-        "https://www.doonedu.com/school/school_enquiry_api",
-        {
-          method: "POST",
-          body: apiData,
-        }
-      );
+      const response = await fetch(process.env.NEXT_PUBLIC_APPLY_FORM_URL, {
+        method: "POST",
+        body: apiData,
+      });
       const responseText = await response.text();
 
       if (response.ok) {
