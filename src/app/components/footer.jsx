@@ -16,28 +16,27 @@ export default function Footer() {
 
   const socialLinks = [
     {
-      href: "#",
+      href: "https://www.linkedin.com/company/global-edu-consulting/",
       label: "LinkedIn",
       icon: "M41,4H9C6.24,4,4,6.24,4,9v32c0,2.76,2.24,5,5,5h32c2.76,0,5-2.24,5-5V9C46,6.24,43.76,4,41,4z M17,20v19h-6V20H17z M11,14.47c0-1.4,1.2-2.47,3-2.47s2.93,1.07,3,2.47c0,1.4-1.12,2.53-3,2.53S11,15.87,11,14.47z M39,39h-6c0,0,0-9.26,0-10 c0-2-1-4-3.5-4.04h-0.08C27,24.96,26,27.02,26,29.04c0,0.91,0,10,0,10h-6V20h6v2.56c0,0,1.93-2.56,5.81-2.56 c3.97,0,7.19,2.73,7.19,8.26V39z",
     },
     {
-      href: "#",
+      href: "https://www.facebook.com/gec0222",
       label: "Facebook",
       icon: "M37,19h-2c-2.14,0-3,0.5-3,2v3h5l-1,5h-4v15h-5V29h-4v-5h4v-3c0-4,2-7,6-7c2.9,0,4,1,4,1V19z",
     },
     {
-      href: "#",
+      href: "https://www.instagram.com/global_edu_consulting_?igsh=cGYyaW1yOHIxdWpm",
       label: "Instagram",
       icon: "M16,3C8.83,3,3,8.83,3,16v18c0,7.17,5.83,13,13,13h18c7.17,0,13-5.83,13-13V16c0-7.17-5.83-13-13-13H16z M37,11c1.1,0,2,0.9,2,2 c0,1.1-0.9,2-2,2s-2-0.9-2-2C35,11.9,35.9,11,37,11z M25,14c6.07,0,11,4.93,11,11s-4.93,11-11,11s-11-4.93-11-11S18.93,14,25,14z M25,16c-4.96,0-9,4.04-9,9c0,4.96,4.04,9,9,9c4.96,0,9-4.04,9-9C34,20.04,29.96,16,25,16z",
     },
     {
-      href: "#",
-      label: "Twitter",
+      href: "https://x.com/consulting_edu",
       label: "Twitter",
       icon: "M11,4C7.134,4,4,7.134,4,11v28c0,3.866,3.134,7,7,7h28c3.866,0,7-3.134,7-7V11c0-3.866-3.134-7-7-7H11z M13.08594,13h7.9375l5.63672,8.00977L33.5,13h2.5l-8.21094,9.61328L38,37h-7.93555l-6.54102-9.29297L15.5,37h-2.5l9.30859-10.89648 L13.08594,13z M16.91406,15L31.021,35h3.06445L20.0,15H16.91406z",
     },
     {
-      href: "#",
+      href: "https://www.youtube.com/@GlobalEduConsulting",
       label: "YouTube",
       icon: "M47.5,14.3c-0.6-2.3-2.4-4.1-4.7-4.7C39.3,9,25,9,25,9s-14.3,0-17.8,0.6c-2.3,0.6-4.1,2.4-4.7,4.7C2,17.8,2,25,2,25 s0,7.2,0.6,10.7c0.6,2.3,2.4,4.1,4.7,4.7C10.7,41,25,41,25,41s14.3,0,17.8-0.6c2.3-0.6,4.1-2.4,4.7-4.7C48,32.2,48,25,48,25 S48,17.8,47.5,14.3z M20,32V18l12,7L20,32z",
     },
@@ -53,8 +52,8 @@ export default function Footer() {
               <div className="flex flex-col items-center md:items-start space-y-4">
                 <img
                   src="https://res.cloudinary.com/dnq8fbcxh/image/upload/v1757137090/global-edu-consulting_1_uohjgy.png"
-                  alt="Ezyschooling Logo"
-                  title="Ezyschooling Logo"
+                  alt="Global edu Logo"
+                  title="Global edu Logo"
                   className="h-[50px] w-auto"
                 />
                 <p className="text-slate-300 text-[10px] leading-relaxed max-w-sm md:max-w-xs px-4 md:px-0">
