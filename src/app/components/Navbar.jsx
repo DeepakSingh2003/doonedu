@@ -292,16 +292,6 @@ export default function Navbar() {
               </div>
               <div className="divide-y divide-gray-200">
                 <Link
-                  href="/exploreschools"
-                  className="flex items-center gap-3 px-5 py-2.5 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <FaSchool className="text-blue-500" />
-                  <span className="text-xs font-medium text-gray-800">
-                    Explore Schools
-                  </span>
-                </Link>
-                <Link
                   href="/Blog"
                   className="flex items-center gap-3 px-5 py-2.5 hover:bg-gray-50 cursor-pointer"
                   onClick={() => setMenuOpen(false)}

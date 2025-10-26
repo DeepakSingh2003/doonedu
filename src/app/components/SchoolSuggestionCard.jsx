@@ -49,7 +49,7 @@ export default function ApplyNowSection() {
               <div className="mt-6 text-center md:text-left flex">
                 <a
                   className="flex items-center bg-[#1978CD] text-white px-3 py-1 font-medium rounded-lg text-xs md:text-sm group"
-                  href="/exploreschools"
+                  href="/OnlineRegistration"
                 >
                   Start Your Application Now
                   <MdArrowRightAlt className="ml-2 transition-transform duration-300 ease-in-out group-hover:translate-x-1" />
