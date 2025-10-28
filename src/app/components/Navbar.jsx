@@ -13,6 +13,7 @@ import {
   FaBookOpen,
   FaQuestionCircle,
   FaPhoneAlt,
+  FaWhatsapp,
 } from "react-icons/fa";
 import { Search } from "lucide-react";
 import { useCity } from "../contexts/CityContext"; // city context
@@ -59,63 +60,53 @@ export default function Navbar() {
   const popularCities = [
     {
       name: "Delhi",
-      image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/delhi/Delhi_India_Gate_vruZc1j.svg",
+      image: "Delhi - India Gate.svg",
       href: "/boarding-schools-delhi",
     },
     {
       name: "Bangalore",
-      image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/bangalore/banglore_j0eqVHu_88dSI8P.svg",
+      image: "Bangalore - Vidhana Soudha.svg",
       href: "boarding-schools-bengaluru",
     },
     {
       name: "Pune",
-      image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/pune/Pune_Saniwarwada.svg",
+      image: "Pune - Shaniwar Wada.svg",
       href: "/boarding-schools-pune",
     },
     {
       name: "Kolkata",
-      image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/kolkata/kolkata_xqXrXjl_hU0Hgr9.svg",
+      image: "Kolkata- Victoria Memorial.svg",
       href: "/boarding-schools-kolkata",
     },
     {
       name: "Gurgaon",
-      image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/gurgaon/Gurgoan_DLF.svg",
+      image: "Gurgaon- Cyber Hub.svg",
       href: "/boarding-schools-gurugram",
     },
     {
       name: "Ghaziabad",
-      image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/ghaziabad/Ghaziabad_vtMnilQ_vYVfN7t.svg",
+      image: "Ghaziabad- ISKCON Temple.svg",
       href: "/boarding-schools-ghaziabad",
     },
     {
       name: "Faridabad",
-      image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/faridabad/Faridabad_Nahar_Singh_Palce_1yWHXub.svg",
+      image: "Faridabad- Surajkund.svg",
       href: "/boarding-schools-faridabad",
     },
     {
       name: "Noida",
-      image:
-        "https://d3bat55ebwjhsf.cloudfront.net/schools/city/noida/Noida_Border.svg",
+      image: "Noida - Worlds of Wonder.svg",
       href: "/boarding-schools-noida",
     },
 
     {
       name: "Dehradun",
-      image:
-        "https://res.cloudinary.com/dnq8fbcxh/image/upload/v1757399898/hand-drawn-sketch-forest-research-260nw-746498470-removebg-preview_kx5hzh.png",
+      image: "Dehradun- Forest Research Institute (FRI).svg",
       href: "/boarding-schools-dehradun",
     },
     {
       name: "Shimla",
-      image:
-        "https://res.cloudinary.com/dnq8fbcxh/image/upload/v1757400035/240167208-detailed-vector-coloring-page-of-an-ancient-cobblestone-street_nsdghy.jpg",
+      image: "Shimla - Christ Church.svg",
       href: "/boarding-schools-shimla",
     },
   ];
@@ -146,12 +137,12 @@ export default function Navbar() {
   return (
     <nav className="shadow bg-white fixed top-0 left-0 w-full z-50">
       {/* ----------- DESKTOP NAV ----------- */}
-      <div className="hidden md:flex justify-between items-center px-6 py-3">
-        <div className="flex items-center space-x-6">
+      <div className="hidden md:flex items-center px-6 py-3">
+        <div className="flex items-center space-x-6 flex-1">
           <Link href="/" className="cursor-pointer">
             <Image
               src="/logo.webp"
-              alt="Ezyschooling"
+              alt="doon edu"
               width={100}
               height={40}
               priority
@@ -163,7 +154,7 @@ export default function Navbar() {
           >
             <FaMapMarkerAlt className="text-blue-500 mr-2" />
             <span className="text-[11px] font-bold">
-              {city || "Select City"}
+              {city || "Choose City"}
             </span>
           </div>
           <div className="flex items-center border border-gray-300 rounded px-2 py-1 cursor-pointer">
@@ -178,7 +169,30 @@ export default function Navbar() {
             </select>
           </div>
         </div>
-        <div className="flex items-center space-x-4">
+
+        {/* ----------- CENTER: PHONE NUMBER AND WHATSAPP ----------- */}
+        <div className="flex items-center space-x-4 mx-8">
+          <a
+            href="tel: +919997224467"
+            className="flex items-center space-x-1 text-sm font-semibold text-gray-700 hover:text-blue-500"
+          >
+            <FaPhoneAlt className="text-blue-500" />
+            <span>+91 99972 24467</span>
+          </a>
+          <a
+            href="https://api.whatsapp.com/send?phone=919634333174"
+            target="_blank"
+            rel="noopener noreferrer"
+            className=" flex p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition"
+          >
+            <span className="flex items-center gap-2">
+              <FaWhatsapp size={20} />
+              whatsapp
+            </span>
+          </a>
+        </div>
+
+        <div className="flex items-center space-x-4 flex-1 justify-end">
           <Link href="/Wishlist" className="relative">
             <button className="p-2 rounded-full shadow cursor-pointer">
               <FaRegHeart />
@@ -247,7 +261,7 @@ export default function Navbar() {
             className="flex items-center border border-gray-300 rounded px-2 py-1 cursor-pointer"
           >
             <FaMapMarkerAlt className="text-blue-500 mr-1 text-sm" />
-            <span className="text-xs font-bold">{city || "Select City"}</span>
+            <span className="text-xs font-bold">{city || "Choose City"}</span>
           </div>
         </div>
         <Link href="/Wishlist" className="relative">
@@ -373,13 +387,6 @@ export default function Navbar() {
 
             {activeTab === "day" && (
               <>
-                <Link
-                  href="/day-schools"
-                  className="text-blue-600 font-semibold underline mb-3 text-sm md:text-base cursor-pointer flex items-center justify-center gap-2"
-                  onClick={() => setCityModalOpen(false)}
-                >
-                  <FaSchool /> View All Boarding Schools in India
-                </Link>
                 <h3 className="font-medium mb-2 flex items-center gap-2">
                   <FaMapMarkerAlt className="text-blue-500" /> Popular Cities
                 </h3>

@@ -1,5 +1,5 @@
 "use client";
-import { FaTrophy, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
+import { FaUserTie, FaMapMarkedAlt, FaSchool } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -21,43 +21,48 @@ export default function DiscoverSchools() {
         {/* Right Side Content */}
         <div className="w-full lg:w-1/2 bg-gray-50 p-4 sm:p-6">
           <h2 className="text-sm sm:text-base font-semibold text-gray-800 mb-4 text-center lg:text-left">
-            Discover Your Ideal Schools
+            Find Your Boarding | Get Your Personal Counsellor
           </h2>
 
           <ul className="space-y-3">
+            {/* 1️⃣ School Suggestion */}
             <li className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-              <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full text-yellow-500 text-sm sm:text-base">
-                <FaTrophy />
+              <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full text-blue-600 text-sm sm:text-base">
+                <FaUserTie />
               </span>
               <p className="text-gray-700 leading-snug">
-                <strong>Find Your Perfect Match:</strong> Schools selected just
-                for you
+                <strong>The Counselor </strong> will suggest the school as per
+                the student and parent requirements.
               </p>
             </li>
+
+            {/* 2️⃣ Help with Visits */}
             <li className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-              <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full text-pink-500 text-sm sm:text-base">
-                <FaMapMarkerAlt />
+              <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full text-green-600 text-sm sm:text-base">
+                <FaMapMarkedAlt />
               </span>
               <p className="text-gray-700 leading-snug">
-                <strong>Tailored Schools:</strong> Schools matched to your
-                preferences
+                <strong>The Counselor </strong> will help you to sort out all
+                your queries & assist you through the school visits.
               </p>
             </li>
+
+            {/* 3️⃣ Choose the Best School */}
             <li className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-              <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full text-blue-500 text-sm sm:text-base">
-                <FaSearch />
+              <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-yellow-100 rounded-full text-yellow-600 text-sm sm:text-base">
+                <FaSchool />
               </span>
               <p className="text-gray-700 leading-snug">
-                <strong>Simple School Search:</strong> Easy way to explore Delhi
-                schools
+                Finally, <strong>The Counselor </strong> will help you to choose
+                the Best Boarding School.
               </p>
             </li>
           </ul>
 
           {/* CTA Button */}
-          <Link href="/exploreschools" className="mt-5 w-full">
+          <Link href="#" className="mt-5 w-full block">
             <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 sm:py-3 rounded-md text-sm sm:text-base transition cursor-pointer mt-5">
-              Get School List
+              Get your personal Counselor now
             </button>
           </Link>
         </div>

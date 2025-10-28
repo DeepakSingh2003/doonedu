@@ -76,25 +76,34 @@ export default function HeroSection() {
             "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://res.cloudinary.com/dnq8fbcxh/image/upload/v1757161778/doon-edu_kqj01d.png')",
         }}
       >
-        <div className="relative z-10 w-[580px] mx-auto px-4">
-          <p className="text-3xl md:text-2xl font-bold text-white mb-4">
-            Find the right School
+        <div className="relative z-10 max-w-[890px] mx-auto px-4 text-center">
+          <p className="text-base sm:text-xl font-bold text-white leading-snug">
+            Welcome to India’s Largest & Oldest Consulting Group for Boarding
+            Schools.
           </p>
-          <p className="text-sm text-white mb-8">
+          <p className="text-base sm:text-xl font-bold text-white leading-snug mb-3">
+            Global Edu Consulting. Since - 2010
+          </p>
+
+          <p className="text-xs sm:text-sm text-white mb-1">
+            Find your boarding school below
+          </p>
+          <p className="text-xs sm:text-sm text-white mb-4">
             Your admission, our responsibility
           </p>
+
           <div
-            className="flex items-center bg-white rounded-sm shadow-lg overflow-hidden h-[38px] cursor-pointer"
+            className="flex items-center bg-white rounded-sm shadow-lg overflow-hidden h-[38px] cursor-pointer mx-auto w-[280px] sm:w-[350px] md:w-[430px]"
             onClick={() => setIsModalOpen(true)}
           >
             <input
               type="text"
-              className="w-full px-4 py-3 outline-none text-gray-700 text-[11px] pointer-events-none"
+              className="w-full px-4 py-2 outline-none text-gray-700 text-[11px] sm:text-[12px] pointer-events-none"
               placeholder="Search School by Location..."
               readOnly
             />
             <button className="px-4 text-[#1978cd] flex items-center justify-center">
-              <FaSearch size={18} />
+              <FaSearch size={16} className="sm:size-5" />
             </button>
           </div>
         </div>

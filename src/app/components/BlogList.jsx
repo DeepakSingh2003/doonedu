@@ -232,7 +232,7 @@ export default function Blog() {
       id: blog.id,
       title: blog.title,
       description: blog.short_description,
-      image: `https://www.doonedu.com/images/blogs/${blog.id}/${blog.thumb_image}`,
+      image: `${process.env.NEXT_PUBLIC_BLOG_IMAGES_URL}/${blog.id}/${blog.thumb_image}`,
       author: { name: blog.auther_name },
       views: Math.floor(Math.random() * 10000),
       date: new Date(blog.created_at).toLocaleDateString(),
@@ -247,7 +247,7 @@ export default function Blog() {
   const trending = articles.slice(1, 6) || [];
 
   const handlePostClick = (post) => {
-    const url = new URL(post.seo_url, "https://doonedu.com");
+    const url = new URL(post.seo_url, "https://admin.doonedu.com");
     router.push(url.pathname);
     window.scrollTo(0, 0);
   };

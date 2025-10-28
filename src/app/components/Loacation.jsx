@@ -7,14 +7,18 @@ import Link from "next/link";
 
 import { useModal } from "../contexts/ModalContext";
 import ApplyModal from "../components/ApplyModal";
-import EnquireModal from "../components/EnquireModal"; // You'll need to create this
+import EnquireModal from "../components/EnquireModal";
 import { useCity } from "../contexts/CityContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useSearchParams, usePathname } from "next/navigation";
 import DOMPurify from "dompurify";
 
 export default function Location({ locationData }) {
-  const schoolsData = locationData?.response.data.schools_list || [];
+  // Filter schools to only include those with deleted_at: null
+  const schoolsData =
+    locationData?.response.data.schools_list.filter(
+      (school) => school.deleted_at === null
+    ) || [];
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -81,8 +85,6 @@ export default function Location({ locationData }) {
   };
 
   // Parse SEO HTML content
-
-  // Parse URL parameters & pretty slugs
   useEffect(() => {
     if (locationData?.response?.data?.seo_html) {
       const parser = new DOMParser();
@@ -238,6 +240,10 @@ export default function Location({ locationData }) {
 
   // Apply all filters (query + slug + UI)
   const filteredSchools = schoolsData.filter((school) => {
+    // Note: We've already filtered deleted schools at the schoolsData level,
+    // but we can add an extra check here for safety
+    if (school.deleted_at !== null) return false;
+
     if (filters.fees.length > 0) {
       const schoolFeeRange = getFeeRange(school.average_fee);
       if (!filters.fees.includes(schoolFeeRange)) return false;

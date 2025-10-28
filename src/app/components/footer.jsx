@@ -46,7 +46,7 @@ export default function Footer() {
     <footer className="bg-gradient-to-b from-[#2B2B39] to-[#1F1F2A] text-white">
       <div className="max-w-[90%] md:max-w-[80%] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-8">
-          <div className="flex flex-col md:flex-row  gap-6 md:mb-8">
+          <div className="flex flex-col md:flex-row gap-6 md:mb-8">
             {/* Logo Section */}
             <div className="flex-1 min-w-[200px] text-center md:text-left">
               <div className="flex flex-col items-center md:items-start space-y-4">
@@ -82,157 +82,90 @@ export default function Footer() {
                 </div>
               </div>
             </div>
-
-            {/* Footer Sections */}
-            {[
-              {
-                key: "contact",
-                title: "Contact Us",
-                content: (
-                  <>
-                    <div className="text-slate-300 text-[10px] whitespace-pre-wrap py-1 px-2 md:px-0 flex">
-                      <svg
-                        className="w-3 h-3 text-slate-300 flex-shrink-0 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      Doon Global Edu Consulting Privet Limited, 35 Lakhi Bagh,
-                      Dehradun Central, Dehradun, Uttarakhand, India, 248001
-                    </div>
-                    <Link
-                      href="mailto:query@ezyschooling.com"
-                      className="text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 flex items-center cursor-pointer"
-                    >
-                      <svg
-                        className="w-3 h-3 text-slate-300 flex-shrink-0 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                      doon.edu@gmail.com
-                    </Link>
-                    <Link
-                      href="tel:+91-8766340464"
-                      className="text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 flex items-center cursor-pointer"
-                    >
-                      <svg
-                        className="w-3 h-3 text-slate-300 flex-shrink-0 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                        />
-                      </svg>
-                      +91 963 433 3174
-                    </Link>
-                  </>
-                ),
-              },
-              {
-                key: "quick-links",
-                title: "Quick Links",
-                content: (
-                  <>
-                    {["Search Schools", "Parenting", "News"].map(
-                      (text, index) => (
-                        <Link
-                          key={text}
-                          href={["/exploreschools", "/Blog", "/Blog"][index]}
-                          className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 cursor-pointer"
-                        >
-                          {text}
-                        </Link>
-                      )
-                    )}
-                  </>
-                ),
-              },
-              {
-                key: "for-schools",
-                title: "For Schools",
-                content: (
-                  <>
-                    <Link
-                      href="/schoolregister"
-                      className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 cursor-pointer"
-                    >
-                      Register School
-                    </Link>
-                    <Link
-                      href="/schoolregister"
-                      className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 cursor-pointer"
-                    >
-                      Login School
-                    </Link>
-                  </>
-                ),
-              },
-              {
-                key: "about",
-                title: "About",
-                content: (
-                  <>
-                    {["About Us", "Privacy Policy", "Contact Us", "FAQs"].map(
-                      (text, index) => (
-                        <Link
-                          key={text}
-                          href={
-                            [
-                              "/Aboutus",
-                              "/Privacypolicy",
-                              "/Contactus",
-                              "/FAQs",
-                            ][index]
-                          }
-                          className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 cursor-pointer"
-                        >
-                          {text}
-                        </Link>
-                      )
-                    )}
-                  </>
-                ),
-              },
-            ].map(({ key, title, content }) => (
-              <div key={key} className="flex-1 min-w-[200px]">
-                <div className="space-y-3">
-                  <button
-                    onClick={() => toggleSection(key)}
-                    className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
+            {/* About Section */}
+            <div className="flex-1 min-w-[200px]">
+              <div className="space-y-3">
+                <button
+                  onClick={() => toggleSection("about")}
+                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
+                >
+                  <h4 className="text-xs font-semibold text-white border-b border-slate-700 pb-1">
+                    About
+                  </h4>
+                  <svg
+                    className={`w-3 h-3 md:hidden transition-transform ${
+                      openSections["about"] ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <h4 className="text-xs font-semibold text-white border-b border-slate-700 pb-1">
-                      {title}
-                    </h4>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  className={`space-y-2 transition-all duration-300 ease-in-out ${
+                    openSections["about"] ? "block" : "hidden"
+                  } md:block`}
+                >
+                  {["About Us", "Privacy Policy", "Contact Us", "FAQs"].map(
+                    (text, index) => (
+                      <Link
+                        key={text}
+                        href={
+                          ["/Aboutus", "/Privacypolicy", "/Contactus", "/FAQs"][
+                            index
+                          ]
+                        }
+                        className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 cursor-pointer"
+                      >
+                        {text}
+                      </Link>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Us Section Only */}
+            <div className="flex-1 min-w-[200px]">
+              <div className="space-y-3">
+                <button
+                  onClick={() => toggleSection("contact")}
+                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
+                >
+                  <h4 className="text-xs font-semibold text-white border-b border-slate-700 pb-1">
+                    Contact Us
+                  </h4>
+                  <svg
+                    className={`w-3 h-3 md:hidden transition-transform ${
+                      openSections["contact"] ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  className={`space-y-2 transition-all duration-300 ease-in-out max-h-96 ${
+                    openSections["contact"] ? "block" : "hidden"
+                  } md:block`}
+                >
+                  <div className="text-slate-300 text-[10px] whitespace-pre-wrap py-1 px-2 md:px-0 flex">
                     <svg
-                      className={`w-3 h-3 md:hidden transition-transform ${
-                        openSections[key] ? "rotate-180" : ""
-                      }`}
+                      className="w-3 h-3 text-slate-300 flex-shrink-0 mr-1"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -241,28 +174,94 @@ export default function Footer() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                  </button>
-                  <div
-                    className={`space-y-2 transition-all duration-300 ease-in-out max-h-96 ${
-                      openSections[key] ? "block" : "hidden"
-                    } md:block`}
-                  >
-                    {content}
+                    Doon Global Edu Consulting Privet Limited, 35 Lakhi Bagh,
+                    Dehradun Central, Dehradun, Uttarakhand, India, 248001
                   </div>
+                  <Link
+                    href="mailto:query@ezyschooling.com"
+                    className="text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 flex items-center cursor-pointer"
+                  >
+                    <svg
+                      className="w-3 h-3 text-slate-300 flex-shrink-0 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
+                    </svg>
+                    doon.edu@gmail.com
+                  </Link>
+                  <Link
+                    href="tel:+91-8766340464"
+                    className="text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 flex items-center cursor-pointer"
+                  >
+                    <svg
+                      className="w-3 h-3 text-slate-300 flex-shrink-0 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                    +91 963 433 3174
+                  </Link>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
+
           {/* Locations & Regions */}
-          <div className="border-t border-slate-700/50 pt-6 md:pt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {[
-              {
-                key: "top-locations",
-                title: "Top Locations in India",
-                items: [
+          <div className="border-t border-slate-700/50 pt-6 md:pt-8 space-y-6">
+            {/* Top Locations in India */}
+            <div className="space-y-3">
+              <button
+                onClick={() => toggleSection("top-locations")}
+                className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
+              >
+                <h4 className="text-xs font-semibold text-white border-b border-slate-700/50 pb-1 w-full text-left">
+                  Top Locations in India
+                </h4>
+                <svg
+                  className={`w-3 h-3 md:hidden transition-transform ${
+                    openSections["top-locations"] ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <div
+                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${
+                  openSections["top-locations"] ? "block" : "hidden"
+                } md:flex`}
+              >
+                {[
                   { name: "Dehradun", href: "/boarding-schools-dehradun" },
                   { name: "Mussoorie", href: "/boarding-schools-mussoorie" },
                   { name: "Shimla", href: "/boarding-schools-shimla" },
@@ -274,12 +273,53 @@ export default function Footer() {
                   { name: "Delhi", href: "/boarding-schools-delhi" },
                   { name: "Pune", href: "/boarding-schools-pune" },
                   { name: "Jaipur", href: "/boarding-schools-jaipur" },
-                ],
-              },
-              {
-                key: "popular-searches",
-                title: "Popular Boarding Searches",
-                items: [
+                ].map((item, index, array) => (
+                  <div key={item.name} className="flex items-center">
+                    <Link
+                      href={item.href}
+                      className="text-[10px] text-slate-300 hover:text-white hover:underline transition-all duration-200 whitespace-nowrap"
+                    >
+                      Boarding Schools In {item.name}
+                    </Link>
+                    {index < array.length - 1 && (
+                      <span className="text-slate-400 mx-2 text-[10px]">|</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Popular Boarding Searches */}
+            <div className="space-y-3">
+              <button
+                onClick={() => toggleSection("popular-searches")}
+                className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
+              >
+                <h4 className="text-xs font-semibold text-white border-b border-slate-700/50 pb-1 w-full text-left">
+                  Popular Boarding Searches
+                </h4>
+                <svg
+                  className={`w-3 h-3 md:hidden transition-transform ${
+                    openSections["popular-searches"] ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <div
+                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${
+                  openSections["popular-searches"] ? "block" : "hidden"
+                } md:flex`}
+              >
+                {[
                   { name: "Chandigarh", href: "/boarding-schools-chandigarh" },
                   { name: "Noida", href: "/boarding-schools-noida" },
                   { name: "Gurugram", href: "/boarding-schools-gurugram" },
@@ -292,12 +332,53 @@ export default function Footer() {
                   { name: "Solan", href: "/boarding-schools-solan" },
                   { name: "Bhopal", href: "/boarding-schools-bhopal" },
                   { name: "Indore", href: "/boarding-schools-indore" },
-                ],
-              },
-              {
-                key: "top-region",
-                title: "Top Region for Boarding Schools",
-                items: [
+                ].map((item, index, array) => (
+                  <div key={item.name} className="flex items-center">
+                    <Link
+                      href={item.href}
+                      className="text-[10px] text-slate-300 hover:text-white hover:underline transition-all duration-200 whitespace-nowrap"
+                    >
+                      Boarding Schools In {item.name}
+                    </Link>
+                    {index < array.length - 1 && (
+                      <span className="text-slate-400 mx-2 text-[10px]">|</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Region for Boarding Schools */}
+            <div className="space-y-3">
+              <button
+                onClick={() => toggleSection("top-region")}
+                className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
+              >
+                <h4 className="text-xs font-semibold text-white border-b border-slate-700/50 pb-1 w-full text-left">
+                  Top Region for Boarding Schools
+                </h4>
+                <svg
+                  className={`w-3 h-3 md:hidden transition-transform ${
+                    openSections["top-region"] ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <div
+                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${
+                  openSections["top-region"] ? "block" : "hidden"
+                } md:flex`}
+              >
+                {[
                   { name: "India", href: "/top-boarding-schools-in-india" },
                   {
                     name: "North India",
@@ -333,52 +414,21 @@ export default function Footer() {
                     name: "Top Boarding Schools Of Delhi NCR",
                     href: "/top-boarding-schools-of-delhi-ncr",
                   },
-                ],
-              },
-            ].map(({ key, title, items }) => (
-              <div key={key} className="space-y-3">
-                <button
-                  onClick={() => toggleSection(key)}
-                  className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
-                >
-                  <h4 className="text-xs font-semibold text-white border-b border-slate-700/50 pb-1">
-                    {title}
-                  </h4>
-                  <svg
-                    className={`w-3 h-3 md:hidden transition-transform ${
-                      openSections[key] ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
-                <div
-                  className={`space-y-2 ${
-                    openSections[key] ? "block" : "hidden"
-                  } md:block`}
-                >
-                  {items.map((item) => (
+                ].map((item, index, array) => (
+                  <div key={item.name} className="flex items-center">
                     <Link
-                      key={item.name}
                       href={item.href}
-                      className="block text-[10px] text-slate-300 hover:text-white py-1 hover:underline transition-all duration-200 rounded-sm hover:bg-slate-800/30 w-full text-left cursor-pointer"
+                      className="text-[10px] text-slate-300 hover:text-white hover:underline transition-all duration-200 whitespace-nowrap"
                     >
-                      {key !== "top-region"
-                        ? `Boarding Schools In ${item.name}`
-                        : item.name}
+                      {item.name}
                     </Link>
-                  ))}
-                </div>
+                    {index < array.length - 1 && (
+                      <span className="text-slate-400 mx-2 text-[10px]">|</span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
@@ -386,16 +436,6 @@ export default function Footer() {
         <div className="border-t border-slate-700/50 py-6 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
           <div className="text-slate-400 text-[10px] text-center md:text-left">
             Copyright © 2025 Global Edu.Consulting. All rights reserved.
-          </div>
-          <div className="relative w-[200px] sm:w-[280px] aspect-[377/18]">
-            <Image
-              alt="cards logo"
-              title="copyright"
-              src="/copyright.avif"
-              fill
-              className="object-contain"
-              sizes="(min-width: 640px) 280px, 200px"
-            />
           </div>
         </div>
       </div>
