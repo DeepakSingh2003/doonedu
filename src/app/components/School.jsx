@@ -77,8 +77,34 @@ export default function SchoolProfile({ school, seo }) {
   const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
   const [parsedFaqs, setParsedFaqs] = useState([]);
   const [parsedAwards, setParsedAwards] = useState([]);
+  const [parsedHighlights, setParsedHighlights] = useState("");
+  const [parsedFeeStructure, setParsedFeeStructure] = useState("");
 
-  // Parse FAQs from school_additional_information
+  // Helper: Normalize title for comparison
+  const normalizeTitle = (title = "", schoolTitle = "") => {
+    if (!title) return "";
+    return title
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9\s]/g, "")
+      .trim();
+  };
+
+  // Helper: Check if title matches any pattern
+  const matchSectionTitle = (title = "", patterns = [], schoolTitle = "") => {
+    const normalized = normalizeTitle(title, schoolTitle);
+    const normalizedSchool = normalizeTitle(schoolTitle);
+
+    return patterns.some((pattern) => {
+      const normalizedPattern = normalizeTitle(pattern, schoolTitle).replace(
+        "{school}",
+        normalizedSchool
+      );
+      return normalized.includes(normalizedPattern);
+    });
+  };
+
+  // Parse FAQs, Awards, Highlights, and Fee Structure with multiple title variations
   useEffect(() => {
     if (seo.seo_html) {
       const parser = new DOMParser();
@@ -89,7 +115,6 @@ export default function SchoolProfile({ school, seo }) {
         document.title = title;
       }
 
-      // You can also update the description if needed
       const description = doc
         .querySelector('meta[name="description"]')
         ?.getAttribute("content");
@@ -107,9 +132,20 @@ export default function SchoolProfile({ school, seo }) {
         }
       }
     }
-    const faqInfo = school?.school_additional_information?.find(
-      (info) => info?.title === "Frequently Asked Questions"
+
+    const schoolTitle = school?.school?.school_title || "";
+    const additionalInfo = school?.school_additional_information || [];
+    const admissionInfo = school?.school_admission || [];
+
+    // === FAQ Section ===
+    const faqPatterns = [
+      "frequently asked questions",
+      `${schoolTitle} frequently asked questions`.toLowerCase(),
+    ];
+    const faqInfo = additionalInfo.find((info) =>
+      matchSectionTitle(info?.title, faqPatterns, schoolTitle)
     );
+
     if (faqInfo?.description) {
       const decodedHtml = decodeURIComponent(
         faqInfo.description.replace(/\+/g, " ")
@@ -128,12 +164,21 @@ export default function SchoolProfile({ school, seo }) {
         };
       });
       setParsedFaqs(faqs);
+    } else {
+      setParsedFaqs([]);
     }
 
-    // Parse Awards from school_additional_information
-    const awardsInfo = school?.school_additional_information?.find(
-      (info) => info?.title === "Awards & Recognition"
+    // === Awards Section ===
+    const awardsPatterns = [
+      "awards and recognition",
+      "Awards & Recognition",
+      "awards and recognitions",
+      `${schoolTitle} awards and recognition`.toLowerCase(),
+    ];
+    const awardsInfo = additionalInfo.find((info) =>
+      matchSectionTitle(info?.title, awardsPatterns, schoolTitle)
     );
+
     if (awardsInfo?.description) {
       const decodedHtml = decodeURIComponent(
         awardsInfo.description.replace(/\+/g, " ")
@@ -150,8 +195,53 @@ export default function SchoolProfile({ school, seo }) {
         };
       });
       setParsedAwards(awards);
+    } else {
+      setParsedAwards([]);
     }
-  }, [school]);
+
+    // === Highlights & Facilities Section ===
+    const highlightsPatterns = [
+      "school highlights and facilities",
+      `${schoolTitle} highlights and facilities`.toLowerCase(),
+      "additional highlights",
+    ];
+    const highlightsInfo = additionalInfo.find((info) =>
+      matchSectionTitle(info?.title, highlightsPatterns, schoolTitle)
+    );
+
+    if (highlightsInfo?.description) {
+      const decodedHtml = decodeURIComponent(
+        highlightsInfo.description.replace(/\+/g, " ")
+      );
+      setParsedHighlights(decodedHtml);
+    } else {
+      setParsedHighlights("");
+    }
+
+    // === Fee Structure Section (check both school_additional_information and school_admission) ===
+    const feePatterns = ["fee structure", `${schoolTitle} fee structure`.toLowerCase()];
+    
+    // First check in school_additional_information
+    let feeInfo = additionalInfo.find((info) =>
+      matchSectionTitle(info?.title, feePatterns, schoolTitle)
+    );
+
+    // If not found in additional information, check in school_admission
+    if (!feeInfo) {
+      feeInfo = admissionInfo.find((info) =>
+        matchSectionTitle(info?.title, feePatterns, schoolTitle)
+      );
+    }
+
+    if (feeInfo?.description) {
+      const decodedHtml = decodeURIComponent(
+        feeInfo.description.replace(/\+/g, " ")
+      );
+      setParsedFeeStructure(decodedHtml);
+    } else {
+      setParsedFeeStructure("");
+    }
+  }, [school, seo]);
 
   // NEW: Handle Request Call Back for partner schools
   const handleRequestCallBack = (e) => {
@@ -223,7 +313,7 @@ export default function SchoolProfile({ school, seo }) {
     votes: s?.view_count || 0,
     location: s?.address || s?.location || "Location not specified",
     url: s?.url || "#",
-    isPartner: s?.partner === "2", // Add partner status for similar schools
+    isPartner: s?.partner === "2",
   }));
 
   const openGalleryModal = (index = 0) => {
@@ -320,7 +410,7 @@ export default function SchoolProfile({ school, seo }) {
             }}
             className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl sm:text-3xl z-10"
           >
-            ✕
+            X
           </button>
           <div className="absolute top-4 left-4 text-white text-sm sm:text-base z-10">
             {currentGalleryIndex + 1} / {filteredGallery.length}
@@ -448,7 +538,7 @@ export default function SchoolProfile({ school, seo }) {
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="w-full lg:w-2/3">
-            {/* Main School Card - Updated with Partner Styling */}
+            {/* Main School Card */}
             <div
               className={`
               rounded-xl shadow-lg p-6 mb-6 border relative
@@ -459,7 +549,6 @@ export default function SchoolProfile({ school, seo }) {
               }
             `}
             >
-              {/* Partner Badge */}
               {isPartnerSchool && (
                 <div className="absolute -top-3 -right-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-10">
                   <FaCrown className="h-4 w-4" />
@@ -468,7 +557,6 @@ export default function SchoolProfile({ school, seo }) {
               )}
 
               <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
-                {/* Verified Check for Partner Schools */}
                 {isPartnerSchool && (
                   <FaCheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2" />
                 )}
@@ -544,7 +632,6 @@ export default function SchoolProfile({ school, seo }) {
                   {school?.school?.classification?.title || "Not specified"}
                 </span>
                 <div className="ml-auto flex gap-2 mt-2 sm:mt-0">
-                  {/* UPDATED: Conditional rendering for Call Now / Request Call Back */}
                   {isPartnerSchool ? (
                     <button
                       onClick={handleRequestCallBack}
@@ -580,7 +667,6 @@ export default function SchoolProfile({ school, seo }) {
                 </div>
               </div>
 
-              {/* Partner School Benefits */}
               {isPartnerSchool && (
                 <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200">
                   <div className="flex items-center gap-2 text-blue-800 text-sm font-medium">
@@ -748,23 +834,13 @@ export default function SchoolProfile({ school, seo }) {
                       <FaMoneyBill className="h-5 w-5 mr-2 text-blue-700" />
                       Fee Structure
                     </h3>
-                    {school?.school_additional_information?.some(
-                      (info) =>
-                        info?.title === "Fee Structure" && info?.description
-                    ) ? (
-                      school.school_additional_information.map((info) =>
-                        info?.title === "Fee Structure" && info?.description ? (
-                          <div
-                            key={info.id}
-                            className="bg-blue-50 p-4 rounded-lg border border-blue-100 overflow-x-auto"
-                            dangerouslySetInnerHTML={{
-                              __html: decodeURIComponent(
-                                info.description.replace(/\+/g, " ")
-                              ),
-                            }}
-                          />
-                        ) : null
-                      )
+                    {parsedFeeStructure ? (
+                      <div
+                        className="bg-blue-50 p-4 rounded-lg border border-blue-100 overflow-x-auto"
+                        dangerouslySetInnerHTML={{
+                          __html: parsedFeeStructure,
+                        }}
+                      />
                     ) : school?.school_admission?.some(
                         (admission) =>
                           admission?.title === "Fee Structure" &&
@@ -812,39 +888,21 @@ export default function SchoolProfile({ school, seo }) {
                 {activeTab === "facilities" && (
                   <div>
                     <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
-                      🏫 School Facilities
+                      School Facilities
                     </h3>
-                    {school?.school_additional_information?.some(
-                      (info) =>
-                        info?.title
-                          ?.toLowerCase()
-                          .replace(/&/g, "and")
-                          .trim() === "school highlights and facilities"
-                    ) ? (
-                      school.school_additional_information.map((info) => {
-                        const normalizedTitle = info?.title
-                          ?.toLowerCase()
-                          .replace(/&/g, "and")
-                          .trim();
-                        return normalizedTitle ===
-                          "school highlights and facilities" ? (
-                          <div
-                            key={info.id}
-                            className="p-4 rounded-lg overflow-x-auto [&_table]:w-full [&_table]:border-collapse [&_th]:bg-blue-100 [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:p-2 [&_td]:align-top [&_td]:text-sm"
-                            dangerouslySetInnerHTML={{
-                              __html: decodeURIComponent(
-                                info.description.replace(/\+/g, " ")
-                              )
-                                .replace(
-                                  /<script[^>]*>[\s\S]*?<\/script>/gi,
-                                  ""
-                                )
-                                .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-                                .replace(/<\/?(html|head|body)[^>]*>/gi, ""),
-                            }}
-                          />
-                        ) : null;
-                      })
+                    {parsedHighlights ? (
+                      <div
+                        className="p-4 rounded-lg overflow-x-auto [&_table]:w-full [&_table]:border-collapse [&_th]:bg-blue-100 [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:p-2 [&_td]:align-top [&_td]:text-sm"
+                        dangerouslySetInnerHTML={{
+                          __html: parsedHighlights
+                            .replace(
+                              /<script[^>]*>[\s\S]*?<\/script>/gi,
+                              ""
+                            )
+                            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+                            .replace(/<\/?(html|head|body)[^>]*>/gi, ""),
+                        }}
+                      />
                     ) : (
                       <div className="bg-gray-50 text-center py-6 rounded-lg border border-gray-100">
                         <p className="text-gray-500 text-sm sm:text-base">
@@ -950,6 +1008,7 @@ export default function SchoolProfile({ school, seo }) {
               </div>
             </div>
 
+            {/* Co-curricular Activities */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-6 flex items-center">
                 <FaFutbol className="h-5 w-5 mr-2 text-blue-500" />
@@ -1020,6 +1079,7 @@ export default function SchoolProfile({ school, seo }) {
               </div>
             </div>
 
+            {/* Travel Information */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
                 <FaBus className="h-5 w-5 mr-2 text-yellow-500" />
@@ -1093,6 +1153,7 @@ export default function SchoolProfile({ school, seo }) {
               </div>
             </div>
 
+            {/* Featured Video */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
                 <FaPlayCircle className="h-5 w-5 mr-2 text-red-500" />
@@ -1125,6 +1186,79 @@ export default function SchoolProfile({ school, seo }) {
               </div>
             </div>
 
+            {/* NEW: Fee Structure Card */}
+            {parsedFeeStructure && (
+              <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+                <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
+                  <FaMoneyBill className="h-5 w-5 mr-2 text-blue-700" />
+                  Fee Structure
+                </h3>
+                <div
+                  className="bg-blue-50 p-4 rounded-lg border border-blue-100 overflow-x-auto"
+                  dangerouslySetInnerHTML={{
+                    __html: parsedFeeStructure,
+                  }}
+                />
+                <p className="text-gray-500 text-xs sm:text-sm mt-4">
+                  *The above listed fees are provided by the school. Current
+                  fees may vary depending on recent updates.
+                </p>
+              </div>
+            )}
+
+            {/* NEW: Awards & Recognition Card */}
+            {parsedAwards.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+                <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
+                  <FaCertificate className="h-5 w-5 mr-2 text-yellow-500" />
+                  Awards & Recognition
+                </h3>
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                  <div className="space-y-4">
+                    {parsedAwards.map((award, index) => (
+                      <div key={index} className="border-b pb-3">
+                        <h4 className="text-sm sm:text-base font-semibold text-gray-800">
+                          {award.category}
+                        </h4>
+                        <div
+                          className="text-gray-700 text-sm sm:text-base mt-2"
+                          dangerouslySetInnerHTML={{
+                            __html: award.details,
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-gray-500 text-xs sm:text-sm mt-4">
+                  *Awards and recognitions listed are provided by the school.
+                </p>
+              </div>
+            )}
+
+            {/* NEW: School Highlights & Facilities Card */}
+            {parsedHighlights && (
+              <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+                <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
+                  School Highlights & Facilities
+                </h3>
+                <div
+                  className="p-4 rounded-lg overflow-x-auto [&_table]:w-full [&_table]:border-collapse [&_th]:bg-blue-100 [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:p-2 [&_td]:align-top [&_td]:text-sm"
+                  dangerouslySetInnerHTML={{
+                    __html: parsedHighlights
+                      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+                      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+                      .replace(/<\/?(html|head|body)[^>]*>/gi, ""),
+                  }}
+                />
+                <p className="text-gray-500 text-xs sm:text-sm mt-4">
+                  *Facilities listed are provided by the school. May vary
+                  depending on availability.
+                </p>
+              </div>
+            )}
+
+            {/* FAQs */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
                 <FaQuestionCircle className="h-5 w-5 mr-2 text-blue-500" />
@@ -1167,6 +1301,7 @@ export default function SchoolProfile({ school, seo }) {
               </div>
             </div>
 
+            {/* Reviews */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
                 <FaComment className="h-5 w-5 mr-2 text-blue-500" />
@@ -1273,8 +1408,9 @@ export default function SchoolProfile({ school, seo }) {
             </div>
           </div>
 
+          {/* Sidebar */}
           <div className="w-full lg:w-1/3">
-            {/* Counseling Section - Updated for Partner Schools */}
+            {/* Counselling */}
             <div
               className={`
               rounded-xl shadow-lg p-6 mb-6 border
@@ -1294,7 +1430,7 @@ export default function SchoolProfile({ school, seo }) {
               {isPartnerSchool && (
                 <div className="mb-4 p-2 bg-blue-100 rounded-lg text-center">
                   <p className="text-blue-800 text-sm font-medium">
-                    ⚡ Priority Support for Partner Schools
+                    Priority Support for Partner Schools
                   </p>
                 </div>
               )}
@@ -1349,6 +1485,7 @@ export default function SchoolProfile({ school, seo }) {
               </form>
             </div>
 
+            {/* Similar Schools */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
                 <svg
@@ -1393,7 +1530,6 @@ export default function SchoolProfile({ school, seo }) {
                             e.currentTarget.src = "/placeholder.jpg";
                           }}
                         />
-                        {/* Partner badge for similar schools */}
                         {similarSchool.isPartner && (
                           <div className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full p-1">
                             <FaCheckCircle className="h-3 w-3" />
@@ -1459,6 +1595,7 @@ export default function SchoolProfile({ school, seo }) {
               </div>
             </div>
 
+            {/* Related Blogs */}
             <div className="bg-white rounded-xl p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
                 <FaBook className="h-5 w-5 mr-2 text-blue-500" />
