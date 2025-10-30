@@ -14,93 +14,93 @@ export default function SchoolTabs() {
     locations: [
       // Delhi Locations
       {
-        title: "All Schools in Rajkot",
+        title: "Boarding School in Rajkot",
         link: "/boarding-schools-rajkot",
       },
       {
-        title: "All Schools in Gujarat",
+        title: "Boarding School in Gujarat",
         link: "/boarding-schools-gujarat",
       },
       {
-        title: "All Schools in Bihar",
+        title: "Boarding School in Bihar",
         link: "/boarding-schools-bihar",
       },
       {
-        title: "All Schools in Shimla",
+        title: "Boarding School in Shimla",
         link: "/boarding-schools-shimla",
       },
       {
-        title: "All Schools in Jharkhand",
+        title: "Boarding School in Jharkhand",
         link: "/boarding-schools-jharkhand",
       },
       {
-        title: "All Schools in Solan",
+        title: "Boarding School in Solan",
         link: "/boarding-schools-solan",
       },
       {
-        title: "All Schools in Surat",
+        title: "Boarding School in Surat",
         link: "/boarding-schools-surat",
       },
       {
-        title: "All Schools in Agra",
+        title: "Boarding School in Agra",
         link: "/boarding-schools-agra",
       },
       {
-        title: "All Schools in Kanpur",
+        title: "Boarding School in Kanpur",
         link: "/boarding-schools-kanpur",
       },
       {
-        title: "All Schools in Bhopal",
+        title: "Boarding School in Bhopal",
         link: "/boarding-schools-bhopal",
       },
       {
-        title: "All Schools in Gurugram",
+        title: "Boarding School in Gurugram",
         link: "/boarding-schools-gurugram",
       },
       {
-        title: "All Schools in Faridabad",
+        title: "Boarding School in Faridabad",
         link: "/boarding-schools-faridabad",
       },
       // Bengaluru Locations
       {
-        title: "All Schools in Nainital",
+        title: "Boarding School in Nainital",
         link: "/boarding-schools-nainital",
       },
       {
-        title: "All Schools in Hisar",
+        title: "Boarding School in Hisar",
         link: "/boarding-schools-hisar",
       },
       {
-        title: "All Schools in Chandigarh",
+        title: "Boarding School in Chandigarh",
         link: "/boarding-schools-chandigarh",
       },
       {
-        title: "All Schools in Noida",
+        title: "Boarding School in Noida",
         link: "/boarding-schools-noida",
       },
       {
-        title: "All Schools in Darjeeling",
+        title: "Boarding School in Darjeeling",
         link: "/boarding-schools-darjeeling",
       },
       {
-        title: "All Schools in Patna",
+        title: "Boarding School in Patna",
         link: "/boarding-schools-patna",
       },
       // Pune Locations
       {
-        title: "All Schools in Panchgani",
+        title: "Boarding School in Panchgani",
         link: "/boarding-schools-panchgani",
       },
       {
-        title: "All Schools in Jaipur",
+        title: "Boarding School in Jaipur",
         link: "/boarding-schools-jaipur",
       },
       {
-        title: "All Schools in Ahmedabad",
+        title: "Boarding School in Ahmedabad",
         link: "/boarding-schools-in-ahemdabad",
       },
       {
-        title: "All Schools in Pune",
+        title: "Boarding School in Pune",
         link: "/boarding-schools-pune",
       },
     ],

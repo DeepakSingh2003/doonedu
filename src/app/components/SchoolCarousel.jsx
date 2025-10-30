@@ -8,6 +8,18 @@ export default function SchoolCarousel() {
   const carouselRef = useRef(null);
   const [schools, setSchools] = useState([]);
 
+  // Function to map school board values
+  const getSchoolBoard = (boardCode) => {
+    switch (boardCode) {
+      case "1":
+        return "CBSE";
+      case "2":
+        return "ICSE";
+      default:
+        return "N/A";
+    }
+  };
+
   // Fetch featured schools from API
   useEffect(() => {
     const fetchSchools = async () => {
@@ -109,7 +121,7 @@ export default function SchoolCarousel() {
                   <p className="text-xs flex items-center gap-2">
                     <FaCertificate className="text-blue-600" />
                     <span className="font-medium">Affiliated To: </span>
-                    {school.school_board || "N/A"}
+                    {getSchoolBoard(school.school_board)}
                   </p>
                 </div>
 

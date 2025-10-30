@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { IoLogoWhatsapp } from "react-icons/io";
 import {
   FaRegHeart,
   FaGlobeAmericas,
@@ -183,10 +184,10 @@ export default function Navbar() {
             href="https://api.whatsapp.com/send?phone=919634333174"
             target="_blank"
             rel="noopener noreferrer"
-            className=" flex p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition"
+            className=" flex rounded-full transition"
           >
             <span className="flex items-center gap-2">
-              <FaWhatsapp size={20} />
+              <IoLogoWhatsapp size={20} className="text-[#25D366]" />
               whatsapp
             </span>
           </a>
@@ -263,6 +264,14 @@ export default function Navbar() {
             <FaMapMarkerAlt className="text-blue-500 mr-1 text-sm" />
             <span className="text-xs font-bold">{city || "Choose City"}</span>
           </div>
+
+          <a
+            href="tel: +919997224467"
+            className="flex items-center space-x-1 text-xs font-semibold text-gray-700 hover:text-blue-500"
+          >
+            <FaPhoneAlt className="text-blue-500" />
+            <span>+91 99972 24467</span>
+          </a>
         </div>
         <Link href="/Wishlist" className="relative">
           <button className="p-2 cursor-pointer">
@@ -370,11 +379,10 @@ export default function Navbar() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`px-3 py-1 md:px-4 md:py-2 rounded-md border whitespace-nowrap text-sm md:text-base flex items-center gap-2 cursor-pointer ${
-                      activeTab === tab.id
-                        ? "border-blue-500 text-blue-600 font-semibold bg-blue-50"
-                        : "border-gray-300 text-gray-500 hover:border-blue-500 hover:text-blue-500"
-                    }`}
+                    className={`px-3 py-1 md:px-4 md:py-2 rounded-md border whitespace-nowrap text-sm md:text-base flex items-center gap-2 cursor-pointer ${activeTab === tab.id
+                      ? "border-blue-500 text-blue-600 font-semibold bg-blue-50"
+                      : "border-gray-300 text-gray-500 hover:border-blue-500 hover:text-blue-500"
+                      }`}
                   >
                     {tab.id === "day" && <FaSchool />}
                     {tab.id === "boarding" && <FaClipboardList />}
@@ -406,8 +414,9 @@ export default function Navbar() {
                         alt={c.name}
                         width={80}
                         height={80}
-                        className="mb-1"
+                        className="mb-1 rounded-full object-cover shadow-lg border-1 border-gray-400"
                       />
+
                       <span className="text-xs md:text-sm font-medium flex items-center gap-1">
                         {c.name}
                       </span>

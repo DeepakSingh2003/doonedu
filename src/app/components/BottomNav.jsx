@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { FaHome, FaList, FaPhoneAlt, FaUser } from "react-icons/fa"; // ✅ use FaPhoneAlt
+import { FaHome, FaList, FaPhoneAlt, FaUser, FaWhatsapp } from "react-icons/fa"; // ✅ use FaPhoneAlt
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLogin } from "../contexts/LoginContext";
@@ -28,11 +28,16 @@ const BottomNav = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navItems = [
-    { path: "/", label: "Home", icon: FaHome },
-
-    { path: "/Counselling", label: "Counselling", icon: FaPhoneAlt }, // ✅ updated icon
-  ];
+const navItems = [
+  { path: "/", label: "Home", icon: FaHome },
+  { path: "/Counselling", label: "Counselling", icon: FaPhoneAlt },
+  {
+    path: "https://api.whatsapp.com/send?phone=919634333174",
+    label: "WhatsApp",
+    icon: FaWhatsapp,
+    external: true, // Flag to know it's external
+  },
+];
 
   return (
     <nav

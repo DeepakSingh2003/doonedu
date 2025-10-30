@@ -17,7 +17,47 @@ export default function HeroSection() {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
   const router = useRouter();
+
+  // Boarding school links data
+  const boardingSchoolLinks = [
+    { name: "Dehradun", href: "/boarding-schools-dehradun" },
+    { name: "Mussoorie", href: "/boarding-schools-mussoorie" },
+    { name: "Shimla", href: "/boarding-schools-shimla" },
+    { name: "Bengaluru", href: "/boarding-schools-bengaluru" },
+    { name: "Nainital", href: "/boarding-schools-nainital" },
+    { name: "Panchgani", href: "/boarding-schools-panchgani" },
+    { name: "Mumbai", href: "/boarding-schools-mumbai" },
+    { name: "Darjeeling", href: "/boarding-schools-darjeeling" },
+    { name: "Delhi", href: "/boarding-schools-delhi" },
+    { name: "Pune", href: "/boarding-schools-pune" },
+    { name: "Jaipur", href: "/boarding-schools-jaipur" },
+    { name: "Chandigarh", href: "/boarding-schools-chandigarh" },
+    { name: "Noida", href: "/boarding-schools-noida" },
+    { name: "Gurugram", href: "/boarding-schools-gurugram" },
+    { name: "Faridabad", href: "/boarding-schools-faridabad" },
+    { name: "Patna", href: "/boarding-schools-patna" },
+    { name: "Kolkata", href: "/boarding-schools-kolkata" },
+    { name: "Hisar", href: "/boarding-schools-hisar" },
+    { name: "Ahmedabad", href: "/boarding-schools-ahmedabad" },
+    { name: "Kota", href: "/boarding-schools-kota" },
+    { name: "Solan", href: "/boarding-schools-solan" },
+    { name: "Bhopal", href: "/boarding-schools-bhopal" },
+    { name: "Indore", href: "/boarding-schools-indore" },
+  ];
+
+  // 🔹 Filter suggestions based on search text
+  useEffect(() => {
+    if (searchText.trim() === "") {
+      setSuggestions([]);
+    } else {
+      const filtered = boardingSchoolLinks.filter((link) =>
+        link.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setSuggestions(filtered);
+    }
+  }, [searchText]);
 
   // 🔹 Typing effect for placeholder
   useEffect(() => {
@@ -66,6 +106,14 @@ export default function HeroSection() {
     setSearchText("");
   };
 
+  // 🔹 Handle Suggestion Click
+  const handleSuggestionClick = (href) => {
+    router.push(href);
+    setIsModalOpen(false);
+    setSearchText("");
+    setSuggestions([]);
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -78,18 +126,18 @@ export default function HeroSection() {
       >
         <div className="relative z-10 max-w-[890px] mx-auto px-4 text-center">
           <p className="text-base sm:text-xl font-bold text-white leading-snug">
-            Welcome to India’s Largest & Oldest Consulting Group for Boarding
+            Welcome to India's Largest & Oldest Consulting Group for Boarding
             Schools.
           </p>
-          <p className="text-base sm:text-xl font-bold text-white leading-snug mb-3">
+          <p className="text-base sm:text-xl font-bold text-[#FFE032] leading-snug mb-3">
             Global Edu Consulting. Since - 2010
           </p>
 
           <p className="text-xs sm:text-sm text-white mb-1">
-            Find your boarding school below
+            Your admission, our responsibility
           </p>
           <p className="text-xs sm:text-sm text-white mb-4">
-            Your admission, our responsibility
+            Find your boarding school below
           </p>
 
           <div
@@ -134,30 +182,59 @@ export default function HeroSection() {
             </p>
 
             {/* Search Input */}
-            <div className="flex items-center bg-white rounded-full shadow-md border overflow-hidden h-[44px] transition-all">
-              <input
-                type="text"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                className="w-full px-4 py-2 outline-none text-gray-700 text-sm"
-                placeholder="Search School by Location..."
-                autoFocus
-                onKeyDown={(e) => e.key === "Enter" && handleSearch(searchText)}
-              />
-              {searchText && (
+            <div className="relative">
+              <div className="flex items-center bg-white rounded-full shadow-md border overflow-hidden h-[44px] transition-all">
+                <input
+                  type="text"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  className="w-full px-4 py-2 outline-none text-gray-700 text-sm"
+                  placeholder="Search School by Location..."
+                  autoFocus
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && handleSearch(searchText)
+                  }
+                />
+                {searchText && (
+                  <button
+                    onClick={() => setSearchText("")}
+                    className="px-3 text-gray-500 hover:text-gray-700 transition"
+                  >
+                    <MdClear size={20} />
+                  </button>
+                )}
                 <button
-                  onClick={() => setSearchText("")}
-                  className="px-3 text-gray-500 hover:text-gray-700 transition"
+                  onClick={() => handleSearch(searchText)}
+                  className="px-4 text-[#1978cd] h-full flex items-center justify-center"
                 >
-                  <MdClear size={20} />
+                  <FaSearch size={18} />
                 </button>
+              </div>
+
+              {/* Search Suggestions Dropdown */}
+              {suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto z-10">
+                  {suggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                      onClick={() => handleSuggestionClick(suggestion.href)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-800 font-medium">
+                          {suggestion.name}
+                        </span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                          Boarding School
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Click to view boarding schools in {suggestion.name}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               )}
-              <button
-                onClick={() => handleSearch(searchText)}
-                className="px-4 text-[#1978cd] h-full flex items-center justify-center"
-              >
-                <FaSearch size={18} />
-              </button>
             </div>
 
             {/* Quick Links */}
@@ -172,6 +249,18 @@ export default function HeroSection() {
                   {
                     label: "Boarding Schools in Dehradun",
                     path: "/boarding-schools-dehradun",
+                  },
+                  {
+                    label: "Boarding Schools in Shimla",
+                    path: "/boarding-schools-shimla",
+                  },
+                  {
+                    label: "Boarding Schools in Bengaluru",
+                    path: "/boarding-schools-bengaluru",
+                  },
+                  {
+                    label: "Boarding Schools in Nainital",
+                    path: "/boarding-schools-nainital",
                   },
                   {
                     label: "Boarding Schools in Noida",

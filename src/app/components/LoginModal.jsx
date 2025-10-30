@@ -3,7 +3,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 
 export default function AuthModal({ isOpen, onClose }) {
-  const [activeTab, setActiveTab] = useState("signup");
+  const [activeTab, setActiveTab] = useState("login"); // Changed from "signup" to "login"
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -95,7 +95,7 @@ export default function AuthModal({ isOpen, onClose }) {
                   </label>
                   <div className="flex">
                     <span className="flex items-center px-3 py-2 bg-gray-100 rounded-l-md border border-r-0">
-                      🇮🇳 +91
+                      India +91
                     </span>
                     <input
                       type="tel"
@@ -126,7 +126,7 @@ export default function AuthModal({ isOpen, onClose }) {
                   </label>
                   <div className="flex">
                     <span className="flex items-center px-3 py-2 bg-gray-100 rounded-l-md border border-r-0">
-                      🇮🇳 +91
+                      India +91
                     </span>
                     <input
                       type="tel"
@@ -220,34 +220,7 @@ export default function AuthModal({ isOpen, onClose }) {
             )}
           </form>
 
-          {/* Switch Links */}
-          <div className="text-center text-sm mt-6 text-gray-600">
-            {!isSchool ? (
-              <>
-                Are you a school?{" "}
-                <span
-                  onClick={() => setActiveTab("schoolLogin")}
-                  className="text-blue-600 cursor-pointer hover:underline"
-                >
-                  Log in
-                </span>{" "}
-                |{" "}
-                <span
-                  onClick={() => setActiveTab("schoolSignup")}
-                  className="text-blue-600 cursor-pointer hover:underline"
-                >
-                  Register
-                </span>
-              </>
-            ) : (
-              <span
-                onClick={() => setActiveTab("signup")}
-                className="text-blue-600 cursor-pointer hover:underline"
-              >
-                Back to User Sign Up
-              </span>
-            )}
-          </div>
+          {/* REMOVED: "Are you a school? Log in | Register" and "Back to User Sign Up" */}
         </div>
       </div>
     </div>

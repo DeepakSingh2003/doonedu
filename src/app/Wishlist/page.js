@@ -90,7 +90,7 @@ export default function ShortlistPage() {
                     <img
                       src={
                         school.thumbnail
-                          ? `https://www.doonedu.com/images/schools/${school.id}/${school.thumbnail}`
+                          ? `https://admin.doonedu.com/images/schools/${school.id}/${school.thumbnail}`
                           : "/placeholder-school.png"
                       }
                       alt={school.school_title || "School"}

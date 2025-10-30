@@ -201,9 +201,9 @@ const AboutUs = () => {
             </header>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { value: "8 Lakhs+", label: "Visits", progress: 80 },
-                { value: "1000+", label: "Schools", progress: 90 },
-                { value: "PAN India", label: "Coverage", progress: 100 },
+                { value: "1000+", label: "Verified Boarding Schools", progress: 80 },
+                { value: "10k+", label: "Students Placed", progress: 90 },
+                { value: "15+", label: "Years of Experience", progress: 100 },
               ].map((achievement, index) => (
                 <div
                   key={index}
