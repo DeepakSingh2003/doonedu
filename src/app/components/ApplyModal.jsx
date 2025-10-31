@@ -130,7 +130,7 @@ export default function ApplyModal({ schoolId, schoolName }) {
                   htmlFor="email"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Email Address *
+                  Email Address 
                 </label>
                 <div className="flex items-center border rounded-lg overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-blue-400">
                   <span className="px-3 text-gray-500">
@@ -142,7 +142,7 @@ export default function ApplyModal({ schoolId, schoolName }) {
                     name="email"
                     placeholder="Enter Your Email"
                     className="flex-1 p-3 focus:outline-none text-sm"
-                    required
+       
                   />
                 </div>
               </div>
