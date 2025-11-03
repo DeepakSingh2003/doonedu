@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}
-        style={{ fontFamily: "var(--font-poppins), sans-serif" }}
+         style={{ fontFamily: "var(--font-poppins), sans-serif", margin: 0, padding: 0 }}
         cz-shortcut-listen="true"
       >
         <ModalProvider>

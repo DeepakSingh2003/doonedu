@@ -401,7 +401,7 @@ export default function SchoolProfile({ school, seo }) {
   const videoUrl = getEmbeddedVideoUrl(school?.school?.featured_video);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen ">
       {showGalleryModal && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col items-center justify-center p-4"
