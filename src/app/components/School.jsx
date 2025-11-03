@@ -58,6 +58,8 @@ import EnquireModal from "../components/EnquireModal";
 export default function SchoolProfile({ school, seo }) {
   // Check if school is a partner (partner: "2")
   const isPartnerSchool = school?.school?.partner === "2";
+  // Default contact number for non-partner schools
+  const defaultContactNumber = "9634333174";
 
   const { slug } = useParams();
   const router = useRouter();
@@ -258,8 +260,10 @@ export default function SchoolProfile({ school, seo }) {
   const handleCallNow = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (school?.school?.phone) {
-      window.location.href = `tel:${school.school.phone}`;
+    // Use school phone for partner schools, default number for non-partner schools
+    const phoneNumber = isPartnerSchool ? school?.school?.phone : defaultContactNumber;
+    if (phoneNumber) {
+      window.location.href = `tel:${phoneNumber}`;
     }
   };
 
@@ -644,7 +648,6 @@ export default function SchoolProfile({ school, seo }) {
                     <button
                       onClick={handleCallNow}
                       className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer"
-                      disabled={!school?.school?.phone}
                     >
                       <Phone className="h-4 w-4 mr-1" />
                       Call Now
@@ -969,10 +972,17 @@ export default function SchoolProfile({ school, seo }) {
                           <span>{school.school.email}</span>
                         </p>
                       )}
-                      {school?.school?.phone && (
+                      {isPartnerSchool ? (
+                        school?.school?.phone && (
+                          <p className="flex items-center p-3 bg-green-50 rounded-lg text-sm sm:text-base">
+                            <Phone className="h-5 w-5 mr-3 text-green-500" />
+                            <span>{school.school.phone}</span>
+                          </p>
+                        )
+                      ) : (
                         <p className="flex items-center p-3 bg-green-50 rounded-lg text-sm sm:text-base">
                           <Phone className="h-5 w-5 mr-3 text-green-500" />
-                          <span>{school.school.phone}</span>
+                          <span>{defaultContactNumber}</span>
                         </p>
                       )}
                       {school?.school?.address && (
