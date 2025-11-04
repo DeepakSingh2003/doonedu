@@ -228,7 +228,8 @@ export default function Location({ locationData }) {
   const handleCallNow = (school, e) => {
     e.preventDefault();
     e.stopPropagation();
-    window.location.href = `tel:${school.phone || ""}`;
+    // Fixed number for all non-partner schools
+    window.location.href = `tel:9634333174`;
   };
 
   const toggleFaq = (index) => {
@@ -311,6 +312,32 @@ export default function Location({ locationData }) {
   };
 
   const faqItems = parseFaqContent();
+
+  // Check if highlights are available
+  const hasHighlights = locationData?.response?.data?.location_descripton &&
+    stripHtml(locationData.response.data.location_descripton).trim().length > 0;
+
+  // Get location heading - use the page_title from location_ad in the API
+  const getLocationHeading = () => {
+    // Use the page_title from location_ad in the API response
+    const pageTitle = locationData?.response?.data?.location_ad?.page_title;
+
+    if (pageTitle) {
+      return pageTitle;
+    }
+
+    // Fallback: extract from URL if API title is not available
+    if (pathname && pathname.startsWith("/boarding-schools-")) {
+      const stateName = pathname.replace("/boarding-schools-", "")
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+      return `Boarding Schools in ${stateName}`;
+    }
+
+    // Final fallback
+    return "Boarding Schools";
+  };
 
   const SidebarContent = () => (
     <>
@@ -465,9 +492,9 @@ export default function Location({ locationData }) {
           <div className="bg-white shadow-md rounded-xl p-6 space-y-4 border-l-8 border-blue-400">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-800">
-                {locationData.response.data.location_ad.page_title}
+                {getLocationHeading()}
               </h2>
-              {locationData?.response?.data?.location_descripton &&
+              {hasHighlights &&
                 stripHtml(locationData.response.data.location_descripton)
                   .length > 150 && (
                   <button
@@ -479,7 +506,7 @@ export default function Location({ locationData }) {
                 )}
             </div>
             <div className="relative text-gray-700 text-sm leading-relaxed">
-              {locationData?.response?.data?.location_descripton ? (
+              {hasHighlights ? (
                 <>
                   <div
                     className="custom-html"
@@ -488,8 +515,8 @@ export default function Location({ locationData }) {
                         showMoreHighlights
                           ? locationData.response.data.location_descripton
                           : stripHtml(
-                              locationData.response.data.location_descripton
-                            ).slice(0, 300) + "..."
+                            locationData.response.data.location_descripton
+                          ).slice(0, 300) + "..."
                       ),
                     }}
                   />
@@ -498,7 +525,8 @@ export default function Location({ locationData }) {
                   )}
                 </>
               ) : (
-                <p className="text-gray-500 italic">No highlights available.</p>
+                // Don't show any message when no highlights are available
+                null
               )}
             </div>
           </div>
@@ -511,13 +539,12 @@ export default function Location({ locationData }) {
                 {sortBy === "fee-high-to-low"
                   ? "Fee - high to low"
                   : sortBy === "fee-low-to-high"
-                  ? "Fee - low to high"
-                  : "Sort By"}
+                    ? "Fee - low to high"
+                    : "Sort By"}
                 <ChevronDown
                   size={16}
-                  className={`transition-transform ${
-                    sortDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`transition-transform ${sortDropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               {sortDropdownOpen && (
@@ -553,11 +580,10 @@ export default function Location({ locationData }) {
                   <div
                     className={`
                     relative rounded-xl shadow-md hover:shadow-lg transition p-5 flex flex-col md:flex-row gap-5 cursor-pointer
-                    ${
-                      isPartnerSchool
+                    ${isPartnerSchool
                         ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-blue-200"
                         : "bg-white"
-                    }
+                      }
                   `}
                   >
                     {/* Partner School Badge */}
@@ -574,11 +600,10 @@ export default function Location({ locationData }) {
                     >
                       <Heart
                         size={20}
-                        className={`transition-colors ${
-                          isWishlisted(school.id)
+                        className={`transition-colors ${isWishlisted(school.id)
                             ? "fill-red-500 text-red-500"
                             : "text-red-500"
-                        }`}
+                          }`}
                       />
                     </button>
                     {school.isAdmissionOpen && (
@@ -644,11 +669,10 @@ export default function Location({ locationData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${
-                            isPartnerSchool
+                          ${isPartnerSchool
                               ? "bg-blue-100 text-blue-700"
                               : "bg-purple-50 text-purple-700"
-                          }
+                            }
                         `}
                         >
                           {school.category}
@@ -656,11 +680,10 @@ export default function Location({ locationData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${
-                            isPartnerSchool
+                          ${isPartnerSchool
                               ? "bg-blue-100 text-blue-700"
                               : "bg-purple-50 text-purple-700"
-                          }
+                            }
                         `}
                         >
                           {school.board?.title}
@@ -668,11 +691,10 @@ export default function Location({ locationData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${
-                            isPartnerSchool
+                          ${isPartnerSchool
                               ? "bg-pink-100 text-pink-700"
                               : "bg-pink-50 text-pink-700"
-                          }
+                            }
                         `}
                         >
                           {school.classification?.title}
@@ -680,11 +702,10 @@ export default function Location({ locationData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${
-                            isPartnerSchool
+                          ${isPartnerSchool
                               ? "bg-green-100 text-green-700"
                               : "bg-green-50 text-green-700"
-                          }
+                            }
                         `}
                         >
                           Class {school.grade?.title}
@@ -698,7 +719,7 @@ export default function Location({ locationData }) {
                                 expanded[`about-${school.id}`]
                                   ? decodeBase64(school.about)
                                   : decodeBase64(school.about).slice(0, 150) +
-                                      "..."
+                                  "..."
                               ),
                             }}
                           />
@@ -744,10 +765,9 @@ export default function Location({ locationData }) {
                           onClick={(e) => handleApplyNow(school, e)}
                           className={`
                             px-3 py-1.5 text-white text-xs rounded-lg hover:bg-green-700 transition cursor-pointer
-                            ${
-                              isPartnerSchool
-                                ? "bg-purple-600 hover:bg-purple-700"
-                                : "bg-green-600 hover:bg-green-700"
+                            ${isPartnerSchool
+                              ? "bg-purple-600 hover:bg-purple-700"
+                              : "bg-green-600 hover:bg-green-700"
                             }
                           `}
                         >

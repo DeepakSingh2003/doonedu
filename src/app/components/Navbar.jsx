@@ -18,18 +18,16 @@ import {
 } from "react-icons/fa";
 import { Search } from "lucide-react";
 import { useCity } from "../contexts/CityContext"; // city context
-import LoginModal from "./LoginModal"; // import login modal
 import { useLogin } from "../contexts/LoginContext"; // login context
 
 export default function Navbar() {
   const { city, setCity } = useCity();
-  const { isLoggedIn, user, logout } = useLogin();
+  const { isLoggedIn, user, logout, openModal } = useLogin(); // Added openModal
 
   const [language, setLanguage] = useState("English");
   const [menuOpen, setMenuOpen] = useState(false);
   const [cityModalOpen, setCityModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("day");
-  const [showLogin, setShowLogin] = useState(false); // control login modal
   const [wishlistCount, setWishlistCount] = useState(0); // track wishlist count
 
   // Load wishlist count from localStorage on mount
@@ -216,7 +214,7 @@ export default function Navbar() {
             </>
           ) : (
             <button
-              onClick={() => setShowLogin(true)}
+              onClick={() => openModal('login')} // Use context's openModal
               className="px-6 py-2 border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white text-[12px] cursor-pointer"
             >
               Log in
@@ -303,15 +301,30 @@ export default function Navbar() {
                 <FaTimes size={16} />
               </button>
               <div className="flex justify-center md:hidden px-5 mb-3 mt-2">
-                <button
-                  onClick={() => {
-                    setShowLogin(true);
-                    setMenuOpen(false);
-                  }}
-                  className="px-4 py-2.5 text-xs md:text-sm font-semibold text-white bg-blue-500 rounded-md shadow hover:bg-blue-600 transition cursor-pointer"
-                >
-                  Login to Global Edu.Consulting
-                </button>
+                {isLoggedIn ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-sm">Hi, {user?.name}</span>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setMenuOpen(false);
+                      }}
+                      className="px-4 py-2.5 text-xs md:text-sm font-semibold text-white bg-red-500 rounded-md shadow hover:bg-red-600 transition cursor-pointer"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      openModal('login');
+                      setMenuOpen(false);
+                    }}
+                    className="px-4 py-2.5 text-xs md:text-sm font-semibold text-white bg-blue-500 rounded-md shadow hover:bg-blue-600 transition cursor-pointer"
+                  >
+                    Login to Global Edu.Consulting
+                  </button>
+                )}
               </div>
               <div className="divide-y divide-gray-200">
                 <Link
@@ -447,9 +460,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-
-      {/* ----------- LOGIN MODAL ----------- */}
-      <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
     </nav>
   );
 }

@@ -8,6 +8,7 @@ import { ModalProvider } from "./contexts/ModalContext";
 import { CityProvider } from "./contexts/CityContext";
 import { LoginProvider } from "./contexts/LoginContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
+import Popuplogin from "./components/PopupLogin";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({ children }) {
                   <SubNavbar />
                 </div>
                 {children}
+                <Popuplogin/>
                 <Footer />
                 <BottomNav />
               </LoginProvider>

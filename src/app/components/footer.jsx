@@ -1,19 +1,17 @@
 "use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-
+import { useRouter } from "next/navigation";
 export default function Footer() {
   const [openSections, setOpenSections] = useState({});
-
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
   };
-
+  const router = useRouter();
   const socialLinks = [
     {
       href: "https://www.linkedin.com/company/global-edu-consulting/",
@@ -41,7 +39,6 @@ export default function Footer() {
       icon: "M47.5,14.3c-0.6-2.3-2.4-4.1-4.7-4.7C39.3,9,25,9,25,9s-14.3,0-17.8,0.6c-2.3,0.6-4.1,2.4-4.7,4.7C2,17.8,2,25,2,25 s0,7.2,0.6,10.7c0.6,2.3,2.4,4.1,4.7,4.7C10.7,41,25,41,25,41s14.3,0,17.8-0.6c2.3-0.6,4.1-2.4,4.7-4.7C48,32.2,48,25,48,25 S48,17.8,47.5,14.3z M20,32V18l12,7L20,32z",
     },
   ];
-
   return (
     <footer className="bg-gradient-to-b from-[#2B2B39] to-[#1F1F2A] text-white">
       <div className="max-w-[90%] md:max-w-[80%] mx-auto px-4 sm:px-6 lg:px-8">
@@ -93,9 +90,8 @@ export default function Footer() {
                     About
                   </h4>
                   <svg
-                    className={`w-3 h-3 md:hidden transition-transform ${
-                      openSections["about"] ? "rotate-180" : ""
-                    }`}
+                    className={`w-3 h-3 md:hidden transition-transform ${openSections["about"] ? "rotate-180" : ""
+                      }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -109,9 +105,8 @@ export default function Footer() {
                   </svg>
                 </button>
                 <div
-                  className={`space-y-2 transition-all duration-300 ease-in-out ${
-                    openSections["about"] ? "block" : "hidden"
-                  } md:block`}
+                  className={`space-y-2 transition-all duration-300 ease-in-out ${openSections["about"] ? "block" : "hidden"
+                    } md:block`}
                 >
                   {["About Us", "Privacy Policy", "Contact Us", "FAQs"].map(
                     (text, index) => (
@@ -119,7 +114,7 @@ export default function Footer() {
                         key={text}
                         href={
                           ["/Aboutus", "/Privacypolicy", "/Contactus", "/FAQs"][
-                            index
+                          index
                           ]
                         }
                         className="block text-slate-300 hover:text-white transition-all duration-200 text-[10px] hover:underline py-1 rounded-sm hover:bg-slate-800/30 px-2 md:px-0 cursor-pointer"
@@ -131,7 +126,6 @@ export default function Footer() {
                 </div>
               </div>
             </div>
-
             {/* Contact Us Section Only */}
             <div className="flex-1 min-w-[200px]">
               <div className="space-y-3">
@@ -143,9 +137,8 @@ export default function Footer() {
                     Contact Us
                   </h4>
                   <svg
-                    className={`w-3 h-3 md:hidden transition-transform ${
-                      openSections["contact"] ? "rotate-180" : ""
-                    }`}
+                    className={`w-3 h-3 md:hidden transition-transform ${openSections["contact"] ? "rotate-180" : ""
+                      }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -159,9 +152,8 @@ export default function Footer() {
                   </svg>
                 </button>
                 <div
-                  className={`space-y-2 transition-all duration-300 ease-in-out max-h-96 ${
-                    openSections["contact"] ? "block" : "hidden"
-                  } md:block`}
+                  className={`space-y-2 transition-all duration-300 ease-in-out max-h-96 ${openSections["contact"] ? "block" : "hidden"
+                    } md:block`}
                 >
                   <div className="text-slate-300 text-[10px] whitespace-pre-wrap py-1 px-2 md:px-0 flex">
                     <svg
@@ -228,22 +220,20 @@ export default function Footer() {
               </div>
             </div>
           </div>
-
           {/* Locations & Regions */}
           <div className="border-t border-slate-700/50 pt-6 md:pt-8 space-y-6">
-            {/* Top Locations in India */}
+            {/* States in India */}
             <div className="space-y-3">
               <button
-                onClick={() => toggleSection("top-locations")}
+                onClick={() => toggleSection("states")}
                 className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
               >
                 <h4 className="text-xs font-semibold text-white border-b border-slate-700/50 pb-1 w-full text-left">
-                  Top Locations in India
+                  States in India
                 </h4>
                 <svg
-                  className={`w-3 h-3 md:hidden transition-transform ${
-                    openSections["top-locations"] ? "rotate-180" : ""
-                  }`}
+                  className={`w-3 h-3 md:hidden transition-transform ${openSections["states"] ? "rotate-180" : ""
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -257,9 +247,78 @@ export default function Footer() {
                 </svg>
               </button>
               <div
-                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${
-                  openSections["top-locations"] ? "block" : "hidden"
-                } md:flex`}
+                className={`${openSections["states"] ? "block" : "hidden"
+                  } md:block`}
+              >
+                <select
+                  className="w-full max-w-xs bg-[#2B2B39] border border-slate-600 text-slate-300 text-[10px] p-2 rounded focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer"
+                  aria-label="Choose State"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value) {
+                      router.push(`/boarding-schools-${value}`);
+                    }
+                  }}
+                >
+                  <option value="" className="text-slate-400">Choose State</option>
+                  <option value="uttarakhand">Uttarakhand</option>
+                  <option value="haryana">Haryana</option>
+                  <option value="gujarat">Gujarat</option>
+                  <option value="himachal-pradesh">Himachal Pradesh</option>
+                  <option value="delhi">Delhi State</option>
+                  <option value="uttar-pradesh">Uttar Pradesh</option>
+                  <option value="punjab">Punjab</option>
+                  <option value="rajasthan">Rajasthan</option>
+                  <option value="madhya-pradesh">Madhya Pradesh</option>
+                  <option value="karnataka">Karnataka</option>
+                  <option value="bihar">Bihar</option>
+                  <option value="jharkhand">Jharkhand</option>
+                  <option value="telangana">Telangana</option>
+                  <option value="maharashtra">Maharashtra</option>
+                  <option value="west-bengal">West Bengal</option>
+                  <option value="chhattisgarh">Chhattisgarh</option>
+                  <option value="assam">Assam</option>
+                  <option value="sikkim">Sikkim</option>
+                  <option value="meghalaya">Meghalaya</option>
+                  <option value="manipur">Manipur</option>
+                  <option value="nagaland">Nagaland</option>
+                  <option value="arunachal-Pradesh">Arunachal Pradesh</option>
+                  <option value="mizoram">Mizoram</option>
+                  <option value="tripura">Tripura</option>
+                  <option value="tamil-nadu">Tamil Nadu</option>
+                  <option value="goa">Goa</option>
+                  <option value="kerala">Kerala</option>
+                  <option value="andhra-pradesh">Andhra Pradesh</option>
+                </select>
+              </div>
+            </div>
+            {/* Top Locations in India */}
+            <div className="space-y-3">
+              <button
+                onClick={() => toggleSection("top-locations")}
+                className="flex justify-between items-center w-full md:cursor-default cursor-pointer"
+              >
+                <h4 className="text-xs font-semibold text-white border-b border-slate-700/50 pb-1 w-full text-left">
+                  Top Locations in India
+                </h4>
+                <svg
+                  className={`w-3 h-3 md:hidden transition-transform ${openSections["top-locations"] ? "rotate-180" : ""
+                    }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <div
+                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${openSections["top-locations"] ? "block" : "hidden"
+                  } md:flex`}
               >
                 {[
                   { name: "Dehradun", href: "/boarding-schools-dehradun" },
@@ -288,7 +347,6 @@ export default function Footer() {
                 ))}
               </div>
             </div>
-
             {/* Popular Boarding Searches */}
             <div className="space-y-3">
               <button
@@ -299,9 +357,8 @@ export default function Footer() {
                   Popular Boarding Searches
                 </h4>
                 <svg
-                  className={`w-3 h-3 md:hidden transition-transform ${
-                    openSections["popular-searches"] ? "rotate-180" : ""
-                  }`}
+                  className={`w-3 h-3 md:hidden transition-transform ${openSections["popular-searches"] ? "rotate-180" : ""
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -315,9 +372,8 @@ export default function Footer() {
                 </svg>
               </button>
               <div
-                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${
-                  openSections["popular-searches"] ? "block" : "hidden"
-                } md:flex`}
+                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${openSections["popular-searches"] ? "block" : "hidden"
+                  } md:flex`}
               >
                 {[
                   { name: "Chandigarh", href: "/boarding-schools-chandigarh" },
@@ -347,7 +403,6 @@ export default function Footer() {
                 ))}
               </div>
             </div>
-
             {/* Top Region for Boarding Schools */}
             <div className="space-y-3">
               <button
@@ -358,9 +413,8 @@ export default function Footer() {
                   Top Region for Boarding Schools
                 </h4>
                 <svg
-                  className={`w-3 h-3 md:hidden transition-transform ${
-                    openSections["top-region"] ? "rotate-180" : ""
-                  }`}
+                  className={`w-3 h-3 md:hidden transition-transform ${openSections["top-region"] ? "rotate-180" : ""
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -374,9 +428,8 @@ export default function Footer() {
                 </svg>
               </button>
               <div
-                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${
-                  openSections["top-region"] ? "block" : "hidden"
-                } md:flex`}
+                className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${openSections["top-region"] ? "block" : "hidden"
+                  } md:flex`}
               >
                 {[
                   { name: "India", href: "/top-boarding-schools-in-india" },
@@ -431,7 +484,6 @@ export default function Footer() {
             </div>
           </div>
         </div>
-
         {/* Footer Bottom */}
         <div className="border-t border-slate-700/50 py-6 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
           <div className="text-slate-400 text-[10px] text-center md:text-left">

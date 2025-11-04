@@ -1,5 +1,6 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+
+import { createContext, useContext, useState, useEffect } from "react";
 import AuthModal from "../components/LoginModal";
 
 const LoginContext = createContext();
@@ -7,29 +8,42 @@ const LoginContext = createContext();
 export function LoginProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // modal state
-  const [modalType, setModalType] = useState("login"); // login/signup type
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("login"); // "login" | "signup"
 
-  // login function
+  // Load login state from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("loginData");
+    if (stored) {
+      try {
+        const { user } = JSON.parse(stored);
+        setUser(user);
+        setIsLoggedIn(true);
+      } catch (e) {
+        console.warn("Invalid login data in localStorage");
+      }
+    }
+  }, []);
+
   const login = (userData) => {
+    const payload = { user: userData };
+    localStorage.setItem("loginData", JSON.stringify(payload));
     setUser(userData);
     setIsLoggedIn(true);
-    setIsAuthModalOpen(false); // close modal on login
+    setIsAuthModalOpen(false); // close modal
   };
 
-  // logout function
   const logout = () => {
+    localStorage.removeItem("loginData");
     setUser(null);
     setIsLoggedIn(false);
   };
 
-  // open modal
   const openModal = (type = "login") => {
     setModalType(type);
     setIsAuthModalOpen(true);
   };
 
-  // close modal
   const closeModal = () => setIsAuthModalOpen(false);
 
   return (
@@ -45,13 +59,11 @@ export function LoginProvider({ children }) {
       }}
     >
       {children}
-      {/* Render modal */}
       {isAuthModalOpen && (
         <AuthModal
           isOpen={isAuthModalOpen}
-          type={modalType}
           onClose={closeModal}
-          onLogin={login}
+          onLoginSuccess={login}  // Changed prop name for clarity
         />
       )}
     </LoginContext.Provider>
@@ -59,5 +71,9 @@ export function LoginProvider({ children }) {
 }
 
 export function useLogin() {
-  return useContext(LoginContext);
+  const context = useContext(LoginContext);
+  if (!context) {
+    throw new Error("useLogin must be used within LoginProvider");
+  }
+  return context;
 }
