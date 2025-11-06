@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import AuthModal from "../components/LoginModal";
 
 const LoginContext = createContext();
@@ -9,7 +10,7 @@ export function LoginProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("login"); // "login" | "signup"
+  const [modalType, setModalType] = useState("login");
 
   // Load login state from localStorage on mount
   useEffect(() => {
@@ -28,15 +29,38 @@ export function LoginProvider({ children }) {
   const login = (userData) => {
     const payload = { user: userData };
     localStorage.setItem("loginData", JSON.stringify(payload));
+    localStorage.setItem("loggedIn", "true"); // For popup login
     setUser(userData);
     setIsLoggedIn(true);
-    setIsAuthModalOpen(false); // close modal
+    setIsAuthModalOpen(false);
+    
+    // Show success toast
+    toast.success(`Welcome back, ${userData.name}!`, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   const logout = () => {
+    const userName = user?.name || "User";
     localStorage.removeItem("loginData");
+    localStorage.removeItem("loggedIn"); // Remove popup login flag
     setUser(null);
     setIsLoggedIn(false);
+    
+    // Show logout success toast
+    toast.success(`Goodbye, ${userName}! You have been logged out successfully.`, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   const openModal = (type = "login") => {
@@ -63,7 +87,7 @@ export function LoginProvider({ children }) {
         <AuthModal
           isOpen={isAuthModalOpen}
           onClose={closeModal}
-          onLoginSuccess={login}  // Changed prop name for clarity
+          onLoginSuccess={login}
         />
       )}
     </LoginContext.Provider>

@@ -1,88 +1,68 @@
 "use client";
 import { useState } from "react";
 import { X, CheckCircle } from "lucide-react";
-import { useLogin } from "../contexts/LoginContext"; // Import the context
+import { useLogin } from "../contexts/LoginContext";
 
-export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
-  const { login } = useLogin(); // Get login function from context
-  const [activeTab, setActiveTab] = useState("login");
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-  });
+export default function AuthModal({ isOpen, onClose }) {
+  const { login, isLoggedIn } = useLogin();
+
+  // ✅ Separate states instead of single formData object
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  if (!isOpen) return null;
+  if (!isOpen || isLoggedIn) return null;
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
+  // ✅ Handle submit (same as Popuplogin)
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Simulate API call
     setIsSubmitting(true);
+    setShowError(false);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    // ✅ FormData creation below inputs (as in Popuplogin)
+    const formData = new FormData();
+    formData.append("cname", name);
+    formData.append("phone", phone);
 
-      // Create user data based on form submission
-      let userData = {};
-      
-      if (activeTab === "signup" || activeTab === "login") {
-        userData = {
-          name: formData.name,
-          phone: formData.phone,
-          type: "user"
-        };
-      } else if (activeTab === "schoolSignup" || activeTab === "schoolLogin") {
-        userData = {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          type: "school"
-        };
+    try {
+      const response = await fetch(
+        "https://admin.doonedu.com/front/customer/customer_entry_api",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
       }
 
-      // Set success message based on tab
-      if (activeTab === "signup") {
-        setSuccessMessage("Successfully Registered!");
-      } else if (activeTab === "login") {
-        setSuccessMessage("Successfully Logged In!");
-      } else if (activeTab === "schoolSignup") {
-        setSuccessMessage("School Registered Successfully!");
-      } else if (activeTab === "schoolLogin") {
-        setSuccessMessage("School Logged In Successfully!");
-      }
+      const result = await response.json();
+      console.log("API Response:", result);
 
+      // ✅ Trigger context login (same as Popuplogin)
+      login(formData);
+
+      // ✅ Success handling
       setShowSuccess(true);
-
-      // Call the login function with user data
-      if (onLoginSuccess) {
-        onLoginSuccess(userData);
-      }
-
-      // Auto-close after 2 seconds
       setTimeout(() => {
         setShowSuccess(false);
         onClose();
-        // Reset form
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          password: "",
-        });
+        setName("");
+        setPhone("");
       }, 2000);
-    }, 1000); // Simulate 1s API delay
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setErrorMessage("Failed to submit. Please try again.");
+      setShowError(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  const isSchool = activeTab === "schoolSignup" || activeTab === "schoolLogin";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 p-4">
@@ -121,148 +101,53 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             <X size={24} />
           </button>
 
-          {/* Success State */}
+          {/* Success Message */}
           {showSuccess ? (
             <div className="flex flex-col items-center justify-center h-full py-10 animate-fadeIn">
               <CheckCircle className="w-16 h-16 text-green-500 mb-4 animate-bounce" />
-              <p className="text-xl font-semibold text-green-600">{successMessage}</p>
+              <p className="text-xl font-semibold text-green-600">
+                Successfully Logged In!
+              </p>
             </div>
           ) : (
             <>
-              {/* Tabs */}
-              <div className="flex justify-center gap-4 mb-6 flex-wrap">
-                <button
-                  onClick={() => setActiveTab(isSchool ? "schoolSignup" : "signup")}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition cursor-pointer ${
-                    activeTab === (isSchool ? "schoolSignup" : "signup")
-                      ? "bg-blue-600 text-white shadow-md"
-                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                  }`}
-                  disabled={isSubmitting}
-                >
-                  Sign Up
-                </button>
-                <button
-                  onClick={() => setActiveTab(isSchool ? "schoolLogin" : "login")}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition cursor-pointer ${
-                    activeTab === (isSchool ? "schoolLogin" : "login")
-                      ? "bg-blue-600 text-white shadow-md"
-                      : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                  }`}
-                  disabled={isSubmitting}
-                >
-                  Log In
-                </button>
+              {/* Heading */}
+              <div className="flex justify-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-700">
+                  User Login
+                </h2>
               </div>
 
+              {/* Error Message */}
+              {showError && (
+                <div className="p-3 mb-4 bg-red-50 border border-red-200 text-red-600 text-sm rounded-md">
+                  {errorMessage}
+                </div>
+              )}
+
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-5 animate-slideUp">
-                {/* USER SIGNUP */}
-                {activeTab === "signup" && (
-                  <>
-                    <InputField
-                      label="Name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Enter Name"
-                      disabled={isSubmitting}
-                    />
-                    <PhoneInput
-                      value={formData.phone}
-                      onChange={handleChange}
-                      disabled={isSubmitting}
-                    />
-                    <SubmitButton loading={isSubmitting} text="Submit" />
-                  </>
-                )}
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-5 animate-slideUp"
+              >
+                {/* ✅ Individual Name Input */}
+                <InputField
+                  label="Name"
+                  name="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter Name"
+                  disabled={isSubmitting}
+                />
 
-                {/* USER LOGIN */}
-                {activeTab === "login" && (
-                  <>
-                    <InputField
-                      label="Name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Enter Name"
-                      disabled={isSubmitting}
-                    />
-                    <PhoneInput
-                      value={formData.phone}
-                      onChange={handleChange}
-                      disabled={isSubmitting}
-                    />
-                    <SubmitButton loading={isSubmitting} text="Submit" />
-                  </>
-                )}
+                {/* ✅ Individual Phone Input */}
+                <PhoneInput
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  disabled={isSubmitting}
+                />
 
-                {/* SCHOOL SIGNUP */}
-                {activeTab === "schoolSignup" && (
-                  <>
-                    <InputField
-                      label="School Name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Enter School Name"
-                      disabled={isSubmitting}
-                    />
-                    <InputField
-                      label="Email"
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Enter Email"
-                      disabled={isSubmitting}
-                    />
-                    <InputField
-                      label="Phone"
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="Enter Phone Number"
-                      disabled={isSubmitting}
-                    />
-                    <InputField
-                      label="Password"
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="Enter Password"
-                      disabled={isSubmitting}
-                    />
-                    <SubmitButton loading={isSubmitting} text="Register School" />
-                  </>
-                )}
-
-                {/* SCHOOL LOGIN */}
-                {activeTab === "schoolLogin" && (
-                  <>
-                    <InputField
-                      label="Email"
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Enter Email"
-                      disabled={isSubmitting}
-                    />
-                    <InputField
-                      label="Password"
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="Enter Password"
-                      disabled={isSubmitting}
-                    />
-                    <SubmitButton loading={isSubmitting} text="School Log In" />
-                  </>
-                )}
+                <SubmitButton loading={isSubmitting} text="Submit" />
               </form>
             </>
           )}
@@ -276,7 +161,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 function InputField({ label, type = "text", disabled, ...props }) {
   return (
     <div>
-      <label className="block text-sm font-medium mb-1 text-gray-700">{label}</label>
+      <label className="block text-sm font-medium mb-1 text-gray-700">
+        {label}
+      </label>
       <input
         type={type}
         {...props}

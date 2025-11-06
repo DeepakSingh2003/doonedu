@@ -6,6 +6,7 @@ import School from "../components/School";
 import BlogList from "../components/BlogList";
 import BlogCategory from "../components/BlogCategory";
 import BlogView from "../components/BlogView"; // ✅ new import
+import Category from "../components/Category";
 
 export default function Page() {
   const { slug } = useParams();
@@ -41,6 +42,10 @@ export default function Page() {
   // ✅ Location page
   if (slugArray.length === 1 && data.response?.page_type === "location") {
     return <Location locationData={data} />;
+  }
+    // ✅ Category page
+if (slugArray.length === 1 && data.response?.page_type === "category") {
+    return <Category categoryData={data} />; 
   }
 
   // ✅ School page

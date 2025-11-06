@@ -17,18 +17,18 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 import { Search } from "lucide-react";
-import { useCity } from "../contexts/CityContext"; // city context
-import { useLogin } from "../contexts/LoginContext"; // login context
+import { useCity } from "../contexts/CityContext";
+import { useLogin } from "../contexts/LoginContext";
 
 export default function Navbar() {
   const { city, setCity } = useCity();
-  const { isLoggedIn, user, logout, openModal } = useLogin(); // Added openModal
+  const { isLoggedIn, user, logout, openModal } = useLogin();
 
   const [language, setLanguage] = useState("English");
   const [menuOpen, setMenuOpen] = useState(false);
   const [cityModalOpen, setCityModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("day");
-  const [wishlistCount, setWishlistCount] = useState(0); // track wishlist count
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   // Load wishlist count from localStorage on mount
   useEffect(() => {
@@ -204,7 +204,7 @@ export default function Navbar() {
           </Link>
           {isLoggedIn ? (
             <>
-              <span className="text-sm">Hi, {user?.name}</span>
+            
               <button
                 onClick={logout}
                 className="px-4 py-2 border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white text-[12px] cursor-pointer"
@@ -214,7 +214,7 @@ export default function Navbar() {
             </>
           ) : (
             <button
-              onClick={() => openModal('login')} // Use context's openModal
+              onClick={() => openModal('login')}
               className="px-6 py-2 border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white text-[12px] cursor-pointer"
             >
               Log in

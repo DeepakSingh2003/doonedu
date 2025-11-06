@@ -9,6 +9,9 @@ import { CityProvider } from "./contexts/CityContext";
 import { LoginProvider } from "./contexts/LoginContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import Popuplogin from "./components/PopupLogin";
+import { ToastContainer } from "react-toastify";
+import CallBackPopup from "./components/CallBackPopup";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +41,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}
-         style={{ fontFamily: "var(--font-poppins), sans-serif", margin: 0, padding: 0 }}
+        style={{ fontFamily: "var(--font-poppins), sans-serif", margin: 0, padding: 0 }}
         cz-shortcut-listen="true"
       >
         <ModalProvider>
@@ -50,7 +53,9 @@ export default function RootLayout({ children }) {
                   <SubNavbar />
                 </div>
                 {children}
-                <Popuplogin/>
+                <Popuplogin />
+               <CallBackPopup/>
+                <ToastContainer />
                 <Footer />
                 <BottomNav />
               </LoginProvider>
