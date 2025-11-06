@@ -10,7 +10,6 @@ import { LoginProvider } from "./contexts/LoginContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import Popuplogin from "./components/PopupLogin";
 import { ToastContainer } from "react-toastify";
-import CallBackPopup from "./components/CallBackPopup";
 
 
 const geistSans = Geist({
@@ -54,7 +53,7 @@ export default function RootLayout({ children }) {
                 </div>
                 {children}
                 <Popuplogin />
-               <CallBackPopup/>
+              
                 <ToastContainer />
                 <Footer />
                 <BottomNav />
