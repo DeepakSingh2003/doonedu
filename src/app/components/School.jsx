@@ -221,8 +221,11 @@ export default function SchoolProfile({ school, seo }) {
     }
 
     // === Fee Structure Section (check both school_additional_information and school_admission) ===
-    const feePatterns = ["fee structure", `${schoolTitle} fee structure`.toLowerCase()];
-    
+    const feePatterns = [
+      "fee structure",
+      `${schoolTitle} fee structure`.toLowerCase(),
+    ];
+
     // First check in school_additional_information
     let feeInfo = additionalInfo.find((info) =>
       matchSectionTitle(info?.title, feePatterns, schoolTitle)
@@ -261,7 +264,9 @@ export default function SchoolProfile({ school, seo }) {
     e.preventDefault();
     e.stopPropagation();
     // Use school phone for partner schools, default number for non-partner schools
-    const phoneNumber = isPartnerSchool ? school?.school?.phone : defaultContactNumber;
+    const phoneNumber = isPartnerSchool
+      ? school?.school?.phone
+      : defaultContactNumber;
     if (phoneNumber) {
       window.location.href = `tel:${phoneNumber}`;
     }
@@ -898,10 +903,7 @@ export default function SchoolProfile({ school, seo }) {
                         className="p-4 rounded-lg overflow-x-auto [&_table]:w-full [&_table]:border-collapse [&_th]:bg-blue-100 [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:p-2 [&_td]:align-top [&_td]:text-sm"
                         dangerouslySetInnerHTML={{
                           __html: parsedHighlights
-                            .replace(
-                              /<script[^>]*>[\s\S]*?<\/script>/gi,
-                              ""
-                            )
+                            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
                             .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
                             .replace(/<\/?(html|head|body)[^>]*>/gi, ""),
                         }}

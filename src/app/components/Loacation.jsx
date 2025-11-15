@@ -1,7 +1,7 @@
 "use client";
 
 import { FaEye, FaCheckCircle, FaCrown } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ChevronDown, ChevronUp, Heart, Phone, Filter, X } from "lucide-react";
 import Link from "next/link";
 
@@ -11,14 +11,16 @@ import EnquireModal from "../components/EnquireModal";
 import { useCity } from "../contexts/CityContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useSearchParams, usePathname } from "next/navigation";
-import DOMPurify from "dompurify";
 
 export default function Location({ locationData }) {
-  // Filter schools to only include those with deleted_at: null
-  const schoolsData =
-    locationData?.response.data.schools_list.filter(
-      (school) => school.deleted_at === null
-    ) || [];
+  // Memoize schoolsData to prevent infinite re-renders
+  const schoolsData = useMemo(
+    () =>
+      locationData?.response.data.schools_list.filter(
+        (school) => school.deleted_at === null
+      ) || [],
+    [locationData]
+  );
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -41,7 +43,40 @@ export default function Location({ locationData }) {
   const [showMoreHighlights, setShowMoreHighlights] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState({});
+  const [isClient, setIsClient] = useState(false);
+  const [decodedAbout, setDecodedAbout] = useState({});
   const { openModal } = useModal();
+
+  // Initialize client-side only
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Decode about text on client side only to avoid hydration mismatch
+  useEffect(() => {
+    if (isClient && schoolsData.length > 0) {
+      const decoded = {};
+      let hasChanges = false;
+
+      schoolsData.forEach((school) => {
+        if (school.about) {
+          const decodedText = decodeBase64(school.about);
+          if (decodedText !== decodedAbout[school.id]) {
+            decoded[school.id] = decodedText;
+            hasChanges = true;
+          }
+        }
+      });
+
+      // Only update state if there are actual changes
+      if (
+        hasChanges ||
+        Object.keys(decoded).length !== Object.keys(decodedAbout).length
+      ) {
+        setDecodedAbout(decoded);
+      }
+    }
+  }, [isClient, schoolsData]); // Remove decodedAbout from dependencies to prevent loop
 
   // Helper function to get fee range from average_fee
   const getFeeRange = (fee) => {
@@ -66,9 +101,9 @@ export default function Location({ locationData }) {
     });
   };
 
-  // Helper to decode base64 safely
+  // Helper to decode base64 safely - client only
   const decodeBase64 = (str) => {
-    if (!str) return "";
+    if (!str || typeof window === "undefined") return "";
     try {
       return decodeURIComponent(escape(window.atob(str)));
     } catch (e) {
@@ -76,17 +111,40 @@ export default function Location({ locationData }) {
     }
   };
 
-  // Helper to strip HTML tags for length calculation
+  // Helper to strip HTML tags for length calculation - SSR compatible
   const stripHtml = (html) => {
     if (!html) return "";
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
+    // Use regex to strip HTML tags for server-side rendering
+    return html.replace(/<[^>]*>/g, "");
+  };
+
+  // Safe sanitize function that works on both client and server
+  const safeSanitize = (html) => {
+    if (!html) return "";
+
+    // On server or before DOMPurify is available, use basic sanitization
+    if (typeof window === "undefined" || !isClient) {
+      // Basic sanitization using regex (remove script tags and dangerous attributes)
+      return html
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+        .replace(/on\w+="[^"]*"/g, "")
+        .replace(/on\w+='[^']*'/g, "")
+        .replace(/javascript:/gi, "");
+    }
+
+    // On client, use DOMPurify
+    try {
+      const DOMPurify = require("dompurify");
+      return DOMPurify.sanitize(html);
+    } catch (error) {
+      console.error("DOMPurify not available:", error);
+      return html;
+    }
   };
 
   // Parse SEO HTML content
   useEffect(() => {
-    if (locationData?.response?.data?.seo_html) {
+    if (locationData?.response?.data?.seo_html && isClient) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(
         locationData.response.data.seo_html,
@@ -182,7 +240,7 @@ export default function Location({ locationData }) {
     if (feeRange) setAccordion((prev) => ({ ...prev, fees: true }));
     if (board) setAccordion((prev) => ({ ...prev, board: true }));
     if (gender) setAccordion((prev) => ({ ...prev, gender: true }));
-  }, [searchParams, pathname]);
+  }, [searchParams, pathname, isClient]);
 
   const toggleAccordion = (section) =>
     setAccordion((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -240,81 +298,92 @@ export default function Location({ locationData }) {
   };
 
   // Apply all filters (query + slug + UI)
-  const filteredSchools = schoolsData.filter((school) => {
-    // Note: We've already filtered deleted schools at the schoolsData level,
-    // but we can add an extra check here for safety
-    if (school.deleted_at !== null) return false;
+  const filteredSchools = useMemo(
+    () =>
+      schoolsData.filter((school) => {
+        // Note: We've already filtered deleted schools at the schoolsData level,
+        // but we can add an extra check here for safety
+        if (school.deleted_at !== null) return false;
 
-    if (filters.fees.length > 0) {
-      const schoolFeeRange = getFeeRange(school.average_fee);
-      if (!filters.fees.includes(schoolFeeRange)) return false;
+        if (filters.fees.length > 0) {
+          const schoolFeeRange = getFeeRange(school.average_fee);
+          if (!filters.fees.includes(schoolFeeRange)) return false;
+        }
+
+        if (filters.board.length > 0) {
+          const schoolBoard = school.board?.title || "";
+          if (
+            !filters.board.some((b) =>
+              schoolBoard.toLowerCase().includes(b.toLowerCase())
+            )
+          )
+            return false;
+        }
+
+        if (filters.gender.length > 0) {
+          const schoolGender = school.classification?.title || "";
+          if (
+            !filters.gender.some((g) =>
+              schoolGender.toLowerCase().includes(g.toLowerCase())
+            )
+          )
+            return false;
+        }
+
+        return true;
+      }),
+    [schoolsData, filters]
+  );
+
+  const sortedSchools = useMemo(
+    () =>
+      [...filteredSchools].sort((a, b) => {
+        if (sortBy === "fee-high-to-low") {
+          const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
+          const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
+          return feeB - feeA;
+        }
+        if (sortBy === "fee-low-to-high") {
+          const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
+          const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
+          return feeA - feeB;
+        }
+        return 0;
+      }),
+    [filteredSchools, sortBy]
+  );
+
+  // Function to parse FAQ content from API - client only
+  const [faqItems, setFaqItems] = useState([]);
+
+  useEffect(() => {
+    if (isClient && locationData?.response?.data?.footer_content) {
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(
+          locationData.response.data.footer_content,
+          "text/html"
+        );
+        const faqWrappers = doc.querySelectorAll(".faq-location-wrapper");
+
+        const parsedFaqs = Array.from(faqWrappers).map((wrapper) => {
+          const question =
+            wrapper.querySelector(".faq-question")?.textContent || "";
+          const answer = wrapper.querySelector(".faq-answer")?.innerHTML || "";
+          return { question, answer: safeSanitize(answer) };
+        });
+
+        setFaqItems(parsedFaqs);
+      } catch (error) {
+        console.error("Error parsing FAQ content:", error);
+        setFaqItems([]);
+      }
     }
-
-    if (filters.board.length > 0) {
-      const schoolBoard = school.board?.title || "";
-      if (
-        !filters.board.some((b) =>
-          schoolBoard.toLowerCase().includes(b.toLowerCase())
-        )
-      )
-        return false;
-    }
-
-    if (filters.gender.length > 0) {
-      const schoolGender = school.classification?.title || "";
-      if (
-        !filters.gender.some((g) =>
-          schoolGender.toLowerCase().includes(g.toLowerCase())
-        )
-      )
-        return false;
-    }
-
-    return true;
-  });
-
-  const sortedSchools = [...filteredSchools].sort((a, b) => {
-    if (sortBy === "fee-high-to-low") {
-      const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
-      const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
-      return feeB - feeA;
-    }
-    if (sortBy === "fee-low-to-high") {
-      const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
-      const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
-      return feeA - feeB;
-    }
-    return 0;
-  });
-
-  // Function to parse FAQ content from API
-  const parseFaqContent = () => {
-    if (!locationData?.response?.data?.footer_content) return [];
-
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(
-        locationData.response.data.footer_content,
-        "text/html"
-      );
-      const faqWrappers = doc.querySelectorAll(".faq-location-wrapper");
-
-      return Array.from(faqWrappers).map((wrapper) => {
-        const question =
-          wrapper.querySelector(".faq-question")?.textContent || "";
-        const answer = wrapper.querySelector(".faq-answer")?.innerHTML || "";
-        return { question, answer: DOMPurify.sanitize(answer) };
-      });
-    } catch (error) {
-      console.error("Error parsing FAQ content:", error);
-      return [];
-    }
-  };
-
-  const faqItems = parseFaqContent();
+  }, [isClient, locationData]);
 
   // Check if highlights are available
-  const hasHighlights = locationData?.response?.data?.location_descripton &&
+  const hasHighlights =
+    locationData?.response?.data?.location_descripton &&
     stripHtml(locationData.response.data.location_descripton).trim().length > 0;
 
   // Get location heading - use the page_title from location_ad in the API
@@ -328,15 +397,39 @@ export default function Location({ locationData }) {
 
     // Fallback: extract from URL if API title is not available
     if (pathname && pathname.startsWith("/boarding-schools-")) {
-      const stateName = pathname.replace("/boarding-schools-", "")
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
+      const stateName = pathname
+        .replace("/boarding-schools-", "")
+        .split("-")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(" ");
       return `Boarding Schools in ${stateName}`;
     }
 
     // Final fallback
     return "Boarding Schools";
+  };
+
+  // Get about text for a school - handles both server and client rendering
+  const getAboutText = (school) => {
+    if (!school.about) return "";
+
+    // On server or before decoding, return empty or placeholder
+    if (!isClient || !decodedAbout[school.id]) {
+      return "";
+    }
+
+    const aboutText = decodedAbout[school.id];
+    const isExpanded = expanded[`about-${school.id}`];
+
+    return isExpanded ? aboutText : aboutText.slice(0, 150) + "...";
+  };
+
+  // Check if about text should show "Read more" button
+  const shouldShowReadMore = (school) => {
+    if (!school.about || !isClient || !decodedAbout[school.id]) return false;
+    return decodedAbout[school.id].length > 140;
   };
 
   const SidebarContent = () => (
@@ -511,12 +604,12 @@ export default function Location({ locationData }) {
                   <div
                     className="custom-html"
                     dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(
+                      __html: safeSanitize(
                         showMoreHighlights
                           ? locationData.response.data.location_descripton
                           : stripHtml(
-                            locationData.response.data.location_descripton
-                          ).slice(0, 300) + "..."
+                              locationData.response.data.location_descripton
+                            ).slice(0, 300) + "..."
                       ),
                     }}
                   />
@@ -524,10 +617,8 @@ export default function Location({ locationData }) {
                     <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                   )}
                 </>
-              ) : (
-                // Don't show any message when no highlights are available
-                null
-              )}
+              ) : // Don't show any message when no highlights are available
+              null}
             </div>
           </div>
           <div className="flex justify-end items-center bg-white p-4 rounded-xl">
@@ -539,12 +630,13 @@ export default function Location({ locationData }) {
                 {sortBy === "fee-high-to-low"
                   ? "Fee - high to low"
                   : sortBy === "fee-low-to-high"
-                    ? "Fee - low to high"
-                    : "Sort By"}
+                  ? "Fee - low to high"
+                  : "Sort By"}
                 <ChevronDown
                   size={16}
-                  className={`transition-transform ${sortDropdownOpen ? "rotate-180" : ""
-                    }`}
+                  className={`transition-transform ${
+                    sortDropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
               {sortDropdownOpen && (
@@ -580,10 +672,11 @@ export default function Location({ locationData }) {
                   <div
                     className={`
                     relative rounded-xl shadow-md hover:shadow-lg transition p-5 flex flex-col md:flex-row gap-5 cursor-pointer
-                    ${isPartnerSchool
+                    ${
+                      isPartnerSchool
                         ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-blue-200"
                         : "bg-white"
-                      }
+                    }
                   `}
                   >
                     {/* Partner School Badge */}
@@ -600,10 +693,11 @@ export default function Location({ locationData }) {
                     >
                       <Heart
                         size={20}
-                        className={`transition-colors ${isWishlisted(school.id)
+                        className={`transition-colors ${
+                          isWishlisted(school.id)
                             ? "fill-red-500 text-red-500"
                             : "text-red-500"
-                          }`}
+                        }`}
                       />
                     </button>
                     {school.isAdmissionOpen && (
@@ -669,10 +763,11 @@ export default function Location({ locationData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${isPartnerSchool
+                          ${
+                            isPartnerSchool
                               ? "bg-blue-100 text-blue-700"
                               : "bg-purple-50 text-purple-700"
-                            }
+                          }
                         `}
                         >
                           {school.category}
@@ -680,10 +775,11 @@ export default function Location({ locationData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${isPartnerSchool
+                          ${
+                            isPartnerSchool
                               ? "bg-blue-100 text-blue-700"
                               : "bg-purple-50 text-purple-700"
-                            }
+                          }
                         `}
                         >
                           {school.board?.title}
@@ -691,10 +787,11 @@ export default function Location({ locationData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${isPartnerSchool
+                          ${
+                            isPartnerSchool
                               ? "bg-pink-100 text-pink-700"
                               : "bg-pink-50 text-pink-700"
-                            }
+                          }
                         `}
                         >
                           {school.classification?.title}
@@ -702,10 +799,11 @@ export default function Location({ locationData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${isPartnerSchool
+                          ${
+                            isPartnerSchool
                               ? "bg-green-100 text-green-700"
                               : "bg-green-50 text-green-700"
-                            }
+                          }
                         `}
                         >
                           Class {school.grade?.title}
@@ -715,15 +813,10 @@ export default function Location({ locationData }) {
                         <div className="text-xs text-gray-700 mt-2">
                           <span
                             dangerouslySetInnerHTML={{
-                              __html: DOMPurify.sanitize(
-                                expanded[`about-${school.id}`]
-                                  ? decodeBase64(school.about)
-                                  : decodeBase64(school.about).slice(0, 150) +
-                                  "..."
-                              ),
+                              __html: safeSanitize(getAboutText(school)),
                             }}
                           />
-                          {decodeBase64(school.about).length > 140 && (
+                          {shouldShowReadMore(school) && (
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -765,9 +858,10 @@ export default function Location({ locationData }) {
                           onClick={(e) => handleApplyNow(school, e)}
                           className={`
                             px-3 py-1.5 text-white text-xs rounded-lg hover:bg-green-700 transition cursor-pointer
-                            ${isPartnerSchool
-                              ? "bg-purple-600 hover:bg-purple-700"
-                              : "bg-green-600 hover:bg-green-700"
+                            ${
+                              isPartnerSchool
+                                ? "bg-purple-600 hover:bg-purple-700"
+                                : "bg-green-600 hover:bg-green-700"
                             }
                           `}
                         >
@@ -805,7 +899,8 @@ export default function Location({ locationData }) {
               No schools match the selected filters.
             </p>
           )}
-          {faqItems.length > 0 && (
+          {/* Only render FAQ section on client side to avoid hydration mismatch */}
+          {isClient && faqItems.length > 0 && (
             <div className="bg-white shadow-lg rounded-xl p-6 mt-8 border border-gray-100">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">
