@@ -11,7 +11,7 @@ async function fetchPageData(slugArray) {
     "/"
   )}?api_call=true`;
 
-  const res = await fetch(apiUrl, { cache: "no-store" });
+  const res = await fetch(apiUrl, { cache: "force-cache" });
 
   if (!res.ok) return null;
 
