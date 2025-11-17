@@ -30,7 +30,7 @@ const BottomNav = () => {
 
 const navItems = [
   { path: "/", label: "Home", icon: FaHome },
-  { path: "/Counselling", label: "Counselling", icon: FaPhoneAlt },
+  { path: "tel: +919997224467", label: "Call Us", icon: FaPhoneAlt },
   {
     path: "https://api.whatsapp.com/send?phone=919634333174",
     label: "WhatsApp",
