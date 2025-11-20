@@ -7,12 +7,58 @@ import { MapPin, ChevronRight } from "lucide-react";
 export default function SchoolTabs() {
   const router = useRouter();
 
-  const itemsPerPage = 12;
+  const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
   const content = {
     locations: [
-      // Delhi Locations
+      // Top 10 boarding schools (first page)
+      {
+        title: "Boarding School in Dehradun",
+        link: "/boarding-schools-dehradun",
+      },
+      {
+        title: "Boarding School in Delhi",
+        link: "/boarding-schools-delhi",
+      },
+      {
+        title: "Boarding School in Shimla",
+        link: "/boarding-schools-shimla",
+      },
+      {
+        title: "Boarding School in Nainital",
+        link: "/boarding-schools-nainital",
+      },
+      {
+        title: "Boarding School in Rajasthan",
+        link: "/boarding-schools-rajasthan",
+      },
+      {
+        title: "Boarding School in Mumbai",
+        link: "/boarding-schools-mumbai",
+      },
+      {
+        title: "Boarding School in Bangalore",
+        link: "/boarding-schools-bangalore",
+      },
+      {
+        title: "Boarding School in Pune",
+        link: "/boarding-schools-pune",
+      },
+      {
+        title: "Top Girls Boarding Schools In India",
+        link: "/best-girls-boarding-schools-in-india",
+      },
+
+      // Remaining schools (second page)
+      {
+        title: "Boarding School in Chennai",
+        link: "/boarding-schools-chennai",
+      },
+      {
+        title: "Boarding School in Hyderabad",
+        link: "/boarding-schools-hyderabad",
+      },
       {
         title: "Boarding School in Rajkot",
         link: "/boarding-schools-rajkot",
@@ -24,10 +70,6 @@ export default function SchoolTabs() {
       {
         title: "Boarding School in Bihar",
         link: "/boarding-schools-bihar",
-      },
-      {
-        title: "Boarding School in Shimla",
-        link: "/boarding-schools-shimla",
       },
       {
         title: "Boarding School in Jharkhand",
@@ -61,11 +103,6 @@ export default function SchoolTabs() {
         title: "Boarding School in Faridabad",
         link: "/boarding-schools-faridabad",
       },
-      // Bengaluru Locations
-      {
-        title: "Boarding School in Nainital",
-        link: "/boarding-schools-nainital",
-      },
       {
         title: "Boarding School in Hisar",
         link: "/boarding-schools-hisar",
@@ -86,7 +123,6 @@ export default function SchoolTabs() {
         title: "Boarding School in Patna",
         link: "/boarding-schools-patna",
       },
-      // Pune Locations
       {
         title: "Boarding School in Panchgani",
         link: "/boarding-schools-panchgani",
@@ -98,10 +134,6 @@ export default function SchoolTabs() {
       {
         title: "Boarding School in Ahmedabad",
         link: "/boarding-schools-in-ahemdabad",
-      },
-      {
-        title: "Boarding School in Pune",
-        link: "/boarding-schools-pune",
       },
     ],
   };
@@ -156,11 +188,10 @@ export default function SchoolTabs() {
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => prev - 1)}
-            className={`px-3 py-1 rounded-md border ${
-              currentPage === 1
-                ? "text-gray-400 border-gray-200 cursor-not-allowed"
-                : "text-red-600 border-red-600 hover:bg-red-50"
-            }`}
+            className={`px-3 py-1 rounded-md border ${currentPage === 1
+              ? "text-gray-400 border-gray-200 cursor-not-allowed"
+              : "text-red-600 border-red-600 hover:bg-red-50"
+              }`}
           >
             Prev
           </button>
@@ -172,11 +203,10 @@ export default function SchoolTabs() {
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((prev) => prev + 1)}
-            className={`px-3 py-1 rounded-md border ${
-              currentPage === totalPages
-                ? "text-gray-400 border-gray-200 cursor-not-allowed"
-                : "text-red-600 border-red-600 hover:bg-red-50"
-            }`}
+            className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+              ? "text-gray-400 border-gray-200 cursor-not-allowed"
+              : "text-red-600 border-red-600 hover:bg-red-50"
+              }`}
           >
             Next
           </button>

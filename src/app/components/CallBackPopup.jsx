@@ -1,28 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
 
-function CallBackPopup() {
-  const [isOpen, setIsOpen] = useState(false);
+function CallBackPopup({ onClose }) {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [preferredTime, setPreferredTime] = useState("Right Now");
-
-  // Function to trigger popup after 8 seconds
-  const triggerPopup = () => {
-    const formSubmitted = localStorage.getItem("callbackFormSubmitted");
-    if (!formSubmitted) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 8000);
-      return () => clearTimeout(timer);
-    }
-  };
-
-  // Initial trigger on component mount
-  useEffect(() => {
-    triggerPopup();
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +18,6 @@ function CallBackPopup() {
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_APPLY_FORM_URL, {
         method: "POST",
-
         body: apiData,
       });
 
@@ -45,19 +27,11 @@ function CallBackPopup() {
 
       console.log("Form submitted successfully ✅");
       localStorage.setItem("callbackFormSubmitted", "true");
-      handleClose();
+      onClose();
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
-
-  const handleClose = () => {
-    setIsOpen(false);
-    // ⏳ Reopen again after 8 seconds if not submitted
-    triggerPopup();
-  };
-
-  if (!isOpen) return null;
 
   return (
     <>
@@ -78,7 +52,7 @@ function CallBackPopup() {
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Request Call Back</h3>
               <button
-                onClick={handleClose}
+                onClick={onClose}
                 className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition"
               >
                 <X className="w-5 h-5" />

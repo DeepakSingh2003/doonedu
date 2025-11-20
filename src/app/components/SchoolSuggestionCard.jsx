@@ -12,20 +12,21 @@ export default function TopSchoolCategories() {
           <span className="text-[#004c73]">Boarding Schools</span>
         </h2>
 
-        {/* Category Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-          {/* Card 1 */}
+        {/* Category Grid - 2 cards per row on mobile */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 justify-items-center">
+          {/* Card 1 - Affordable Boarding Schools */}
           <Link
             href="#"
-            className="border border-[#004c73] rounded-sm bg-white p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[350px] h-[200px]"
+            className="shadow-md rounded-sm bg-white p-4 sm:p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[280px] h-[200px] relative"
           >
             <img
-              src="https://admin.doonedu.com/assets/img/school-boarding.png"
+              src="/affordable-bording-school.png"
               alt="Affordable Boarding Schools"
               width={80}
               height={80}
-              className="mb-3"
+              className="mb-4 transform -translate-y-2"
             />
+
             <h3 className="font-bold text-[#004c73] text-sm sm:text-base">
               Best Affordable Boarding Schools
             </h3>
@@ -34,59 +35,54 @@ export default function TopSchoolCategories() {
             </p>
           </Link>
 
-          {/* Card 2 */}
-          <div className="flex flex-col gap-4">
-            <Link
-              href="#"
-              className="border border-[#004c73] rounded-sm bg-white p-4 flex items-center justify-between hover:shadow-lg transition-all duration-300 w-full max-w-[350px] h-[90px]"
-            >
-              <div className="flex items-center gap-3 w-full">
-                <img
-                  src="https://admin.doonedu.com/assets/img/girl-icon.png"
-                  alt="Top Girls Boarding Schools"
-                  width={60}
-                  height={60}
-                  className="rounded-full"
-                />
-                <h3 className="font-bold text-[#004c73] text-sm sm:text-base">
-                  Top Girls Boarding Schools <br /> In India
-                </h3>
-              </div>
-            </Link>
-
-            <Link
-              href="#"
-              className="border border-[#004c73] rounded-sm bg-white p-4 flex items-center justify-between hover:shadow-lg transition-all duration-300 w-full max-w-[350px] h-[90px]"
-            >
-              <div className="flex items-center gap-3 w-full">
-                <img
-                  src="https://admin.doonedu.com/assets/img/boy-%20icon.png"
-                  alt="Top Boys Boarding Schools"
-                  width={60}
-                  height={60}
-                  className="rounded-full"
-                />
-                <h3 className="font-bold text-[#004c73] text-sm sm:text-base">
-                  Top Boys Boarding Schools <br /> In India
-                </h3>
-              </div>
-            </Link>
-          </div>
-
-          {/* Card 4 */}
+          {/* Card 2 - Girls Boarding Schools */}
           <Link
             href="#"
-            className="border border-[#004c73] rounded-sm bg-white p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[350px] h-[200px]"
+            className="shadow-md rounded-sm bg-white p-4 sm:p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[280px] h-[200px] relative"
           >
             <img
-              src="https://admin.doonedu.com/assets/img/school-boarding.png"
+              src="/girls-bording-school.png"
+              alt="Top Girls Boarding Schools"
+              width={80}
+              height={80}
+              className="mb-4 rounded-full transform -translate-y-2"
+            />
+            <h3 className="font-bold text-[#004c73] text-sm sm:text-base">
+              Top Girls Boarding Schools In India
+            </h3>
+          </Link>
+
+          {/* Card 3 - Boys Boarding Schools */}
+          <Link
+            href="#"
+            className="shadow-md rounded-sm bg-white p-4 sm:p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[280px] h-[200px] relative"
+          >
+            <img
+              src="/boys-bording-school.png"
+              alt="Top Boys Boarding Schools"
+              width={80}
+              height={80}
+              className="mb-4 rounded-full transform -translate-y-2"
+            />
+            <h3 className="font-bold text-[#004c73] text-sm sm:text-base">
+              Top Boys Boarding Schools In India
+            </h3>
+          </Link>
+
+          {/* Card 4 - Fully Residential Schools */}
+          <Link
+            href="#"
+            className="shadow-md rounded-sm bg-white p-4 sm:p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[280px] h-[200px] relative"
+          >
+            <img
+              src="/residential-bording-school.png"
               alt="Top Fully Residential Schools"
               width={80}
               height={80}
-              className="mb-3"
+              className="mb-4 transform -translate-y-2"
             />
             <h3 className="font-bold text-[#004c73] text-sm sm:text-base">
-              Top Fully Residential Schools <br /> In India
+              Top Fully Residential Schools In India
             </h3>
           </Link>
         </div>

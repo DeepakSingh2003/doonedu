@@ -14,6 +14,7 @@ export default function ApplyModal({ schoolId, schoolName }) {
     const formData = new FormData(e.target);
     const apiData = new FormData();
     apiData.append("name", formData.get("parentName"));
+    apiData.append("student_name", formData.get("studentName"));
     apiData.append("email", formData.get("email"));
     apiData.append("phone", formData.get("phone"));
     apiData.append("student_class", formData.get("class"));
@@ -90,6 +91,29 @@ export default function ApplyModal({ schoolId, schoolName }) {
                     id="parentName"
                     name="parentName"
                     placeholder="Enter Parent's Full Name"
+                    className="flex-1 p-3 focus:outline-none text-sm"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Student Name */}
+              <div>
+                <label
+                  htmlFor="studentName"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Student Name *
+                </label>
+                <div className="flex items-center border rounded-lg overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-blue-400">
+                  <span className="px-3 text-gray-500">
+                    <User size={18} />
+                  </span>
+                  <input
+                    type="text"
+                    id="studentName"
+                    name="studentName"
+                    placeholder="Enter Student's Full Name"
                     className="flex-1 p-3 focus:outline-none text-sm"
                     required
                   />

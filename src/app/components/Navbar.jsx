@@ -54,6 +54,18 @@ export default function Navbar() {
     };
   }, []);
 
+  const handleCounsellingClick = () => {
+    setMenuOpen(false);
+    // Scroll to RecommendationBanner component
+    const recommendationBanner = document.getElementById('recommendation-banner');
+    if (recommendationBanner) {
+      recommendationBanner.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // If not on home page, navigate to home page with hash
+      window.location.href = '/#recommendation-banner';
+    }
+  };
+
   const tabs = [{ id: "day", label: "Boarding Schools" }];
 
   const popularCities = [
@@ -303,7 +315,7 @@ export default function Navbar() {
               <div className="flex justify-center md:hidden px-5 mb-3 mt-2">
                 {isLoggedIn ? (
                   <div className="flex flex-col items-center gap-2">
-                    <span className="text-sm">Hi, {user?.name}</span>
+                    {/* Removed the "Hi, {user?.name}" message */}
                     <button
                       onClick={() => {
                         logout();
@@ -334,7 +346,7 @@ export default function Navbar() {
                 >
                   <FaBookOpen className="text-blue-500" />
                   <span className="text-xs font-medium text-gray-800">
-                    Parenting Articles
+                   News & Blog
                   </span>
                 </Link>
                 <Link
@@ -344,19 +356,18 @@ export default function Navbar() {
                 >
                   <FaQuestionCircle className="text-blue-500" />
                   <span className="text-xs font-medium text-gray-800">
-                    Ask a Question
+                    FAQs/ Raise a Query
                   </span>
                 </Link>
-                <Link
-                  href="/Counselling"
-                  className="flex items-center gap-3 px-5 py-2.5 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setMenuOpen(false)}
+                <button
+                  onClick={handleCounsellingClick}
+                  className="flex items-center gap-3 px-5 py-2.5 hover:bg-gray-50 cursor-pointer w-full text-left"
                 >
                   <FaPhoneAlt className="text-blue-500" />
                   <span className="text-xs font-medium text-gray-800">
-                    Get Free Counselling
+                    Get your Personal Counselor
                   </span>
-                </Link>
+                </button>
               </div>
             </div>
           </div>

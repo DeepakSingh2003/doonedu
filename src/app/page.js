@@ -1,4 +1,3 @@
-import Image from "next/image";
 
 import HeroSection from "./components/Herosection";
 import SchoolCarousel from "./components/SchoolCarousel";
@@ -20,7 +19,10 @@ export default function Home() {
       <Stepsapply />
       <Didyouknow />
       <NewsSection/>
-      <Recommenationbanner />
+      {/* Wrap Recommenationbanner with a section that has the id */}
+      <section id="recommendation-banner">
+        <Recommenationbanner />
+      </section>
       <HomepageCategories />
       <ContactCallAction/>
       <Testimonials />

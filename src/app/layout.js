@@ -12,6 +12,7 @@ import Popuplogin from "./components/PopupLogin";
 import { ToastContainer } from "react-toastify";
 
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -53,7 +54,6 @@ export default function RootLayout({ children }) {
                 </div>
                 {children}
                 <Popuplogin />
-              
                 <ToastContainer />
                 <Footer />
                 <BottomNav />

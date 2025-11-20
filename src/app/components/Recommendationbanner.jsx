@@ -5,9 +5,51 @@ import { useState } from "react";
 
 export default function DiscoverSchools() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', or 'error'
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSubmitStatus(null); // Reset status when closing modal
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitStatus(null); // Reset status
+
+    const formData = new FormData(e.target);
+    const apiData = new FormData();
+    apiData.append("name", formData.get("name"));
+    apiData.append("email", formData.get("email"));
+    apiData.append("phone", formData.get("phone"));
+    apiData.append("student_class", formData.get("class"));
+    apiData.append("message", formData.get("message"));
+   
+    try {
+      const response = await fetch(process.env.NEXT_PUBLIC_APPLY_FORM_URL, {
+        method: "POST",
+        body: apiData,
+      });
+      const responseText = await response.text();
+
+      if (response.ok) {
+        setSubmitStatus("success");
+        // Reset form
+        e.target.reset();
+        
+        // Close modal after 3 seconds
+        setTimeout(() => {
+          closeModal();
+        }, 3000);
+      } else {
+        console.error("Error submitting application");
+        setSubmitStatus("error");
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      setSubmitStatus("error");
+    }
+  };
 
   return (
     <>
@@ -80,7 +122,6 @@ export default function DiscoverSchools() {
       {/* Modal Form */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          {/* Changed from: bg-black bg-opacity-50  →  bg-black/50 */}
           <div className="relative bg-white rounded-lg shadow-xl max-w-lg w-full p-6 animate-in fade-in zoom-in duration-200">
             {/* Close Button */}
             <button
@@ -96,17 +137,19 @@ export default function DiscoverSchools() {
             </h3>
 
             {/* Form */}
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               {/* Name & Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Your Name
+                    Your Name *
                   </label>
                   <input
                     type="text"
+                    name="name"
                     placeholder="e.g. Vaibhav Aggarwal"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
                   />
                 </div>
                 <div>
@@ -115,6 +158,7 @@ export default function DiscoverSchools() {
                   </label>
                   <input
                     type="email"
+                    name="email"
                     placeholder="e.g. vaibhav@domain.com"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -125,33 +169,39 @@ export default function DiscoverSchools() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone
+                    Phone *
                   </label>
                   <input
                     type="tel"
+                    name="phone"
                     placeholder="+91 963 433 3174"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Class
+                    Class *
                   </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option>Choose...</option>
-                    <option>Pre School</option>
-                    <option>1st</option>
-                    <option>2nd</option>
-                    <option>3rd</option>
-                    <option>4th</option>
-                    <option>5th</option>
-                    <option>6th</option>
-                    <option>7th</option>
-                    <option>8th</option>
-                    <option>9th</option>
-                    <option>10th</option>
-                    <option>11th</option>
-                    <option>12th</option>
+                  <select 
+                    name="class"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Choose...</option>
+                    <option value="Pre School">Pre School</option>
+                    <option value="1st">1st</option>
+                    <option value="2nd">2nd</option>
+                    <option value="3rd">3rd</option>
+                    <option value="4th">4th</option>
+                    <option value="5th">5th</option>
+                    <option value="6th">6th</option>
+                    <option value="7th">7th</option>
+                    <option value="8th">8th</option>
+                    <option value="9th">9th</option>
+                    <option value="10th">10th</option>
+                    <option value="11th">11th</option>
+                    <option value="12th">12th</option>
                   </select>
                 </div>
               </div>
@@ -163,10 +213,32 @@ export default function DiscoverSchools() {
                 </label>
                 <textarea
                   rows={4}
+                  name="message"
                   placeholder=""
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 ></textarea>
               </div>
+
+              {/* Success Message */}
+              {submitStatus === "success" && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                  <strong className="font-bold">Success! </strong>
+                  <span className="block sm:inline">
+                    Application submitted successfully!
+                  </span>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {submitStatus === "error" && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                  <strong className="font-bold">Error! </strong>
+                  <span className="block sm:inline">
+                    There was an error submitting your application. Please try
+                    again.
+                  </span>
+                </div>
+              )}
 
               {/* Counselor Info */}
               <p className="text-xs text-gray-600 text-center">
