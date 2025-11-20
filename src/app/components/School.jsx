@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   FaSchool,
@@ -48,6 +48,8 @@ import {
   FaPlayCircle,
   FaCheckCircle,
   FaCrown,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 import { Phone, Heart } from "lucide-react";
 import { useModal } from "../contexts/ModalContext";
@@ -81,6 +83,16 @@ export default function SchoolProfile({ school, seo }) {
   const [parsedAwards, setParsedAwards] = useState([]);
   const [parsedHighlights, setParsedHighlights] = useState("");
   const [parsedFeeStructure, setParsedFeeStructure] = useState("");
+  
+  // Mobile gallery slider state
+  const [currentMobileSlide, setCurrentMobileSlide] = useState(0);
+  const [isClient, setIsClient] = useState(false);
+  const autoPlayRef = useRef(null);
+
+  // Set isClient to true when component mounts on client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Helper: Normalize title for comparison
   const normalizeTitle = (title = "", schoolTitle = "") => {
@@ -248,7 +260,69 @@ export default function SchoolProfile({ school, seo }) {
     }
   }, [school, seo]);
 
-  // NEW: Handle Request Call Back for partner schools
+  const transformedGallery = (school?.gallery || []).map((item) => ({
+    id: item?.id || Date.now(),
+    url: item?.image
+      ? `${process.env.NEXT_PUBLIC_GALLERY_URL}/${
+          item?.school_id || school?.school?.id || "unknown"
+        }/gallery/${item.image}`
+      : "/placeholder.jpg",
+    thumbnailUrl: item?.image
+      ? `${process.env.NEXT_PUBLIC_GALLERY_URL}/${
+          item?.school_id || school?.school?.id || "unknown"
+        }/gallery/${item.image}`
+      : "/placeholder.jpg",
+    caption: item?.title || item?.alt || "Gallery Image",
+    type: "image",
+  }));
+
+  // Autoplay effect for mobile gallery
+  useEffect(() => {
+    if (transformedGallery.length > 1 && isClient) {
+      autoPlayRef.current = setInterval(() => {
+        setCurrentMobileSlide((prev) => 
+          prev === transformedGallery.length - 1 ? 0 : prev + 1
+        );
+      }, 3000); // Change slide every 3 seconds
+    }
+
+    return () => {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
+      }
+    };
+  }, [transformedGallery.length, isClient]);
+
+  // Reset autoplay timer when user interacts with slider
+  const resetAutoPlay = () => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+    }
+    if (isClient && transformedGallery.length > 1) {
+      autoPlayRef.current = setInterval(() => {
+        setCurrentMobileSlide((prev) => 
+          prev === transformedGallery.length - 1 ? 0 : prev + 1
+        );
+      }, 3000);
+    }
+  };
+
+  // Mobile gallery slider navigation
+  const nextMobileSlide = () => {
+    setCurrentMobileSlide((prev) => 
+      prev === transformedGallery.length - 1 ? 0 : prev + 1
+    );
+    resetAutoPlay();
+  };
+
+  const prevMobileSlide = () => {
+    setCurrentMobileSlide((prev) => 
+      prev === 0 ? transformedGallery.length - 1 : prev - 1
+    );
+    resetAutoPlay();
+  };
+
+  // Handle Request Call Back for partner schools
   const handleRequestCallBack = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -293,22 +367,6 @@ export default function SchoolProfile({ school, seo }) {
     e.stopPropagation();
     setExpandedFaq(expandedFaq === index ? null : index);
   };
-
-  const transformedGallery = (school?.gallery || []).map((item) => ({
-    id: item?.id || Date.now(),
-    url: item?.image
-      ? `${process.env.NEXT_PUBLIC_GALLERY_URL}/${
-          item?.school_id || school?.school?.id || "unknown"
-        }/gallery/${item.image}`
-      : "/placeholder.jpg",
-    thumbnailUrl: item?.image
-      ? `${process.env.NEXT_PUBLIC_GALLERY_URL}/${
-          item?.school_id || school?.school?.id || "unknown"
-        }/gallery/${item.image}`
-      : "/placeholder.jpg",
-    caption: item?.title || item?.alt || "Gallery Image",
-    type: "image",
-  }));
 
   const filteredGallery = transformedGallery;
 
@@ -404,6 +462,14 @@ export default function SchoolProfile({ school, seo }) {
   };
 
   const videoUrl = getEmbeddedVideoUrl(school?.school?.featured_video);
+
+  // Safe HTML rendering function to prevent hydration mismatches
+  const renderSafeHTML = (html, fallback = "No information available") => {
+    if (!isClient) {
+      return <div dangerouslySetInnerHTML={{ __html: fallback }} />;
+    }
+    return <div dangerouslySetInnerHTML={{ __html: html || fallback }} />;
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen ">
@@ -506,7 +572,8 @@ export default function SchoolProfile({ school, seo }) {
       )}
 
       <div className="relative mt-2 sm:mt-14 px-4 sm:px-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-auto">
+        {/* Desktop Gallery View */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-4 h-auto">
           <div className="col-span-1 md:col-span-2 h-full">
             <img
               src={
@@ -533,7 +600,28 @@ export default function SchoolProfile({ school, seo }) {
             />
           </div>
         </div>
-        <div className="absolute top-[10rem] right-8 sm:right-20 flex gap-2 sm:top-[22rem]">
+
+        {/* Mobile Gallery Slider with Autoplay - Hidden arrows and dots */}
+        <div className="md:hidden relative">
+          <div className="relative overflow-hidden rounded-lg">
+            <div 
+              className="flex transition-transform duration-300 ease-in-out"
+              style={{ transform: `translateX(-${currentMobileSlide * 100}%)` }}
+            >
+              {transformedGallery.map((item, index) => (
+                <div key={item.id} className="w-full flex-shrink-0">
+                  <img
+                    src={item.url}
+                    alt={item.caption}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute top-[13rem] right-8 sm:right-20 flex gap-2 sm:top-[22rem]">
           <button
             onClick={() => openGalleryModal()}
             className="text-white text-xs sm:text-sm bg-purple-600/80 px-3 py-2 rounded-full hover:bg-purple-700 flex items-center gap-1 cursor-pointer"
@@ -754,15 +842,12 @@ export default function SchoolProfile({ school, seo }) {
                       <FaInfoCircle className="h-5 w-5 mr-2 text-blue-700" />
                       About School
                     </h3>
-                    <p
-                      className="text-gray-700 text-sm sm:text-base"
-                      dangerouslySetInnerHTML={{
-                        __html:
-                          school?.school?.about ||
-                          school?.comment ||
-                          "No information available",
-                      }}
-                    ></p>
+                    <div className="text-gray-700 text-sm sm:text-base">
+                      {renderSafeHTML(
+                        school?.school?.about || school?.comment,
+                        "No information available"
+                      )}
+                    </div>
 
                     <h3 className="text-base sm:text-lg font-bold mt-6 mb-4 flex items-center">
                       <FaBook className="h-5 w-5 mr-2 text-blue-700" />
@@ -843,12 +928,9 @@ export default function SchoolProfile({ school, seo }) {
                       Fee Structure
                     </h3>
                     {parsedFeeStructure ? (
-                      <div
-                        className="bg-blue-50 p-4 rounded-lg border border-blue-100 overflow-x-auto"
-                        dangerouslySetInnerHTML={{
-                          __html: parsedFeeStructure,
-                        }}
-                      />
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 overflow-x-auto">
+                        {renderSafeHTML(parsedFeeStructure)}
+                      </div>
                     ) : school?.school_admission?.some(
                         (admission) =>
                           admission?.title === "Fee Structure" &&
@@ -899,15 +981,15 @@ export default function SchoolProfile({ school, seo }) {
                       School Facilities
                     </h3>
                     {parsedHighlights ? (
-                      <div
-                        className="p-4 rounded-lg overflow-x-auto [&_table]:w-full [&_table]:border-collapse [&_th]:bg-blue-100 [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:p-2 [&_td]:align-top [&_td]:text-sm"
-                        dangerouslySetInnerHTML={{
-                          __html: parsedHighlights
+                      <div className="p-4 rounded-lg overflow-x-auto [&_table]:w-full [&_table]:border-collapse [&_th]:bg-blue-100 [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:p-2 [&_td]:align-top [&_td]:text-sm">
+                        {renderSafeHTML(
+                          parsedHighlights
                             .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
                             .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
                             .replace(/<\/?(html|head|body)[^>]*>/gi, ""),
-                        }}
-                      />
+                          "Facility details will be available soon."
+                        )}
+                      </div>
                     ) : (
                       <div className="bg-gray-50 text-center py-6 rounded-lg border border-gray-100">
                         <p className="text-gray-500 text-sm sm:text-base">
@@ -1020,6 +1102,9 @@ export default function SchoolProfile({ school, seo }) {
               </div>
             </div>
 
+            {/* Blue Line Partition after About School */}
+            <div className="w-full h-1 bg-[#1447E6] rounded-full my-6"></div>
+
             {/* Co-curricular Activities */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-6 flex items-center">
@@ -1090,6 +1175,9 @@ export default function SchoolProfile({ school, seo }) {
                 )}
               </div>
             </div>
+
+            {/* Blue Line Partition after Co-curricular Activities */}
+            <div className="w-full h-1 bg-[#1447E6] rounded-full my-6"></div>
 
             {/* Travel Information */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
@@ -1165,6 +1253,9 @@ export default function SchoolProfile({ school, seo }) {
               </div>
             </div>
 
+            {/* Blue Line Partition after Travel Information */}
+            <div className="w-full h-1 bg-[#1447E6] rounded-full my-6"></div>
+
             {/* Featured Video */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
               <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
@@ -1205,12 +1296,9 @@ export default function SchoolProfile({ school, seo }) {
                   <FaMoneyBill className="h-5 w-5 mr-2 text-blue-700" />
                   Fee Structure
                 </h3>
-                <div
-                  className="bg-blue-50 p-4 rounded-lg border border-blue-100 overflow-x-auto"
-                  dangerouslySetInnerHTML={{
-                    __html: parsedFeeStructure,
-                  }}
-                />
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 overflow-x-auto">
+                  {renderSafeHTML(parsedFeeStructure)}
+                </div>
                 <p className="text-gray-500 text-xs sm:text-sm mt-4">
                   *The above listed fees are provided by the school. Current
                   fees may vary depending on recent updates.
@@ -1254,15 +1342,15 @@ export default function SchoolProfile({ school, seo }) {
                 <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
                   School Highlights & Facilities
                 </h3>
-                <div
-                  className="p-4 rounded-lg overflow-x-auto [&_table]:w-full [&_table]:border-collapse [&_th]:bg-blue-100 [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:p-2 [&_td]:align-top [&_td]:text-sm"
-                  dangerouslySetInnerHTML={{
-                    __html: parsedHighlights
+                <div className="p-4 rounded-lg overflow-x-auto [&_table]:w-full [&_table]:border-collapse [&_th]:bg-blue-100 [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:p-2 [&_td]:align-top [&_td]:text-sm">
+                  {renderSafeHTML(
+                    parsedHighlights
                       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
                       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
                       .replace(/<\/?(html|head|body)[^>]*>/gi, ""),
-                  }}
-                />
+                    "Facility details will be available soon."
+                  )}
+                </div>
                 <p className="text-gray-500 text-xs sm:text-sm mt-4">
                   *Facilities listed are provided by the school. May vary
                   depending on availability.
@@ -1312,6 +1400,9 @@ export default function SchoolProfile({ school, seo }) {
                 )}
               </div>
             </div>
+
+            {/* Blue Line Partition after Frequently Asked Questions */}
+            <div className="w-full h-1 bg-[#1447E6] rounded-full my-6"></div>
 
             {/* Reviews */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">

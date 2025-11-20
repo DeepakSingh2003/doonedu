@@ -37,9 +37,8 @@ const Popuplogin = () => {
 
     try {
       // Send data to API
-      const response = await fetch('https://admin.doonedu.com/front/customer/customer_entry_api', {
+      const response = await fetch(process.env.NEXT_PUBLIC_LOGIN_FORM_URL, {
         method: 'POST',
-
         body: formData
       });
 

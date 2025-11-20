@@ -29,12 +29,10 @@ export default function AuthModal({ isOpen, onClose }) {
     formData.append("phone", phone);
 
     try {
-      const response = await fetch(
-        "https://admin.doonedu.com/front/customer/customer_entry_api",
-        {
-          method: "POST",
-          body: formData,
-        }
+      const response = await fetch(process.env.NEXT_PUBLIC_LOGIN_FORM_URL, {
+        method: "POST",
+        body: formData,
+      }
       );
 
       if (!response.ok) {

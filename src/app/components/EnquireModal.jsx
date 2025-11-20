@@ -16,6 +16,7 @@ export default function EnquireModal({ schoolId, schoolName }) {
     const apiData = new FormData();
 
     apiData.append("name", formData.get("parentName"));
+    apiData.append("student_name", formData.get("studentName"));
     apiData.append("email", formData.get("email"));
     apiData.append("phone", formData.get("phone"));
     apiData.append("student_class", formData.get("class"));
@@ -83,6 +84,26 @@ export default function EnquireModal({ schoolId, schoolName }) {
                     id="parentName"
                     name="parentName"
                     placeholder="Enter Parent's Full Name"
+                    className="flex-1 p-3 focus:outline-none text-sm"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Student Name */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Student Name *
+                </label>
+                <div className="flex items-center border rounded-lg overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-blue-400">
+                  <span className="px-3 text-gray-500">
+                    <User size={18} />
+                  </span>
+                  <input
+                    type="text"
+                    id="studentName"
+                    name="studentName"
+                    placeholder="Enter Student's Full Name"
                     className="flex-1 p-3 focus:outline-none text-sm"
                     required
                   />
@@ -220,10 +241,10 @@ export default function EnquireModal({ schoolId, schoolName }) {
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70"></div>
             <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 text-white">
               <h3 className="text-xl md:text-2xl font-bold mb-2">
-                Let’s Discuss Your Child’s Admission
+                Let's Discuss Your Child's Admission
               </h3>
               <p className="text-sm md:text-base max-w-sm">
-                We’ll guide you through the best options and connect you with
+                We'll guide you through the best options and connect you with
                 top schools effortlessly.
               </p>
             </div>
