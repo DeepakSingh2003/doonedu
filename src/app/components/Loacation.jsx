@@ -12,7 +12,7 @@ import { useCity } from "../contexts/CityContext";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useSearchParams, usePathname } from "next/navigation";
 import Didyouknow from "../components/Didyouknow";
-import RecommendationBanner from "../components/RecommendationBanner"; // Add this import
+import RecommendationBanner from "../components/Recommendationbanner"; // Add this import
 
 export default function Location({ locationData }) {
   // Memoize schoolsData to prevent infinite re-renders
