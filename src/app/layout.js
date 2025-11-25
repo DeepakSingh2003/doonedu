@@ -44,6 +44,7 @@ export default function RootLayout({ children }) {
         style={{ fontFamily: "var(--font-poppins), sans-serif", margin: 0, padding: 0 }}
         cz-shortcut-listen="true"
       >
+        
         <ModalProvider>
           <WishlistProvider>
             <CityProvider>
