@@ -10,7 +10,7 @@ import { LoginProvider } from "./contexts/LoginContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import Popuplogin from "./components/PopupLogin";
 import { ToastContainer } from "react-toastify";
-
+import Script from "next/script"; // <-- Added for GTM
 
 
 const geistSans = Geist({
@@ -39,12 +39,37 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        {/* ============ Google Tag Manager Script (HEAD) ============ */}
+        <Script id="google-tag-manager" strategy="afterInteractive">
+          {`
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-KGF8TR4N');
+          `}
+        </Script>
+        {/* ========================================================== */}
+      </head>
+
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}
         style={{ fontFamily: "var(--font-poppins), sans-serif", margin: 0, padding: 0 }}
         cz-shortcut-listen="true"
       >
-        
+
+        {/* ============ Google Tag Manager (noscript) BODY ============ */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-KGF8TR4N"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          ></iframe>
+        </noscript>
+        {/* ============================================================ */}
+
         <ModalProvider>
           <WishlistProvider>
             <CityProvider>
