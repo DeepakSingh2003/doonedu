@@ -32,8 +32,24 @@ const StudentRegistrationForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
+
+    // 📌 Push conversion event to GTM DataLayer
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "student_registration_form_submit",
+      student_name: `${formData.studentFirstName} ${formData.studentMiddleName} ${formData.studentLastName}`,
+      dob: formData.dateOfBirth,
+      parent_name: `${formData.parentsFirstName} ${formData.parentsMiddleName} ${formData.parentsLastName}`,
+      relationship: formData.relationship,
+      email: formData.email,
+      class_admission: formData.classAdmission,
+      phone: formData.mobile,
+      occupation: formData.fathersOccupation,
+      address: formData.address,
+      landmark: formData.landmark,
+      amount: formData.amount,
+      accepted_terms: formData.acceptTerms ? "yes" : "no",
+    });
   };
 
   return (

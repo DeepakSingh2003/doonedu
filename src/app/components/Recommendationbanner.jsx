@@ -24,20 +24,31 @@ export default function DiscoverSchools() {
     apiData.append("phone", formData.get("phone"));
     apiData.append("student_class", formData.get("class"));
     apiData.append("message", formData.get("message"));
-   
+
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_APPLY_FORM_URL, {
         method: "POST",
         body: apiData,
       });
+
       const responseText = await response.text();
 
       if (response.ok) {
+        // 📌 GTM Data Layer event for conversion tracking
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "personal_counselor_form_submit",
+          user_name: formData.get("name"),
+          user_email: formData.get("email"),
+          user_phone: formData.get("phone"),
+          student_class: formData.get("class"),
+          user_message: formData.get("message"),
+        });
+
         setSubmitStatus("success");
-        // Reset form
-        e.target.reset();
-        
-        // Close modal after 3 seconds
+        e.target.reset(); // Reset the form
+
+        // Close modal after success
         setTimeout(() => {
           closeModal();
         }, 3000);
@@ -102,8 +113,8 @@ export default function DiscoverSchools() {
                   <FaSchool />
                 </span>
                 <p className="text-gray-700 leading-snug">
-                  Finally, <strong>The Counselor </strong> will help you to choose
-                  the Best Boarding School.
+                  Finally, <strong>The Counselor </strong> will help you to
+                  choose the Best Boarding School.
                 </p>
               </li>
             </ul>
@@ -183,7 +194,7 @@ export default function DiscoverSchools() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Class *
                   </label>
-                  <select 
+                  <select
                     name="class"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
