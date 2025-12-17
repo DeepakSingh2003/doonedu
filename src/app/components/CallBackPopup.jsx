@@ -25,6 +25,15 @@ function CallBackPopup({ onClose }) {
         throw new Error("Network response was not ok");
       }
 
+      // 📌 Push event to DataLayer for GTM
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "callback_form_submit",
+        user_name: name,
+        user_phone: mobile,
+        preferred_time: preferredTime,
+      });
+
       console.log("Form submitted successfully ✅");
       localStorage.setItem("callbackFormSubmitted", "true");
       onClose();
@@ -62,7 +71,9 @@ function CallBackPopup({ onClose }) {
 
           {/* Body */}
           <div className="p-6">
-            <p className="text-sm text-gray-600 mb-1">Save Your Precious Time</p>
+            <p className="text-sm text-gray-600 mb-1">
+              Save Your Precious Time
+            </p>
             <p className="text-base font-medium text-gray-800 mb-6">
               Request a call back & Get All the info in just 2 Min.
             </p>

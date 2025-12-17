@@ -9,7 +9,7 @@ export default function ApplyModal({ schoolId, schoolName }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitStatus(null); // Reset status
+    setSubmitStatus(null);
 
     const formData = new FormData(e.target);
     const apiData = new FormData();
@@ -26,17 +26,28 @@ export default function ApplyModal({ schoolId, schoolName }) {
         method: "POST",
         body: apiData,
       });
+
       const responseText = await response.text();
 
       if (response.ok) {
+        // 📌 Push event to GTM
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "apply_form_submit",
+          parent_name: formData.get("parentName"),
+          student_name: formData.get("studentName"),
+          user_phone: formData.get("phone"),
+          user_email: formData.get("email"),
+          student_class: formData.get("class"),
+          school_name: schoolName,
+        });
+
         setSubmitStatus("success");
 
-        // Optional: Close modal after 3 seconds
         setTimeout(() => {
           closeModal();
         }, 3000);
       } else {
-        console.error("Error submitting application");
         setSubmitStatus("error");
       }
     } catch (error) {
@@ -154,7 +165,7 @@ export default function ApplyModal({ schoolId, schoolName }) {
                   htmlFor="email"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Email Address 
+                  Email Address
                 </label>
                 <div className="flex items-center border rounded-lg overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-blue-400">
                   <span className="px-3 text-gray-500">
@@ -166,7 +177,6 @@ export default function ApplyModal({ schoolId, schoolName }) {
                     name="email"
                     placeholder="Enter Your Email"
                     className="flex-1 p-3 focus:outline-none text-sm"
-       
                   />
                 </div>
               </div>
