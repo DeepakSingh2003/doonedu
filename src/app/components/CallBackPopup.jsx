@@ -6,9 +6,33 @@ function CallBackPopup({ onClose }) {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [preferredTime, setPreferredTime] = useState("Right Now");
+  const [mobileError, setMobileError] = useState("");
+
+  const validateMobile = (number) => {
+    const mobileRegex = /^[6-9]\d{9}$/; // Indian mobile number regex
+    return mobileRegex.test(number);
+  };
+
+  const handleMobileChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+    if (value.length <= 10) {
+      setMobile(value);
+      if (value.length === 10 && !validateMobile(value)) {
+        setMobileError("Please enter a valid 10-digit mobile number");
+      } else {
+        setMobileError("");
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate mobile number
+    if (!validateMobile(mobile)) {
+      setMobileError("Please enter a valid 10-digit mobile number");
+      return;
+    }
 
     const apiData = new FormData();
     apiData.append("name", name);
@@ -120,12 +144,20 @@ function CallBackPopup({ onClose }) {
                 <input
                   type="tel"
                   value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
-                  placeholder="Enter your Mobile Number"
+                  onChange={handleMobileChange}
+                  placeholder="10-digit mobile number"
                   required
-                  pattern="[0-9]{10}"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  maxLength={10}
+                  className={`w-full px-4 py-2 border ${
+                    mobileError ? "border-red-500" : "border-gray-300"
+                  } rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition`}
                 />
+                {mobileError && (
+                  <p className="text-red-500 text-xs mt-1">{mobileError}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Must be a valid 10-digit mobile number
+                </p>
               </div>
 
               {/* Submit Button */}

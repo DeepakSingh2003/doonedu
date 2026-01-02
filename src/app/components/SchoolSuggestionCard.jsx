@@ -37,7 +37,7 @@ export default function TopSchoolCategories() {
 
           {/* Card 2 - Girls Boarding Schools */}
           <Link
-            href="#"
+            href="/best-girls-boarding-schools-in-india"
             className="shadow-md rounded-sm bg-white p-4 sm:p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[280px] h-[200px] relative"
           >
             <img
@@ -54,7 +54,7 @@ export default function TopSchoolCategories() {
 
           {/* Card 3 - Boys Boarding Schools */}
           <Link
-            href="#"
+            href="/best-boys-boarding-schools-in-india"
             className="shadow-md rounded-sm bg-white p-4 sm:p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[280px] h-[200px] relative"
           >
             <img

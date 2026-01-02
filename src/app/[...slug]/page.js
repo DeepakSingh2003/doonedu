@@ -3,7 +3,7 @@ import School from "../components/School";
 import BlogList from "../components/BlogList";
 import BlogCategory from "../components/BlogCategory";
 import BlogView from "../components/BlogView";
-
+import Category from "../components/Category";
 export const dynamic = "force-dynamic";
 
 async function fetchPageData(slugArray) {
@@ -123,6 +123,9 @@ export default async function Page(props) {
   if (slugArray[0] === "blog" && pageType === "blog_view") {
     return <BlogView blogData={data} />;
   }
-
+  // ✅ CATEGORY PAGE (NEW)
+  if (pageType === "category") {
+    return <Category categoryData={data} />;
+  }
   return <p>Invalid page</p>;
 }

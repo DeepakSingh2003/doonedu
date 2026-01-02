@@ -435,17 +435,17 @@ export default function Footer() {
                   { name: "India", href: "/top-boarding-schools-in-india" },
                   {
                     name: "North India",
-                    href: "/boarding-schools-north-india",
+                    href: "/boarding-schools-in-north-india-2026-27",
                   },
                   {
                     name: "Central India",
-                    href: "/boarding-schools-central-india",
+                    href: "/boarding-schools-in-central-india-2026-27",
                   },
                   { name: "East India", href: "/boarding-schools-east-india" },
-                  { name: "West India", href: "/schools-in-west-india" },
+                  { name: "West India", href: "/boarding-schools-in-west-india-2026-27" },
                   {
                     name: "Best Boarding Schools In India",
-                    href: "/best-boarding-schools-in-india",
+                    href: "/boarding-schools-in-india-2026-27",
                   },
                   {
                     name: "Best Girls Boarding Schools In India",
@@ -457,15 +457,15 @@ export default function Footer() {
                   },
                   {
                     name: "Best Co Ed Boarding Schools In India",
-                    href: "/best-co-ed-boarding-schools-in-india",
+                    href: "/co-ed-boarding-schools-in-india-2026-27",
                   },
                   {
                     name: "Best International Boarding Schools In India",
-                    href: "/best-international-boarding-schools-in-india",
+                    href: "/international-boarding-schools-in-india-2026-27",
                   },
                   {
                     name: "Top Boarding Schools Of Delhi NCR",
-                    href: "/top-boarding-schools-of-delhi-ncr",
+                    href: "/top-boarding-schools-in-delhi-ncr-2026-27",
                   },
                 ].map((item, index, array) => (
                   <div key={item.name} className="flex items-center">

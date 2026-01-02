@@ -14,14 +14,29 @@ export default function AuthModal({ isOpen, onClose }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [phoneError, setPhoneError] = useState(""); // New state for phone validation error
 
   if (!isOpen || isLoggedIn) return null;
+
+  // ✅ Validate phone number function
+  const validatePhone = (phoneNumber) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phoneNumber);
+  };
 
   // ✅ Handle submit (same as Popuplogin)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setShowError(false);
+    setPhoneError("");
+
+    // ✅ Validate phone number
+    if (!validatePhone(phone)) {
+      setPhoneError("Please enter a valid 10-digit phone number");
+      setIsSubmitting(false);
+      return;
+    }
 
     // ✅ FormData creation below inputs (as in Popuplogin)
     const formData = new FormData();
@@ -32,8 +47,7 @@ export default function AuthModal({ isOpen, onClose }) {
       const response = await fetch(process.env.NEXT_PUBLIC_LOGIN_FORM_URL, {
         method: "POST",
         body: formData,
-      }
-      );
+      });
 
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -52,6 +66,7 @@ export default function AuthModal({ isOpen, onClose }) {
         onClose();
         setName("");
         setPhone("");
+        setPhoneError("");
       }, 2000);
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -60,6 +75,31 @@ export default function AuthModal({ isOpen, onClose }) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // ✅ Handle phone input change with validation
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    
+    // Only allow numbers
+    const numericValue = value.replace(/\D/g, '');
+    
+    // Limit to 10 digits
+    const trimmedValue = numericValue.slice(0, 10);
+    
+    setPhone(trimmedValue);
+    
+    // Clear error when user starts typing
+    if (phoneError) {
+      setPhoneError("");
+    }
+    
+    // Optional: Validate on the fly (but don't show error until submit)
+    // if (trimmedValue.length === 10 && !validatePhone(trimmedValue)) {
+    //   setPhoneError("Please enter a valid 10-digit phone number");
+    // } else {
+    //   setPhoneError("");
+    // }
   };
 
   return (
@@ -139,11 +179,39 @@ export default function AuthModal({ isOpen, onClose }) {
                 />
 
                 {/* ✅ Individual Phone Input */}
-                <PhoneInput
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  disabled={isSubmitting}
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-gray-700">
+                    Phone Number
+                  </label>
+                  <div className="flex">
+                    <span className="flex items-center px-3 py-2 bg-gray-100 rounded-l-md border border-r-0 text-gray-600">
+                      India +91
+                    </span>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={phone}
+                      onChange={handlePhoneChange}
+                      placeholder="Enter 10-digit phone number"
+                      disabled={isSubmitting}
+                      className="flex-1 px-3 py-2 border rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      required
+                    />
+                  </div>
+                  {/* Phone validation error message */}
+                  {phoneError && (
+                    <p className="mt-1 text-sm text-red-600">{phoneError}</p>
+                  )}
+                  {/* Optional: Show digit count */}
+                  <div className="flex justify-between mt-1">
+                    <p className="text-xs text-gray-500">
+                      Must be exactly 10 digits
+                    </p>
+                    <p className={`text-xs ${phone.length === 10 ? 'text-green-600' : 'text-gray-500'}`}>
+                      {phone.length}/10 digits
+                    </p>
+                  </div>
+                </div>
 
                 <SubmitButton loading={isSubmitting} text="Submit" />
               </form>
@@ -173,33 +241,7 @@ function InputField({ label, type = "text", disabled, ...props }) {
   );
 }
 
-// Reusable Phone Input
-function PhoneInput({ value, onChange, disabled }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium mb-1 text-gray-700">
-        Phone Number
-      </label>
-      <div className="flex">
-        <span className="flex items-center px-3 py-2 bg-gray-100 rounded-l-md border border-r-0 text-gray-600">
-          India +91
-        </span>
-        <input
-          type="tel"
-          name="phone"
-          value={value}
-          onChange={onChange}
-          placeholder="Enter Phone Number"
-          disabled={disabled}
-          className="flex-1 px-3 py-2 border rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
-          required
-        />
-      </div>
-    </div>
-  );
-}
-
-// Reusable Submit Button with Loader
+// Submit Button with Loader (unchanged)
 function SubmitButton({ loading, text }) {
   return (
     <button

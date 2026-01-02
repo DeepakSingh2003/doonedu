@@ -1,22 +1,82 @@
 "use client";
 import { useModal } from "../contexts/ModalContext";
 import { X, User, Mail, Phone, GraduationCap, Send } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ApplyModal({ schoolId, schoolName }) {
   const { closeModal } = useModal();
   const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', or 'error'
+  const [phoneError, setPhoneError] = useState("");
+  const [phoneValue, setPhoneValue] = useState("");
+
+  const validatePhone = (phone) => {
+    // Remove all non-digit characters
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Check if it's exactly 10 digits
+    if (cleaned.length !== 10) {
+      return "Phone number must be exactly 10 digits";
+    }
+    
+    // Check if it starts with 6, 7, 8, or 9 (valid Indian mobile numbers)
+    if (!/^[6-9]/.test(cleaned)) {
+      return "Phone number must start with 6, 7, 8, or 9";
+    }
+    
+    // Additional validation: Check if all digits are not the same
+    if (/^(\d)\1{9}$/.test(cleaned)) {
+      return "Please enter a valid phone number";
+    }
+    
+    return "";
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    
+    // Allow only digits
+    const numericValue = value.replace(/\D/g, '');
+    
+    // Limit to 10 digits
+    const trimmedValue = numericValue.slice(0, 10);
+    
+    setPhoneValue(trimmedValue);
+    
+    // Validate in real-time
+    if (trimmedValue.length === 10) {
+      const error = validatePhone(trimmedValue);
+      setPhoneError(error);
+    } else {
+      setPhoneError(trimmedValue.length > 0 ? "Phone number must be exactly 10 digits" : "");
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    if (phoneValue.length > 0) {
+      const error = validatePhone(phoneValue);
+      setPhoneError(error);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitStatus(null);
+    
+    // Validate phone before submission
+    const phone = phoneValue;
+    const phoneValidationError = validatePhone(phone);
+    
+    if (phoneValidationError) {
+      setPhoneError(phoneValidationError);
+      return;
+    }
 
     const formData = new FormData(e.target);
     const apiData = new FormData();
     apiData.append("name", formData.get("parentName"));
     apiData.append("student_name", formData.get("studentName"));
     apiData.append("email", formData.get("email"));
-    apiData.append("phone", formData.get("phone"));
+    apiData.append("phone", phone); // Use the validated phone value
     apiData.append("student_class", formData.get("class"));
     apiData.append("message", formData.get("message"));
     apiData.append("school_id", schoolId);
@@ -36,7 +96,7 @@ export default function ApplyModal({ schoolId, schoolName }) {
           event: "apply_form_submit",
           parent_name: formData.get("parentName"),
           student_name: formData.get("studentName"),
-          user_phone: formData.get("phone"),
+          user_phone: phone,
           user_email: formData.get("email"),
           student_class: formData.get("class"),
           school_name: schoolName,
@@ -147,16 +207,26 @@ export default function ApplyModal({ schoolId, schoolName }) {
                     +91
                   </div>
                   <input
-                    type="tel"
+                    type="text"
                     id="phone"
                     name="phone"
                     placeholder="10-digit Mobile Number"
                     className="flex-1 p-3 focus:outline-none text-sm"
+                    value={phoneValue}
+                    onChange={handlePhoneChange}
+                    onBlur={handlePhoneBlur}
                     required
-                    pattern="[0-9]{10}"
-                    maxLength="10"
+                    inputMode="numeric"
                   />
                 </div>
+                {phoneError && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center">
+                    <span className="mr-1">⚠</span> {phoneError}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9
+                </p>
               </div>
 
               {/* Email */}
@@ -268,7 +338,10 @@ export default function ApplyModal({ schoolId, schoolName }) {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-700 transition font-semibold flex items-center justify-center gap-2 cursor-pointer"
+                disabled={!!phoneError}
+                className={`w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-700 transition font-semibold flex items-center justify-center gap-2 cursor-pointer ${
+                  phoneError ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 <Send size={18} /> Submit Application
               </button>

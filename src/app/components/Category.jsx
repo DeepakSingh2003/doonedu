@@ -1,6 +1,6 @@
 "use client";
 import { FaEye, FaCheckCircle, FaCrown } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ChevronDown, ChevronUp, Heart, Phone, Filter, X } from "lucide-react";
 import Link from "next/link";
 import { useModal } from "../contexts/ModalContext";
@@ -8,14 +8,16 @@ import ApplyModal from "../components/ApplyModal";
 import EnquireModal from "../components/EnquireModal";
 import { useWishlist } from "../contexts/WishlistContext";
 import { useSearchParams, usePathname } from "next/navigation";
-import DOMPurify from "dompurify";
 
 export default function Category({ categoryData }) {
   // Filter schools to only include those with deleted_at: null
-  const schoolsData =
-    categoryData?.response.data.schools_list.filter(
-      (school) => school.deleted_at === null
-    ) || [];
+  const schoolsData = useMemo(
+    () =>
+      categoryData?.response.data.schools_list.filter(
+        (school) => school.deleted_at === null
+      ) || [],
+    [categoryData]
+  );
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -37,7 +39,26 @@ export default function Category({ categoryData }) {
   const [showMoreHighlights, setShowMoreHighlights] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState({});
+  const [isClient, setIsClient] = useState(false);
+  const [decodedAboutContent, setDecodedAboutContent] = useState({});
   const { openModal } = useModal();
+
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Decode about content on client side only
+    const decoded = {};
+    schoolsData.forEach((school) => {
+      if (school.about) {
+        try {
+          decoded[school.id] = decodeBase64(school.about);
+        } catch (e) {
+          decoded[school.id] = "";
+        }
+      }
+    });
+    setDecodedAboutContent(decoded);
+  }, [schoolsData]);
 
   // Helper: Fee range
   const getFeeRange = (fee) => {
@@ -62,9 +83,9 @@ export default function Category({ categoryData }) {
     });
   };
 
-  // Decode base64
+  // Decode base64 - Client only
   const decodeBase64 = (str) => {
-    if (!str) return "";
+    if (!str || typeof window === "undefined") return "";
     try {
       return decodeURIComponent(escape(window.atob(str)));
     } catch (e) {
@@ -72,17 +93,64 @@ export default function Category({ categoryData }) {
     }
   };
 
-  // Strip HTML for length
+  // Strip HTML for length - SAFE for SSR
   const stripHtml = (html) => {
     if (!html) return "";
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
+    // Use simple regex for both server and client
+    return html.replace(/<[^>]*>?/gm, "");
+  };
+
+  // Parse FAQ content
+  const parseFaqContent = () => {
+    if (!categoryData?.response?.data?.footer_content) return [];
+    try {
+      if (typeof window === "undefined") return [];
+      
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(
+        categoryData.response.data.footer_content,
+        "text/html"
+      );
+      const faqWrappers = doc.querySelectorAll(".faq-location-wrapper");
+      return Array.from(faqWrappers).map((wrapper) => {
+        const question =
+          wrapper.querySelector(".faq-question")?.textContent || "";
+        const answer = wrapper.querySelector(".faq-answer")?.innerHTML || "";
+        // Use simple regex to clean HTML on both server and client
+        return { question, answer: answer.replace(/<[^>]*>?/gm, "") };
+      });
+    } catch (error) {
+      console.error("Error parsing FAQ content:", error);
+      return [];
+    }
+  };
+
+  const faqItems = useMemo(() => parseFaqContent(), [categoryData]);
+
+  // Description
+  const hasHighlights = useMemo(() => {
+    if (!categoryData?.response?.data?.location_descripton) return false;
+    const stripped = stripHtml(categoryData.response.data.location_descripton);
+    return stripped.trim().length > 0;
+  }, [categoryData]);
+
+  // Dynamic Heading
+  const getCategoryHeading = () => {
+    const pageTitle = categoryData?.response?.data?.page_title;
+    if (pageTitle) return pageTitle;
+
+    // Fallback from URL
+    const path = pathname.replace("/best-", "").replace("-in-india", "");
+    const formatted = path
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+    return formatted;
   };
 
   // SEO: Update title & meta
   useEffect(() => {
-    if (categoryData?.response?.data?.seo_html) {
+    if (categoryData?.response?.data?.seo_html && typeof window !== "undefined") {
       const parser = new DOMParser();
       const doc = parser.parseFromString(
         categoryData.response.data.seo_html,
@@ -95,14 +163,14 @@ export default function Category({ categoryData }) {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content");
       if (description) {
-        const meta = document.querySelector('meta[name="description"]');
+        let meta = document.querySelector('meta[name="description"]');
         if (meta) {
           meta.setAttribute("content", description);
         } else {
-          const newMeta = document.createElement("meta");
-          newMeta.name = "description";
-          newMeta.content = description;
-          document.head.appendChild(newMeta);
+          meta = document.createElement("meta");
+          meta.name = "description";
+          meta.content = description;
+          document.head.appendChild(meta);
         }
       }
     }
@@ -116,7 +184,8 @@ export default function Category({ categoryData }) {
 
     if (feeRange) {
       if (feeRange === "below_rs50000") newFilters.fees = ["Under 1 Lac"];
-      else if (feeRange === "rs50000_rs100000") newFilters.fees = ["Under 3 Lac"];
+      else if (feeRange === "rs50000_rs100000")
+        newFilters.fees = ["Under 3 Lac"];
       else if (feeRange === "rs100000_rs200000")
         newFilters.fees = [
           "Above 3 Lac And Under 5 Lac",
@@ -193,93 +262,54 @@ export default function Category({ categoryData }) {
   };
 
   // Filter & Sort
-  const filteredSchools = schoolsData.filter((school) => {
-    if (school.deleted_at !== null) return false;
+  const filteredSchools = useMemo(() => {
+    return schoolsData.filter((school) => {
+      if (school.deleted_at !== null) return false;
 
-    if (filters.fees.length > 0) {
-      const schoolFeeRange = getFeeRange(school.average_fee);
-      if (!filters.fees.includes(schoolFeeRange)) return false;
-    }
+      if (filters.fees.length > 0) {
+        const schoolFeeRange = getFeeRange(school.average_fee);
+        if (!filters.fees.includes(schoolFeeRange)) return false;
+      }
 
-    if (filters.board.length > 0) {
-      const schoolBoard = school.board?.title || "";
-      if (
-        !filters.board.some((b) =>
-          schoolBoard.toLowerCase().includes(b.toLowerCase())
+      if (filters.board.length > 0) {
+        const schoolBoard = school.board?.title || "";
+        if (
+          !filters.board.some((b) =>
+            schoolBoard.toLowerCase().includes(b.toLowerCase())
+          )
         )
-      )
-        return false;
-    }
+          return false;
+      }
 
-    if (filters.gender.length > 0) {
-      const schoolGender = school.classification?.title || "";
-      if (
-        !filters.gender.some((g) =>
-          schoolGender.toLowerCase().includes(g.toLowerCase())
+      if (filters.gender.length > 0) {
+        const schoolGender = school.classification?.title || "";
+        if (
+          !filters.gender.some((g) =>
+            schoolGender.toLowerCase().includes(g.toLowerCase())
+          )
         )
-      )
-        return false;
-    }
+          return false;
+      }
 
-    return true;
-  });
+      return true;
+    });
+  }, [schoolsData, filters]);
 
-  const sortedSchools = [...filteredSchools].sort((a, b) => {
-    if (sortBy === "fee-high-to-low") {
-      const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
-      const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
-      return feeB - feeA;
-    }
-    if (sortBy === "fee-low-to-high") {
-      const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
-      const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
-      return feeA - feeB;
-    }
-    return 0;
-  });
-
-  // Parse FAQ
-  const parseFaqContent = () => {
-    if (!categoryData?.response?.data?.footer_content) return [];
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(
-        categoryData.response.data.footer_content,
-        "text/html"
-      );
-      const faqWrappers = doc.querySelectorAll(".faq-location-wrapper");
-      return Array.from(faqWrappers).map((wrapper) => {
-        const question =
-          wrapper.querySelector(".faq-question")?.textContent || "";
-        const answer = wrapper.querySelector(".faq-answer")?.innerHTML || "";
-        return { question, answer: DOMPurify.sanitize(answer) };
-      });
-    } catch (error) {
-      console.error("Error parsing FAQ content:", error);
-      return [];
-    }
-  };
-
-  const faqItems = parseFaqContent();
-
-  // Description
-  const hasHighlights =
-    categoryData?.response?.data?.location_descripton &&
-    stripHtml(categoryData.response.data.location_descripton).trim().length > 0;
-
-  // Dynamic Heading
-  const getCategoryHeading = () => {
-    const pageTitle = categoryData?.response?.data?.page_title;
-    if (pageTitle) return pageTitle;
-
-    // Fallback from URL
-    const path = pathname.replace("/best-", "").replace("-in-india", "");
-    const formatted = path
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-    return formatted;
-  };
+  const sortedSchools = useMemo(() => {
+    return [...filteredSchools].sort((a, b) => {
+      if (sortBy === "fee-high-to-low") {
+        const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
+        const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
+        return feeB - feeA;
+      }
+      if (sortBy === "fee-low-to-high") {
+        const feeA = parseFloat(a.average_fee?.replace(/[^0-9.]/g, "") || 0);
+        const feeB = parseFloat(b.average_fee?.replace(/[^0-9.]/g, "") || 0);
+        return feeA - feeB;
+      }
+      return 0;
+    });
+  }, [filteredSchools, sortBy]);
 
   const SidebarContent = () => (
     <>
@@ -388,6 +418,30 @@ export default function Category({ categoryData }) {
     </>
   );
 
+  // Get truncated description
+  const truncatedDescription = useMemo(() => {
+    if (!hasHighlights) return "";
+    const fullText = stripHtml(
+      categoryData.response.data.location_descripton
+    );
+    if (showMoreHighlights) return fullText;
+    return fullText.slice(0, 300) + (fullText.length > 300 ? "..." : "");
+  }, [categoryData, showMoreHighlights, hasHighlights]);
+
+  // Get sanitized description HTML
+  const getDescriptionHtml = useMemo(() => {
+    if (!hasHighlights) return "";
+    
+    if (showMoreHighlights) {
+      return categoryData.response.data.location_descripton;
+    } else {
+      // For truncated view, remove HTML tags and truncate
+      const stripped = stripHtml(categoryData.response.data.location_descripton);
+      const truncated = stripped.slice(0, 300) + (stripped.length > 300 ? "..." : "");
+      return truncated;
+    }
+  }, [categoryData, showMoreHighlights, hasHighlights]);
+
   return (
     <>
       <div className="max-w-7xl mx-auto px-4 pt-0 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8 sm:pt-20">
@@ -448,7 +502,7 @@ export default function Category({ categoryData }) {
               </h2>
               {hasHighlights &&
                 stripHtml(categoryData.response.data.location_descripton)
-                  .length > 150 && (
+                  .length > 300 && (
                   <button
                     onClick={() => setShowMoreHighlights(!showMoreHighlights)}
                     className="bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm px-4 py-1.5 rounded-full transition-all duration-200"
@@ -460,19 +514,16 @@ export default function Category({ categoryData }) {
             <div className="relative text-gray-700 text-sm leading-relaxed">
               {hasHighlights ? (
                 <>
-                  <div
-                    className="custom-html"
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(
-                        showMoreHighlights
-                          ? categoryData.response.data.location_descripton
-                          : stripHtml(
-                              categoryData.response.data.location_descripton
-                            ).slice(0, 300) + "..."
-                      ),
-                    }}
-                  />
-                  {!showMoreHighlights && (
+                  <div className="custom-html">
+                    {showMoreHighlights ? (
+                      <div dangerouslySetInnerHTML={{
+                        __html: getDescriptionHtml
+                      }} />
+                    ) : (
+                      <span>{truncatedDescription}</span>
+                    )}
+                  </div>
+                  {!showMoreHighlights && truncatedDescription.length > 300 && (
                     <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                   )}
                 </>
@@ -524,6 +575,9 @@ export default function Category({ categoryData }) {
           {sortedSchools.length > 0 ? (
             sortedSchools.map((school) => {
               const isPartnerSchool = school.partner === "2";
+              const aboutContent = decodedAboutContent[school.id] || "";
+              const showReadMoreButton = isClient && aboutContent.length > 140;
+
               return (
                 <Link
                   key={school.id}
@@ -620,9 +674,10 @@ export default function Category({ categoryData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${isPartnerSchool
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-purple-50 text-purple-700"
+                          ${
+                            isPartnerSchool
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-purple-50 text-purple-700"
                           }
                         `}
                         >
@@ -631,9 +686,10 @@ export default function Category({ categoryData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${isPartnerSchool
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-purple-50 text-purple-700"
+                          ${
+                            isPartnerSchool
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-purple-50 text-purple-700"
                           }
                         `}
                         >
@@ -642,9 +698,10 @@ export default function Category({ categoryData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${isPartnerSchool
-                            ? "bg-pink-100 text-pink-700"
-                            : "bg-pink-50 text-pink-700"
+                          ${
+                            isPartnerSchool
+                              ? "bg-pink-100 text-pink-700"
+                              : "bg-pink-50 text-pink-700"
                           }
                         `}
                         >
@@ -653,28 +710,24 @@ export default function Category({ categoryData }) {
                         <span
                           className={`
                           px-2 py-1 text-[0.65rem] rounded-full font-medium
-                          ${isPartnerSchool
-                            ? "bg-green-100 text-green-700"
-                            : "bg-green-50 text-green-700"
+                          ${
+                            isPartnerSchool
+                              ? "bg-green-100 text-green-700"
+                              : "bg-green-50 text-green-700"
                           }
                         `}
                         >
                           Class {school.grade?.title}
                         </span>
                       </div>
-                      {school.about && (
+                      {aboutContent && (
                         <div className="text-xs text-gray-700 mt-2">
-                          <span
-                            dangerouslySetInnerHTML={{
-                              __html: DOMPurify.sanitize(
-                                expanded[`about-${school.id}`]
-                                  ? decodeBase64(school.about)
-                                  : decodeBase64(school.about).slice(0, 150) +
-                                      "..."
-                              ),
-                            }}
-                          />
-                          {decodeBase64(school.about).length > 140 && (
+                          <span>
+                            {expanded[`about-${school.id}`]
+                              ? aboutContent
+                              : aboutContent.slice(0, 140) + "..."}
+                          </span>
+                          {showReadMoreButton && (
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -685,7 +738,7 @@ export default function Category({ categoryData }) {
                                     !prev[`about-${school.id}`],
                                 }));
                               }}
-                              className="text-red-500 font-medium cursor-pointer"
+                              className="text-red-500 font-medium cursor-pointer ml-1"
                             >
                               {expanded[`about-${school.id}`]
                                 ? "Read less"
@@ -713,9 +766,10 @@ export default function Category({ categoryData }) {
                           onClick={(e) => handleApplyNow(school, e)}
                           className={`
                             px-3 py-1.5 text-white text-xs rounded-lg hover:bg-green-700 transition cursor-pointer
-                            ${isPartnerSchool
-                              ? "bg-purple-600 hover:bg-purple-700"
-                              : "bg-green-600 hover:bg-green-700"
+                            ${
+                              isPartnerSchool
+                                ? "bg-purple-600 hover:bg-purple-700"
+                                : "bg-green-600 hover:bg-green-700"
                             }
                           `}
                         >
@@ -827,10 +881,9 @@ export default function Category({ categoryData }) {
                               ></path>
                             </svg>
                           </div>
-                          <div
-                            className="text-sm text-gray-700 leading-relaxed prose prose-sm"
-                            dangerouslySetInnerHTML={{ __html: faq.answer }}
-                          />
+                          <div className="text-sm text-gray-700 leading-relaxed prose prose-sm">
+                            {faq.answer}
+                          </div>
                         </div>
                       </div>
                     )}

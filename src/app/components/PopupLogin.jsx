@@ -24,8 +24,39 @@ const Popuplogin = () => {
     }
   }, [isLoggedIn]);
 
+  // Function to validate phone number
+  const validatePhoneNumber = (phoneNumber) => {
+    // Remove all non-digit characters
+    const cleanedPhone = phoneNumber.replace(/\D/g, '');
+    
+    // Check if it's exactly 10 digits and starts with 6,7,8, or 9
+    const phoneRegex = /^[6-9]\d{9}$/;
+    return phoneRegex.test(cleanedPhone);
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    
+    // Allow only numbers and limit to 10 digits
+    const numericValue = value.replace(/\D/g, '').slice(0, 10);
+    setPhone(numericValue);
+    
+    // Clear error when user starts typing again
+    if (showError && errorMessage.includes("phone")) {
+      setShowError(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate phone number before submission
+    if (!validatePhoneNumber(phone)) {
+      setErrorMessage("Please enter a valid 10-digit Indian mobile number (starting with 6, 7, 8, or 9)");
+      setShowError(true);
+      return;
+    }
+    
     setIsLoading(true);
     setShowError(false);
 
@@ -208,10 +239,11 @@ const Popuplogin = () => {
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+91 e.g. 9434333174"
+                  onChange={handlePhoneChange}
+                  placeholder="10-digit mobile number (e.g., 9434333174)"
                   required
                   disabled={isLoading}
+                  maxLength="10"
                   style={{
                     width: "100%",
                     padding: "12px 14px",
@@ -223,6 +255,15 @@ const Popuplogin = () => {
                     opacity: isLoading ? 0.6 : 1,
                   }}
                 />
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#6b7280",
+                    marginTop: "4px",
+                  }}
+                >
+                  Enter 10-digit number starting with 6, 7, 8, or 9
+                </div>
               </div>
 
               <button
