@@ -16,7 +16,7 @@ export default function TopSchoolCategories() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 justify-items-center">
           {/* Card 1 - Affordable Boarding Schools */}
           <Link
-            href="#"
+            href="/affordable-boarding-schools-in-india-2026-27"
             className="shadow-md rounded-sm bg-white p-4 sm:p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[280px] h-[200px] relative"
           >
             <img
@@ -71,7 +71,7 @@ export default function TopSchoolCategories() {
 
           {/* Card 4 - Fully Residential Schools */}
           <Link
-            href="#"
+            href="/residential-boarding-schools-in-india-2026-27"
             className="shadow-md rounded-sm bg-white p-4 sm:p-6 flex flex-col items-center justify-center text-center hover:shadow-lg transition-all duration-300 w-full max-w-[280px] h-[200px] relative"
           >
             <img

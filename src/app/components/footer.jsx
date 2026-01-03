@@ -441,7 +441,7 @@ export default function Footer() {
                     name: "Central India",
                     href: "/boarding-schools-in-central-india-2026-27",
                   },
-                  { name: "East India", href: "/boarding-schools-east-india" },
+                  { name: "East India", href: "/boarding-schools-in-east-india-2026-27" },
                   { name: "West India", href: "/boarding-schools-in-west-india-2026-27" },
                   {
                     name: "Best Boarding Schools In India",
@@ -462,6 +462,10 @@ export default function Footer() {
                   {
                     name: "Best International Boarding Schools In India",
                     href: "/international-boarding-schools-in-india-2026-27",
+                  },
+                  {
+                    name: "Best Featured Boarding Schools In India",
+                    href: "/featured-boarding-schools-in-india-2026-27",
                   },
                   {
                     name: "Top Boarding Schools Of Delhi NCR",
