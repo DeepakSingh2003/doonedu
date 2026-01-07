@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   FaSchool,
   FaMapMarkerAlt,
@@ -58,6 +58,10 @@ import ApplyModal from "../components/ApplyModal";
 import EnquireModal from "../components/EnquireModal";
 
 export default function SchoolProfile({ school, seo }) {
+  // Add this at the top of your component to detect preview mode
+  const searchParams = useSearchParams();
+  const isPreviewMode = searchParams.get("preview") !== null;
+
   // Check if school is a partner (partner: "2")
   const isPartnerSchool = school?.school?.partner === "2";
   // Default contact number for non-partner schools
@@ -83,7 +87,7 @@ export default function SchoolProfile({ school, seo }) {
   const [parsedAwards, setParsedAwards] = useState([]);
   const [parsedHighlights, setParsedHighlights] = useState("");
   const [parsedFeeStructure, setParsedFeeStructure] = useState("");
-  
+
   // Mobile gallery slider state
   const [currentMobileSlide, setCurrentMobileSlide] = useState(0);
   const [isClient, setIsClient] = useState(false);
@@ -280,7 +284,7 @@ export default function SchoolProfile({ school, seo }) {
   useEffect(() => {
     if (transformedGallery.length > 1 && isClient) {
       autoPlayRef.current = setInterval(() => {
-        setCurrentMobileSlide((prev) => 
+        setCurrentMobileSlide((prev) =>
           prev === transformedGallery.length - 1 ? 0 : prev + 1
         );
       }, 3000); // Change slide every 3 seconds
@@ -300,7 +304,7 @@ export default function SchoolProfile({ school, seo }) {
     }
     if (isClient && transformedGallery.length > 1) {
       autoPlayRef.current = setInterval(() => {
-        setCurrentMobileSlide((prev) => 
+        setCurrentMobileSlide((prev) =>
           prev === transformedGallery.length - 1 ? 0 : prev + 1
         );
       }, 3000);
@@ -309,14 +313,14 @@ export default function SchoolProfile({ school, seo }) {
 
   // Mobile gallery slider navigation
   const nextMobileSlide = () => {
-    setCurrentMobileSlide((prev) => 
+    setCurrentMobileSlide((prev) =>
       prev === transformedGallery.length - 1 ? 0 : prev + 1
     );
     resetAutoPlay();
   };
 
   const prevMobileSlide = () => {
-    setCurrentMobileSlide((prev) => 
+    setCurrentMobileSlide((prev) =>
       prev === 0 ? transformedGallery.length - 1 : prev - 1
     );
     resetAutoPlay();
@@ -326,6 +330,7 @@ export default function SchoolProfile({ school, seo }) {
   const handleRequestCallBack = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isPreviewMode) return; // Don't open modal in preview mode
     openModal(
       <EnquireModal
         schoolId={school?.school?.id || "unknown"}
@@ -337,6 +342,7 @@ export default function SchoolProfile({ school, seo }) {
   const handleCallNow = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isPreviewMode) return; // Don't call in preview mode
     // Use school phone for partner schools, default number for non-partner schools
     const phoneNumber = isPartnerSchool
       ? school?.school?.phone
@@ -349,6 +355,7 @@ export default function SchoolProfile({ school, seo }) {
   const handleApplyNow = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isPreviewMode) return; // Don't open modal in preview mode
     openModal(
       <ApplyModal
         schoolId={school?.school?.id || "unknown"}
@@ -359,6 +366,7 @@ export default function SchoolProfile({ school, seo }) {
 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
+    if (isPreviewMode) return; // Don't submit in preview mode
     console.log("Review submitted:", reviewForm);
     setReviewForm({ rating: 0, review: "", parentName: "" });
   };
@@ -408,6 +416,7 @@ export default function SchoolProfile({ school, seo }) {
   const handleSimilarSchoolClick = (schoolObj, e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isPreviewMode) return; // Don't navigate in preview mode
     router.push(`/${schoolObj.url}`);
   };
 
@@ -472,10 +481,21 @@ export default function SchoolProfile({ school, seo }) {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen ">
+    <div className="bg-gray-50 min-h-screen">
+      {/* Preview Mode Header - Show school name at top when in preview mode */}
+      {isPreviewMode && (
+        <div className="fixed top-0 left-0 right-0 bg-white shadow-lg z-50 py-4 px-6 text-center border-b border-gray-200">
+          <h1 className="text-xl font-bold text-gray-800">
+            {school?.school?.school_title || "Unknown School"} |{" "}
+            {school?.city_title || "Unknown City"}
+          </h1>
+        </div>
+      )}
+
+      {/* Gallery Modal - Now works in preview mode too */}
       {showGalleryModal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col items-center justify-center p-4"
+          className="fixed inset-0 bg-black bg-opacity-90 z-[60] flex flex-col items-center justify-center p-4"
           onClick={closeGalleryModal}
         >
           <button
@@ -571,7 +591,11 @@ export default function SchoolProfile({ school, seo }) {
         </div>
       )}
 
-      <div className="relative mt-2 sm:mt-14 px-4 sm:px-20">
+      <div
+        className={`relative px-4 sm:px-20 ${
+          isPreviewMode ? "pt-24" : "mt-2 sm:mt-14"
+        }`}
+      >
         {/* Desktop Gallery View */}
         <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-4 h-auto">
           <div className="col-span-1 md:col-span-2 h-full">
@@ -604,7 +628,7 @@ export default function SchoolProfile({ school, seo }) {
         {/* Mobile Gallery Slider with Autoplay - Hidden arrows and dots */}
         <div className="md:hidden relative">
           <div className="relative overflow-hidden rounded-lg">
-            <div 
+            <div
               className="flex transition-transform duration-300 ease-in-out"
               style={{ transform: `translateX(-${currentMobileSlide * 100}%)` }}
             >
@@ -621,7 +645,12 @@ export default function SchoolProfile({ school, seo }) {
           </div>
         </div>
 
-        <div className="absolute top-[13rem] right-8 sm:right-20 flex gap-2 sm:top-[22rem]">
+        {/* View Gallery button - Now works in preview mode too */}
+        <div
+          className={`absolute ${
+            isPreviewMode ? "top-[13rem]" : "top-[13rem] sm:top-[22rem]"
+          } right-8 sm:right-20 flex gap-2`}
+        >
           <button
             onClick={() => openGalleryModal()}
             className="text-white text-xs sm:text-sm bg-purple-600/80 px-3 py-2 rounded-full hover:bg-purple-700 flex items-center gap-1 cursor-pointer"
@@ -634,47 +663,52 @@ export default function SchoolProfile({ school, seo }) {
 
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex flex-col lg:flex-row gap-6">
-          <div className="w-full lg:w-2/3">
+          <div
+            className={`w-full ${!isPreviewMode ? "lg:w-2/3" : "lg:w-full"}`}
+          >
             {/* Main School Card */}
             <div
               className={`
               rounded-xl shadow-lg p-6 mb-6 border relative
               ${
-                isPartnerSchool
+                isPartnerSchool && !isPreviewMode
                   ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 shadow-blue-200"
                   : "bg-white border-gray-100"
               }
             `}
             >
-              {isPartnerSchool && (
+              {isPartnerSchool && !isPreviewMode && (
                 <div className="absolute -top-3 -right-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-10">
                   <FaCrown className="h-4 w-4" />
                   <span className="text-xs font-bold">PARTNER SCHOOL</span>
                 </div>
               )}
 
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
-                {isPartnerSchool && (
-                  <FaCheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2" />
-                )}
-                {school?.isVerified && !isPartnerSchool && (
-                  <svg
-                    className="w-8 h-8 sm:w-5 sm:h-5 text-green-600 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                  </svg>
-                )}
-                {school?.school?.school_title || "Unknown School"} |{" "}
-                {school?.city_title || "Unknown City"}
-              </h2>
+              {/* Hide school name in preview mode since we show it in header */}
+              {!isPreviewMode && (
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
+                  {isPartnerSchool && !isPreviewMode && (
+                    <FaCheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2" />
+                  )}
+                  {school?.isVerified && !isPartnerSchool && !isPreviewMode && (
+                    <svg
+                      className="w-8 h-8 sm:w-5 sm:h-5 text-green-600 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                  )}
+                  {school?.school?.school_title || "Unknown School"} |{" "}
+                  {school?.city_title || "Unknown City"}
+                </h2>
+              )}
 
               <p className="text-gray-600 mt-1 flex items-center text-sm sm:text-base">
                 <FaMapMarkerAlt
                   className={`h-4 w-4 mr-4 ${
-                    isPartnerSchool ? "text-blue-600" : ""
+                    isPartnerSchool && !isPreviewMode ? "text-blue-600" : ""
                   }`}
                 />
                 {school?.school?.address || "Address not specified"}
@@ -685,7 +719,7 @@ export default function SchoolProfile({ school, seo }) {
                   className={`
                   flex items-center px-3 py-1 rounded-full text-sm sm:text-base
                   ${
-                    isPartnerSchool
+                    isPartnerSchool && !isPreviewMode
                       ? "bg-blue-100 text-blue-800"
                       : "text-gray-700 bg-green-50"
                   }
@@ -693,7 +727,9 @@ export default function SchoolProfile({ school, seo }) {
                 >
                   <FaHome
                     className={`h-4 w-4 mr-1 ${
-                      isPartnerSchool ? "text-blue-600" : "text-green-500"
+                      isPartnerSchool && !isPreviewMode
+                        ? "text-blue-600"
+                        : "text-green-500"
                     }`}
                   />
                   <span className="font-medium">Boarding</span> - ₹
@@ -706,7 +742,7 @@ export default function SchoolProfile({ school, seo }) {
                   className={`
                   px-3 py-1 rounded-full text-xs sm:text-sm flex items-center
                   ${
-                    isPartnerSchool
+                    isPartnerSchool && !isPreviewMode
                       ? "bg-blue-200 text-blue-800"
                       : "bg-blue-100 text-blue-800"
                   }
@@ -719,7 +755,7 @@ export default function SchoolProfile({ school, seo }) {
                   className={`
                   px-3 py-1 rounded-full text-xs sm:text-sm flex items-center
                   ${
-                    isPartnerSchool
+                    isPartnerSchool && !isPreviewMode
                       ? "bg-pink-200 text-pink-800"
                       : "bg-pink-100 text-pink-800"
                   }
@@ -728,42 +764,45 @@ export default function SchoolProfile({ school, seo }) {
                   <GenderIcon />
                   {school?.school?.classification?.title || "Not specified"}
                 </span>
-                <div className="ml-auto flex gap-2 mt-2 sm:mt-0">
-                  {isPartnerSchool ? (
+                {/* Only show action buttons if not in preview mode */}
+                {!isPreviewMode && (
+                  <div className="ml-auto flex gap-2 mt-2 sm:mt-0">
+                    {isPartnerSchool ? (
+                      <button
+                        onClick={handleRequestCallBack}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer"
+                      >
+                        <Phone className="h-4 w-4 mr-1" />
+                        Request a Call Back
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleCallNow}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer"
+                      >
+                        <Phone className="h-4 w-4 mr-1" />
+                        Call Now
+                      </button>
+                    )}
                     <button
-                      onClick={handleRequestCallBack}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer"
+                      onClick={handleApplyNow}
+                      className={`
+                        text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer
+                        ${
+                          isPartnerSchool
+                            ? "bg-purple-600 hover:bg-purple-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }
+                      `}
                     >
-                      <Phone className="h-4 w-4 mr-1" />
-                      Request a Call Back
+                      <FaFileAlt className="h-4 w-4 mr-1" />
+                      Enquire Now
                     </button>
-                  ) : (
-                    <button
-                      onClick={handleCallNow}
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer"
-                    >
-                      <Phone className="h-4 w-4 mr-1" />
-                      Call Now
-                    </button>
-                  )}
-                  <button
-                    onClick={handleApplyNow}
-                    className={`
-                      text-white px-4 py-2 rounded-full text-xs sm:text-sm flex items-center cursor-pointer
-                      ${
-                        isPartnerSchool
-                          ? "bg-purple-600 hover:bg-purple-700"
-                          : "bg-green-600 hover:bg-green-700"
-                      }
-                    `}
-                  >
-                    <FaFileAlt className="h-4 w-4 mr-1" />
-                    Enquire Now
-                  </button>
-                </div>
+                  </div>
+                )}
               </div>
 
-              {isPartnerSchool && (
+              {isPartnerSchool && !isPreviewMode && (
                 <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200">
                   <div className="flex items-center gap-2 text-blue-800 text-sm font-medium">
                     <FaCheckCircle className="h-4 w-4" />
@@ -1404,386 +1443,399 @@ export default function SchoolProfile({ school, seo }) {
             {/* Blue Line Partition after Frequently Asked Questions */}
             <div className="w-full h-1 bg-[#1447E6] rounded-full my-6"></div>
 
-            {/* Reviews */}
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
-              <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
-                <FaComment className="h-5 w-5 mr-2 text-blue-500" />
-                Reviews
-              </h3>
-              <div className="mt-6 bg-green-50 p-4 rounded-lg border border-green-100">
-                <h3 className="text-lg font-bold mb-2 text-green-800">
-                  Global Edu.Consulting Rating Score
+            {/* Reviews - Only show if not in preview mode */}
+            {!isPreviewMode && (
+              <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+                <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center">
+                  <FaComment className="h-5 w-5 mr-2 text-blue-500" />
+                  Reviews
                 </h3>
-                <p className="text-sm text-gray-600 mb-2">
-                  Our Counsellors provide these ratings to this school
-                </p>
-                <div className="flex justify-center mb-2">
-                  <span className="text-2xl font-bold text-green-700">
-                    4.9 out of 5
-                  </span>
+                <div className="mt-6 bg-green-50 p-4 rounded-lg border border-green-100">
+                  <h3 className="text-lg font-bold mb-2 text-green-800">
+                    Global Edu.Consulting Rating Score
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Our Counsellors provide these ratings to this school
+                  </p>
+                  <div className="flex justify-center mb-2">
+                    <span className="text-2xl font-bold text-green-700">
+                      4.9 out of 5
+                    </span>
+                  </div>
+                  <div className="flex justify-center items-center gap-4 text-center mt-4 sm:gap-36">
+                    <div>
+                      <div className="flex justify-center mb-1">
+                        <span className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                          <FaBuilding className="text-green-500" size={24} />
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">Infrastructure</p>
+                      <p className="font-bold text-green-600">4.6/5</p>
+                    </div>
+                    <div>
+                      <div className="flex justify-center mb-1">
+                        <span className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                          <FaUsers className="text-green-500" size={24} />
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">Academics</p>
+                      <p className="font-bold text-green-600">4.5/5</p>
+                    </div>
+                    <div>
+                      <div className="flex justify-center mb-1">
+                        <span className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                          <FaHandsHelping
+                            className="text-green-500"
+                            size={24}
+                          />
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">Facilities</p>
+                      <p className="font-bold text-green-600">4.6/5</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-center items-center gap-4 text-center mt-4 sm:gap-36">
-                  <div>
-                    <div className="flex justify-center mb-1">
-                      <span className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <FaBuilding className="text-green-500" size={24} />
-                      </span>
+                <div className="pt-4">
+                  <h4 className="font-medium mb-3 text-sm sm:text-base">
+                    How would you rate your overall experience with this school?
+                  </h4>
+                  <form onSubmit={handleReviewSubmit} className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          className={`text-xl sm:text-2xl cursor-pointer ${
+                            reviewForm.rating >= star
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                          onClick={() =>
+                            setReviewForm({ ...reviewForm, rating: star })
+                          }
+                        >
+                          ★
+                        </button>
+                      ))}
                     </div>
-                    <p className="text-xs text-gray-600">Infrastructure</p>
-                    <p className="font-bold text-green-600">4.6/5</p>
-                  </div>
-                  <div>
-                    <div className="flex justify-center mb-1">
-                      <span className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <FaUsers className="text-green-500" size={24} />
-                      </span>
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Enter Parent's name"
+                        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
+                        value={reviewForm.parentName}
+                        onChange={(e) =>
+                          setReviewForm({
+                            ...reviewForm,
+                            parentName: e.target.value,
+                          })
+                        }
+                      />
                     </div>
-                    <p className="text-xs text-gray-600">Academics</p>
-                    <p className="font-bold text-green-600">4.5/5</p>
-                  </div>
-                  <div>
-                    <div className="flex justify-center mb-1">
-                      <span className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <FaHandsHelping className="text-green-500" size={24} />
-                      </span>
+                    <div>
+                      <textarea
+                        placeholder="Enter review"
+                        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
+                        rows="3"
+                        value={reviewForm.review}
+                        onChange={(e) =>
+                          setReviewForm({
+                            ...reviewForm,
+                            review: e.target.value,
+                          })
+                        }
+                      />
                     </div>
-                    <p className="text-xs text-gray-600">Facilities</p>
-                    <p className="font-bold text-green-600">4.6/5</p>
-                  </div>
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 font-medium text-sm sm:text-base cursor-pointer"
+                    >
+                      SUBMIT REVIEW
+                    </button>
+                  </form>
                 </div>
               </div>
-              <div className="pt-4">
-                <h4 className="font-medium mb-3 text-sm sm:text-base">
-                  How would you rate your overall experience with this school?
-                </h4>
-                <form onSubmit={handleReviewSubmit} className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        className={`text-xl sm:text-2xl cursor-pointer ${
-                          reviewForm.rating >= star
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                        onClick={() =>
-                          setReviewForm({ ...reviewForm, rating: star })
-                        }
-                      >
-                        ★
-                      </button>
-                    ))}
+            )}
+          </div>
+
+          {/* Sidebar - Only show if not in preview mode */}
+          {!isPreviewMode && (
+            <div className="w-full lg:w-1/3">
+              {/* Counselling */}
+              <div
+                className={`
+                rounded-xl shadow-lg p-6 mb-6 border
+                ${
+                  isPartnerSchool
+                    ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"
+                    : "bg-white border-gray-100"
+                }
+              `}
+              >
+                <h3 className="text-base sm:text-lg font-bold mb-4 text-center text-gray-800 flex items-center justify-center">
+                  <FaComment className="h-5 w-5 mr-2 text-blue-500" />
+                  {isPartnerSchool
+                    ? "PARTNER SCHOOL COUNSELLING"
+                    : "FREE Counselling"}
+                </h3>
+                {isPartnerSchool && (
+                  <div className="mb-4 p-2 bg-blue-100 rounded-lg text-center">
+                    <p className="text-blue-800 text-sm font-medium">
+                      Priority Support for Partner Schools
+                    </p>
                   </div>
+                )}
+                <form className="space-y-4">
                   <div>
                     <input
                       type="text"
                       placeholder="Enter Parent's name"
                       className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
-                      value={reviewForm.parentName}
-                      onChange={(e) =>
-                        setReviewForm({
-                          ...reviewForm,
-                          parentName: e.target.value,
-                        })
-                      }
                     />
                   </div>
                   <div>
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 border border-r-0 rounded-l-lg bg-gray-50 text-gray-600 text-sm sm:text-base">
+                        +91
+                      </span>
+                      <input
+                        type="tel"
+                        placeholder="Enter Parent's mobile"
+                        className="w-full p-3 border rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <select className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer">
+                      <option>Boarding School</option>
+                      <option>Day School</option>
+                    </select>
+                  </div>
+                  <div>
                     <textarea
-                      placeholder="Enter review"
+                      placeholder="Message..."
                       className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
                       rows="3"
-                      value={reviewForm.review}
-                      onChange={(e) =>
-                        setReviewForm({ ...reviewForm, review: e.target.value })
-                      }
                     />
                   </div>
                   <button
                     type="submit"
-                    className="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 font-medium text-sm sm:text-base cursor-pointer"
+                    className={`
+                      w-full text-white py-3 rounded-lg font-medium transition-colors text-sm sm:text-base cursor-pointer
+                      ${
+                        isPartnerSchool
+                          ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                          : "bg-green-600 hover:bg-green-700"
+                      }
+                    `}
                   >
-                    SUBMIT REVIEW
+                    {isPartnerSchool
+                      ? "GET PRIORITY COUNSELLING"
+                      : "GET COUNSELLING"}
                   </button>
                 </form>
               </div>
-            </div>
-          </div>
 
-          {/* Sidebar */}
-          <div className="w-full lg:w-1/3">
-            {/* Counselling */}
-            <div
-              className={`
-              rounded-xl shadow-lg p-6 mb-6 border
-              ${
-                isPartnerSchool
-                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"
-                  : "bg-white border-gray-100"
-              }
-            `}
-            >
-              <h3 className="text-base sm:text-lg font-bold mb-4 text-center text-gray-800 flex items-center justify-center">
-                <FaComment className="h-5 w-5 mr-2 text-blue-500" />
-                {isPartnerSchool
-                  ? "PARTNER SCHOOL COUNSELLING"
-                  : "FREE Counselling"}
-              </h3>
-              {isPartnerSchool && (
-                <div className="mb-4 p-2 bg-blue-100 rounded-lg text-center">
-                  <p className="text-blue-800 text-sm font-medium">
-                    Priority Support for Partner Schools
-                  </p>
-                </div>
-              )}
-              <form className="space-y-4">
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Enter Parent's name"
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
-                  />
-                </div>
-                <div>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 border border-r-0 rounded-l-lg bg-gray-50 text-gray-600 text-sm sm:text-base">
-                      +91
-                    </span>
-                    <input
-                      type="tel"
-                      placeholder="Enter Parent's mobile"
-                      className="w-full p-3 border rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
+              {/* Similar Schools */}
+              <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+                <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2 text-blue-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                     />
-                  </div>
-                </div>
-                <div>
-                  <select className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer">
-                    <option>Boarding School</option>
-                    <option>Day School</option>
-                  </select>
-                </div>
-                <div>
-                  <textarea
-                    placeholder="Message..."
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base cursor-pointer"
-                    rows="3"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className={`
-                    w-full text-white py-3 rounded-lg font-medium transition-colors text-sm sm:text-base cursor-pointer
-                    ${
-                      isPartnerSchool
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                        : "bg-green-600 hover:bg-green-700"
-                    }
-                  `}
-                >
-                  {isPartnerSchool
-                    ? "GET PRIORITY COUNSELLING"
-                    : "GET COUNSELLING"}
-                </button>
-              </form>
-            </div>
-
-            {/* Similar Schools */}
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
-              <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2 text-blue-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-                Similar Schools
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                {similarSchools.length > 0 ? (
-                  similarSchools.map((similarSchool) => (
-                    <div
-                      key={similarSchool.id}
-                      className={`
-                        flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer border
-                        ${
-                          similarSchool.isPartner
-                            ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:bg-blue-100"
-                            : "hover:bg-gray-50 border-gray-100"
-                        }
-                      `}
-                      onClick={(e) =>
-                        handleSimilarSchoolClick(similarSchool, e)
-                      }
-                    >
-                      <div className="bg-gray-200 w-16 h-16 rounded flex-shrink-0 relative">
-                        <img
-                          src={similarSchool.image}
-                          alt={similarSchool.name}
-                          className="w-full h-full object-cover rounded"
-                          onError={(e) => {
-                            e.currentTarget.src = "/placeholder.jpg";
-                          }}
-                        />
-                        {similarSchool.isPartner && (
-                          <div className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full p-1">
-                            <FaCheckCircle className="h-3 w-3" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm sm:text-base">
-                            {similarSchool.name}
-                          </p>
-                          {similarSchool.isPartner && (
-                            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                              <FaCrown className="h-3 w-3" />
-                              Partner
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          {[...Array(5)].map((_, i) => (
-                            <span
-                              key={i}
-                              className={`text-xs sm:text-sm ${
-                                i < Math.floor(similarSchool.rating)
-                                  ? "text-yellow-400"
-                                  : "text-gray-300"
-                              }`}
-                            >
-                              ★
-                            </span>
-                          ))}
-                          <span className="text-gray-600 text-xs sm:text-sm ml-1">
-                            ({similarSchool.votes} views)
-                          </span>
-                        </div>
-                        <p className="text-gray-600 text-xs sm:text-sm">
-                          {similarSchool.location}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4 bg-gray-50 rounded-lg">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-8 w-8 mx-auto text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                      />
-                    </svg>
-                    <p className="text-gray-500 mt-2 text-sm sm:text-base">
-                      No similar schools found
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Related Blogs */}
-            <div className="bg-white rounded-xl p-6 mb-6 border border-gray-100">
-              <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
-                <FaBook className="h-5 w-5 mr-2 text-blue-500" />
-                Related Blog Posts
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                {school?.blogs_in_schools &&
-                school.blogs_in_schools.length > 0 ? (
-                  school.blogs_in_schools.map((blog) => {
-                    const decodedShortDescription = decodeURIComponent(
-                      blog.short_description?.replace(/\+/g, " ") ||
-                        "No description available"
-                    );
-                    const formattedDate = blog.created_at
-                      ? new Date(blog.created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })
-                      : "Date not available";
-                    const imageUrl = blog.thumb_image
-                      ? `${process.env.NEXT_PUBLIC_BLOG_IMAGES_URL}/${blog.id}/${blog.thumb_image}`
-                      : "/placeholder.jpg";
-
-                    return (
+                  </svg>
+                  Similar Schools
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {similarSchools.length > 0 ? (
+                    similarSchools.map((similarSchool) => (
                       <div
-                        key={blog.id}
-                        className="flex flex-col sm:flex-row items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer border border-gray-100"
-                        onClick={() =>
-                          window.open(`/${blog.url || "#"}`, "_blank")
+                        key={similarSchool.id}
+                        className={`
+                          flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer border
+                          ${
+                            similarSchool.isPartner
+                              ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:bg-blue-100"
+                              : "hover:bg-gray-50 border-gray-100"
+                          }
+                        `}
+                        onClick={(e) =>
+                          handleSimilarSchoolClick(similarSchool, e)
                         }
                       >
-                        <div className="bg-gray-200 w-full sm:w-24 h-24 rounded flex-shrink-0 overflow-hidden">
+                        <div className="bg-gray-200 w-16 h-16 rounded flex-shrink-0 relative">
                           <img
-                            src={imageUrl}
-                            alt={blog.title || "Blog Image"}
-                            className="w-full h-full object-cover"
+                            src={similarSchool.image}
+                            alt={similarSchool.name}
+                            className="w-full h-full object-cover rounded"
                             onError={(e) => {
                               e.currentTarget.src = "/placeholder.jpg";
                             }}
                           />
+                          {similarSchool.isPartner && (
+                            <div className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full p-1">
+                              <FaCheckCircle className="h-3 w-3" />
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm sm:text-base line-clamp-2 break-words overflow-hidden text-ellipsis">
-                            {blog.title || "Untitled Blog"}
-                          </p>
-                          <p className="text-gray-500 text-xs mt-1">
-                            {formattedDate} • By{" "}
-                            {blog.auther_name || "Unknown Author"}
-                          </p>
-                          <p className="text-gray-600 text-xs sm:text-sm mt-2 line-clamp-2 break-words overflow-hidden text-ellipsis">
-                            {decodedShortDescription}
-                          </p>
-                          <div className="flex items-center mt-2 text-blue-600 text-xs sm:text-sm">
-                            Read more
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 ml-1"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M14 5l7 7m0 0l-7 7m7-7H3"
-                              />
-                            </svg>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm sm:text-base">
+                              {similarSchool.name}
+                            </p>
+                            {similarSchool.isPartner && (
+                              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                                <FaCrown className="h-3 w-3" />
+                                Partner
+                              </span>
+                            )}
                           </div>
+                          <div className="flex items-center gap-1 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <span
+                                key={i}
+                                className={`text-xs sm:text-sm ${
+                                  i < Math.floor(similarSchool.rating)
+                                    ? "text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              >
+                                ★
+                              </span>
+                            ))}
+                            <span className="text-gray-600 text-xs sm:text-sm ml-1">
+                              ({similarSchool.votes} views)
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-xs sm:text-sm">
+                            {similarSchool.location}
+                          </p>
                         </div>
                       </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-4 bg-gray-50 rounded-lg">
-                    <FaBook className="h-8 w-8 mx-auto text-gray-400" />
-                    <p className="text-gray-500 mt-2 text-sm sm:text-base">
-                      No blog posts available
-                    </p>
-                  </div>
-                )}
+                    ))
+                  ) : (
+                    <div className="text-center py-4 bg-gray-50 rounded-lg">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-8 w-8 mx-auto text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
+                      <p className="text-gray-500 mt-2 text-sm sm:text-base">
+                        No similar schools found
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Related Blogs */}
+              <div className="bg-white rounded-xl p-6 mb-6 border border-gray-100">
+                <h3 className="text-base sm:text-lg font-bold mb-4 text-gray-800 flex items-center">
+                  <FaBook className="h-5 w-5 mr-2 text-blue-500" />
+                  Related Blog Posts
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {school?.blogs_in_schools &&
+                  school.blogs_in_schools.length > 0 ? (
+                    school.blogs_in_schools.map((blog) => {
+                      const decodedShortDescription = decodeURIComponent(
+                        blog.short_description?.replace(/\+/g, " ") ||
+                          "No description available"
+                      );
+                      const formattedDate = blog.created_at
+                        ? new Date(blog.created_at).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )
+                        : "Date not available";
+                      const imageUrl = blog.thumb_image
+                        ? `${process.env.NEXT_PUBLIC_BLOG_IMAGES_URL}/${blog.id}/${blog.thumb_image}`
+                        : "/placeholder.jpg";
+
+                      return (
+                        <div
+                          key={blog.id}
+                          className="flex flex-col sm:flex-row items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer border border-gray-100"
+                          onClick={() =>
+                            window.open(`/${blog.url || "#"}`, "_blank")
+                          }
+                        >
+                          <div className="bg-gray-200 w-full sm:w-24 h-24 rounded flex-shrink-0 overflow-hidden">
+                            <img
+                              src={imageUrl}
+                              alt={blog.title || "Blog Image"}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = "/placeholder.jpg";
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm sm:text-base line-clamp-2 break-words overflow-hidden text-ellipsis">
+                              {blog.title || "Untitled Blog"}
+                            </p>
+                            <p className="text-gray-500 text-xs mt-1">
+                              {formattedDate} • By{" "}
+                              {blog.auther_name || "Unknown Author"}
+                            </p>
+                            <p className="text-gray-600 text-xs sm:text-sm mt-2 line-clamp-2 break-words overflow-hidden text-ellipsis">
+                              {decodedShortDescription}
+                            </p>
+                            <div className="flex items-center mt-2 text-blue-600 text-xs sm:text-sm">
+                              Read more
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 ml-1"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-4 bg-gray-50 rounded-lg">
+                      <FaBook className="h-8 w-8 mx-auto text-gray-400" />
+                      <p className="text-gray-500 mt-2 text-sm sm:text-base">
+                        No blog posts available
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
