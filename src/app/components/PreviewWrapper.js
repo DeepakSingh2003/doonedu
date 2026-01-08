@@ -1,6 +1,4 @@
 "use client";
-
-import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNav from "./BottomNav";
 import Navbar from "./Navbar";
@@ -10,12 +8,17 @@ import Popuplogin from "./PopupLogin";
 import { ToastContainer } from "react-toastify";
 
 export default function PreviewWrapper({ children }) {
-  const searchParams = useSearchParams();
-  const isPreview = searchParams.get("preview") !== null;
+  const [isPreview, setIsPreview] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+
+    // Check for preview mode on client side only
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setIsPreview(params.get("preview") !== null);
+    }
   }, []);
 
   if (!isClient) {

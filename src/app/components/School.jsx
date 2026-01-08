@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   FaSchool,
   FaMapMarkerAlt,
@@ -58,9 +58,9 @@ import ApplyModal from "../components/ApplyModal";
 import EnquireModal from "../components/EnquireModal";
 
 export default function SchoolProfile({ school, seo }) {
-  // Add this at the top of your component to detect preview mode
-  const searchParams = useSearchParams();
-  const isPreviewMode = searchParams.get("preview") !== null;
+  // Initialize state for preview mode
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   // Check if school is a partner (partner: "2")
   const isPartnerSchool = school?.school?.partner === "2";
@@ -90,12 +90,17 @@ export default function SchoolProfile({ school, seo }) {
 
   // Mobile gallery slider state
   const [currentMobileSlide, setCurrentMobileSlide] = useState(0);
-  const [isClient, setIsClient] = useState(false);
   const autoPlayRef = useRef(null);
 
   // Set isClient to true when component mounts on client
   useEffect(() => {
     setIsClient(true);
+
+    // Get search params safely on client side only
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setIsPreviewMode(params.get("preview") !== null);
+    }
   }, []);
 
   // Helper: Normalize title for comparison
@@ -124,7 +129,7 @@ export default function SchoolProfile({ school, seo }) {
 
   // Parse FAQs, Awards, Highlights, and Fee Structure with multiple title variations
   useEffect(() => {
-    if (seo.seo_html) {
+    if (seo?.seo_html) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(seo.seo_html, "text/html");
       const title = doc.querySelector("title")?.textContent;
@@ -1120,6 +1125,8 @@ export default function SchoolProfile({ school, seo }) {
                           <a
                             href={school.school.website}
                             className="text-blue-600 cursor-pointer"
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
                             {school.school.website}
                           </a>
