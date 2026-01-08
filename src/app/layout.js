@@ -10,8 +10,9 @@ import { LoginProvider } from "./contexts/LoginContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import Popuplogin from "./components/PopupLogin";
 import { ToastContainer } from "react-toastify";
-import Script from "next/script"; // <-- Added for GTM
-
+import Script from "next/script";
+import PreviewWrapper from "./components/PreviewWrapper"; // Create this component
+import GlobalLoader from "./components/GlobalLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +41,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* ============ Google Tag Manager Script (HEAD) ============ */}
         <Script id="google-tag-manager" strategy="afterInteractive">
           {`
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -50,16 +50,17 @@ export default function RootLayout({ children }) {
             })(window,document,'script','dataLayer','GTM-KGF8TR4N');
           `}
         </Script>
-        {/* ========================================================== */}
       </head>
 
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}
-        style={{ fontFamily: "var(--font-poppins), sans-serif", margin: 0, padding: 0 }}
+        style={{
+          fontFamily: "var(--font-poppins), sans-serif",
+          margin: 0,
+          padding: 0,
+        }}
         cz-shortcut-listen="true"
       >
-
-        {/* ============ Google Tag Manager (noscript) BODY ============ */}
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-KGF8TR4N"
@@ -68,21 +69,12 @@ export default function RootLayout({ children }) {
             style={{ display: "none", visibility: "hidden" }}
           ></iframe>
         </noscript>
-        {/* ============================================================ */}
-
+        <GlobalLoader />
         <ModalProvider>
           <WishlistProvider>
             <CityProvider>
               <LoginProvider>
-                <Navbar />
-                <div className="pt-14 sm:pt-16">
-                  <SubNavbar />
-                </div>
-                {children}
-                <Popuplogin />
-                <ToastContainer />
-                <Footer />
-                <BottomNav />
+                <PreviewWrapper>{children}</PreviewWrapper>
               </LoginProvider>
             </CityProvider>
           </WishlistProvider>
